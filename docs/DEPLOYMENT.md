@@ -28,7 +28,7 @@ Paket `vendor/` ve derlenmiş `public/build/` içerir; `.env`, testler, gelişti
 
 **Resmi sürümler:** `config/biofy.php` sürümüyle aynı bir etiket (`v1.0.0` gibi) gönderildiğinde "Release" iş akışı çalışır:
 
-- Docker imajını GitHub Packages'a yayımlar: `ghcr.io/itsbykus/biofy-claude:<sürüm>`, `:<major.minor>`, `:latest`
+- Docker imajını GitHub Packages'a yayımlar: `ghcr.io/itsbykus/biofy.tr:<sürüm>`, `:<major.minor>`, `:latest` (Actions → Release → "Run workflow" ile mevcut bir etiketin imajı yeniden yayımlanabilir)
 - FTP paketini kalıcı anahtarla (`BIOFY_RELEASE_SIGNING_KEY` repo secret'ı) imzalar ve `.sha256` dosyasıyla birlikte GitHub Release'e ekler.
 
 Etiket ile `config/biofy.php` sürümü uyuşmazsa veya secret yoksa iş akışı durur. Anahtarın yedeği bakımcının bilgisayarındadır (`~/.biofy-devtools/release-signing.key`); kaybolursa yeni paketler mevcut kurulumlarda `bad_signature` verir ([UPDATE.md](UPDATE.md#geliştiriciler-için-sürüm-üretme)).

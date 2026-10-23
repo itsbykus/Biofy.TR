@@ -19,8 +19,8 @@ Depodaki `Dockerfile` ve `docker-compose.yml` ile Coolify, ana dala (`main`) yap
 
 ## Kurulum (bir kez)
 
-1. **Coolify → Projects → + New → Private Repository (with GitHub App)** — GitHub App'i kurun ve `Biofy-Claude` deposuna erişim verin. (Deploy key yöntemi de olur, ama otomatik dağıtım için webhook'u elle eklemeniz gerekir.)
-2. Depo: `itsbykus/Biofy-Claude`, dal: `main`, **Build Pack: Docker Compose**, compose dosyası: `/docker-compose.yml`.
+1. **Coolify → Projects → + New → Public/Private Repository (with GitHub App)** — GitHub App'i kurun ve `Biofy.TR` deposuna erişim verin. (Deploy key yöntemi de olur, ama otomatik dağıtım için webhook'u elle eklemeniz gerekir.)
+2. Depo: `itsbykus/Biofy.TR`, dal: `main`, **Build Pack: Docker Compose**, compose dosyası: `/docker-compose.yml`.
 3. **Domains:** `app` servisine alan adını girin, örn. `https://biofy.example.com`. (Uygulama konteyner içinde 80 portunu dinler.) `mysql` servisine alan adı **vermeyin**.
 4. **Environment Variables** — en az şunları girin (hepsini "secret/locked" işaretleyebilirsiniz):
 
