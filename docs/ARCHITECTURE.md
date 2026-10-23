@@ -15,6 +15,7 @@ Biofy.TR, paylaşımlı hostingde çalışacak şekilde tasarlanmış **modüler
 | Grafikler | Sunucu tarafında SVG (`App\Support\SvgChart`) | JS grafik kütüphanesi yok, CSP ile uyumlu. |
 | Fontlar / ikonlar | Fontsource (OFL), Lucide (ISC), Simple Icons (CC0) — paket içinde | Ziyaretçiden üçüncü taraf isteği yok (KVKK). |
 | Medya | `public/media` (yeniden kodlanmış görseller) | `storage:link` (symlink) gerektirmez. |
+| Dağıtım | Paylaşımlı hosting (FTP + web sihirbazı) veya Coolify (Docker, `biofy:container-setup`) | Aynı kod; yalnızca kurulum/güncelleme giriş noktası farklı ([DEPLOYMENT.md](DEPLOYMENT.md)). |
 
 ## Modüller ve sorumluluklar
 

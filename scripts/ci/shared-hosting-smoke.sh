@@ -30,8 +30,9 @@ trap on_exit EXIT
 section "Hosting server: MariaDB 10.6 + Apache/PHP 8.3 + WordPress"
 docker network create hostnet >/dev/null
 docker run -d --name db --network hostnet -e MARIADB_ROOT_PASSWORD=rootpw mariadb:10.6 >/dev/null
-for _ in $(seq 1 60); do docker exec db mariadb-admin ping -prootpw --silent 2>/dev/null && break; sleep 2; done
-docker exec -i db mariadb -uroot -prootpw <<'SQL'
+# TCP, not the socket: the image's temporary init server only listens on the socket.
+for _ in $(seq 1 60); do docker exec db mariadb -h127.0.0.1 -uroot -prootpw -e 'SELECT 1' >/dev/null 2>&1 && break; sleep 2; done
+docker exec -i db mariadb -h127.0.0.1 -uroot -prootpw <<'SQL'
 CREATE DATABASE wordpress; CREATE USER 'wp'@'%' IDENTIFIED BY 'wp-pass-123'; GRANT ALL ON wordpress.* TO 'wp'@'%';
 CREATE DATABASE user_biofya; CREATE USER 'user_a'@'%' IDENTIFIED BY 'a-pass-123'; GRANT ALL ON user_biofya.* TO 'user_a'@'%';
 CREATE DATABASE user2_biofyb; CREATE USER 'user2_b'@'%' IDENTIFIED BY 'b-pass-123'; GRANT ALL ON user2_biofyb.* TO 'user2_b'@'%';

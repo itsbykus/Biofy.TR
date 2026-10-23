@@ -2,7 +2,9 @@
 
 ## Cron
 
-Cron **zorunlu değildir**. Cron yokken: zaman ayarlı bloklar, paket değişiklikleri ve analitik zaten istek anında çalışır; temizlik görevleri ise bir yönetici paneli açtığında (en fazla 15 dakikada bir, hafif mod) çalışır. Zamanlanmış yedekler ve alan adı yeniden kontrolleri için cron gerekir.
+**Coolify:** konteyner içinde `schedule:work` çalışır; aşağıdakilere gerek yoktur.
+
+Paylaşımlı hostingde cron **zorunlu değildir**. Cron yokken: zaman ayarlı bloklar, paket değişiklikleri ve analitik zaten istek anında çalışır; temizlik görevleri ise bir yönetici paneli açtığında (en fazla 15 dakikada bir, hafif mod) çalışır. Zamanlanmış yedekler ve alan adı yeniden kontrolleri için cron gerekir.
 
 Görevler (`biofy:maintenance`, her biri sınırlı partiler halinde): eski analitik olaylarını, günlük tuzları, güvenlik kayıtlarını, API loglarını, süresi dolan yönlendirmeleri ve token'ları silme; bekleme süresi dolan hesap silme taleplerini işleme; doğrulanmış alan adlarından 5 tanesini yeniden kontrol etme; zamanı gelmişse yedek alma.
 
