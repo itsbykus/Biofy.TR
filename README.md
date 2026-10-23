@@ -1,5 +1,7 @@
 # Biofy.TR
 
+**Türkçe** · [English](README.en.md)
+
 Çok kullanıcılı (multi-tenant) **link-in-bio SaaS** platformu. Kullanıcılar kayıt olur, hazır temalardan birini seçer, bağlantılarını ve içerik bloklarını ekler, mobil uyumlu sayfalarını `https://biofy.tr/kullaniciadi` adresinde veya kendi alan adlarında yayınlar ve ziyaret/tıklama istatistiklerini izler.
 
 - **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript

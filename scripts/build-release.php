@@ -129,6 +129,7 @@ $copy = [
     '.env.example' => [],
     '.htaccess' => [],
     'README.md' => [],
+    'README.en.md' => [],
     'CHANGELOG.md' => [],
 ];
 
