@@ -2,6 +2,23 @@
 
 Sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.0.2] — 2026-10-23
+
+İlk canlı kurulumda bildirilen sorunlar. Veritabanı değişikliği (migration) yoktur; 1.0.1 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir.
+
+### Düzeltilenler
+- **Medya sayfası 500 hatası:** bir sayfa en az bir kez yayımlandıktan sonra Medya kütüphanesi (`/dashboard/media`) ve medya silme her kullanıcıda hata veriyordu (yayımlanmış sürümün içeriği yanlış okunuyordu).
+- **Dil değiştirme 403 hatası:** paketin tamamı web kök dizinindeyken (yerleşim C) `/lang/en` adresi, uygulamanın `lang/` klasöründeki erişim engeline takılıyordu. Dil bağlantısı artık `/locale/en`. Aynı nedenle `bootstrap`, `config`, `database`, `resources` ve `routes` sayfa adresi olarak rezerve edildi ve kullanılmayan `/storage/...` rotası kapatıldı.
+- **Yönetim → Ayarlar → Marka / SEO görselleri:** dosya alanlarının yerine "Görsel seç" düğmesi, seçilen görselin anında önizlemesi ve dosyanın "Kaydet" ile yükleneceğini söyleyen not geldi.
+- Saat İstanbul'da 23:29'dan sonra çalıştırıldığında başarısız olan bir analitik testi düzeltildi.
+
+### Eklenenler
+- Sosyal hesaplar: **WhatsApp** (telefon numarası → `https://wa.me/…`) ve **E-posta** (`mailto:`).
+- Tema: **sağa hizalama**; sosyal ikonlar için **biçim** (daire, yuvarlatılmış, kare) ve **renk** (tema renkleri, her platformun marka rengi, özel renk) seçenekleri.
+
+### Değişenler
+- Yazı tipi, ikincil metin rengi, hizalama, buton biçimi / köşe / kenarlık / gölge ve sosyal ikon ayarları artık **tüm paketlerde** (Basic dahil). Pro'da kalanlar: degrade ve görsel arka plan, kart stili, başlık yazı tipi ve yazı boyutu, profil resmi ve kapak görünümü, sayfa genişliği, boşluk, animasyon ve Pro temalar.
+
 ## [1.0.1] — 2026-10-23
 
 Kurulum ve dağıtım paketi düzeltmeleri. Veritabanı değişikliği (migration) yoktur; 1.0.0 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir.

@@ -337,6 +337,9 @@ return [
 
     'settings' => [
         'help' => 'Platform ayarları. Gizli değerler şifreli saklanır ve tekrar gösterilmez.',
+        'media_choose' => 'Görsel seç',
+        'media_replace' => 'Değiştir',
+        'media_pending' => 'kaydetmek için aşağıdaki "Kaydet" düğmesine basın',
         'secret_saved' => '•••••••• (kayıtlı)',
         'secret_empty' => 'Kayıtlı değer yok',
         'secret_keep' => 'Değiştirmek için yeni değeri yazın; boş bırakırsanız mevcut değer korunur.',

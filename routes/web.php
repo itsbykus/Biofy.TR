@@ -24,7 +24,9 @@ foreach (['about', 'help', 'privacy', 'terms', 'cookies', 'kvkk'] as $systemPage
 }
 Route::get('/page/{slug}', [Site\SiteController::class, 'page'])->where('slug', '[a-z0-9-]+')->name('page.show');
 
-Route::get('/lang/{locale}', [Site\SystemEndpointsController::class, 'locale'])->name('lang.switch');
+// Not "/lang": when the whole package sits in the web root (shared hosting layout C), a path that
+// starts with an application folder name is refused by that folder's .htaccess before routing.
+Route::get('/locale/{locale}', [Site\SystemEndpointsController::class, 'locale'])->name('lang.switch');
 Route::get('/robots.txt', [Site\SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [Site\SeoController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-pages.xml', [Site\SeoController::class, 'pages'])->name('sitemap.pages');

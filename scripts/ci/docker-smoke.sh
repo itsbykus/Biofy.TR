@@ -69,6 +69,8 @@ make_png "$WORK/test.png"
 MEDIA_URL=$(absolute "$BASE" "$(upload_media "$BASE" "$JAR" "$WORK/test.png")")
 [ "$MEDIA_URL" != "$BASE" ] && pass "image uploaded: $MEDIA_URL" || fail "upload returned no URL"
 expect_eq "uploaded image is served" "$(http_code "$MEDIA_URL")" 200
+expect_eq "media library with an image" "$(http_code -b "$JAR" "$BASE/dashboard/media")" 200
+expect_eq "language switch" "$(http_code -b "$JAR" "$BASE/locale/en")" 302
 
 section "Protected files"
 for path in /.env /composer.json /artisan /storage/logs/laravel.log /vendor/autoload.php /install/installer.php; do

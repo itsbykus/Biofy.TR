@@ -64,10 +64,13 @@ class ThemeSettingsTest extends TestCase
 
     public function test_advanced_fields_are_dropped_without_entitlement(): void
     {
-        $clean = ThemeSettings::sanitize(['bg_color' => '#112233', 'font' => 'fraunces', 'button_style' => 'glass'], false, ['font' => 'inter']);
+        $clean = ThemeSettings::sanitize(['bg_color' => '#112233', 'font' => 'fraunces', 'heading_font' => 'fraunces', 'card_style' => 'glass', 'align' => 'right', 'icon_color' => 'brand'], false, ['heading_font' => 'inter']);
 
         $this->assertSame('#112233', $clean['bg_color']);
-        $this->assertSame('inter', $clean['font'], 'existing advanced value is kept, the new one ignored');
-        $this->assertArrayNotHasKey('button_style', $clean);
+        $this->assertSame('fraunces', $clean['font'], 'the body font is available to every plan');
+        $this->assertSame('right', $clean['align']);
+        $this->assertSame('brand', $clean['icon_color']);
+        $this->assertSame('inter', $clean['heading_font'], 'existing advanced value is kept, the new one ignored');
+        $this->assertArrayNotHasKey('card_style', $clean);
     }
 }

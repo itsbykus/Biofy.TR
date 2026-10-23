@@ -129,8 +129,9 @@ class MediaService
             array_push($ids, $profile->avatar_media_id, $profile->banner_media_id, $profile->seo_image_media_id);
 
             if ($profile->published_version_id) {
-                $snapshot = ProfileVersion::query()->whereKey($profile->published_version_id)->value('snapshot');
-                $ids = array_merge($ids, json_decode((string) $snapshot, true)['media_ids'] ?? []);
+                // The model casts snapshot to an array (Eloquent's value() returns the cast value too).
+                $snapshot = ProfileVersion::query()->whereKey($profile->published_version_id)->first(['id', 'snapshot'])?->snapshot;
+                $ids = array_merge($ids, (array) ($snapshot['media_ids'] ?? []));
             }
         }
 

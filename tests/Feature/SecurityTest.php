@@ -156,8 +156,8 @@ class SecurityTest extends TestCase
 
     public function test_no_open_redirect_through_language_switch(): void
     {
-        $this->withHeader('Referer', 'https://evil.example.com/phish')->get('/lang/en')->assertRedirect(route('home'));
-        $this->get('/lang/xx')->assertNotFound();
+        $this->withHeader('Referer', 'https://evil.example.com/phish')->get('/locale/en')->assertRedirect(route('home'));
+        $this->get('/locale/xx')->assertNotFound();
     }
 
     public function test_sensitive_paths_are_protected_by_htaccess_rules(): void

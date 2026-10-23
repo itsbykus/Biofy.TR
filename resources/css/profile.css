@@ -110,6 +110,11 @@ a {
     text-align: left;
 }
 
+.al-right .bp-head {
+    align-items: flex-end;
+    text-align: right;
+}
+
 .bp-banner {
     width: 100%;
     margin-bottom: -44px;
@@ -318,6 +323,15 @@ a {
     padding-right: 0;
 }
 
+.al-right .bp-btn-text {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.al-right .bp-btn:has(.bp-btn-icon, .bp-btn-thumb) .bp-btn-text {
+    padding-right: 0;
+}
+
 .bp-btn-desc {
     font-size: 0.82em;
     font-weight: 400;
@@ -468,6 +482,10 @@ a {
     text-align: left;
 }
 
+.al-right .bp-heading {
+    text-align: right;
+}
+
 .bp-text {
     margin: 0;
     white-space: pre-line;
@@ -477,6 +495,10 @@ a {
 .bp-text--left,
 .al-left .bp-text {
     text-align: left;
+}
+
+.al-right .bp-text:not(.bp-text--left) {
+    text-align: right;
 }
 
 .bp-divider {
@@ -640,13 +662,18 @@ a {
     justify-content: flex-start;
 }
 
+.al-right .bp-social {
+    justify-content: flex-end;
+}
+
 .bp-social a {
     display: grid;
     place-items: center;
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    color: var(--text);
+    /* --ic-c / --ic-bg / --ic-on: icon colour choice (brand colours come from .br-<platform> rules in the page) */
+    color: var(--ic-c, var(--text));
     transition: transform 0.18s ease, background-color 0.18s ease;
 }
 
@@ -666,13 +693,38 @@ a {
     fill: currentColor;
 }
 
+.ish-rounded .bp-social a {
+    border-radius: 28%;
+}
+
+.ish-square .bp-social a {
+    border-radius: 6px;
+}
+
+.icc-custom .bp-social a {
+    --ic-c: var(--icon-color);
+    --ic-bg: var(--icon-color);
+    --ic-on: var(--icon-on);
+}
+
 .ic-filled .bp-social a {
     color: var(--btn-text);
     background: var(--btn-bg);
 }
 
+.ic-filled.icc-brand .bp-social a,
+.ic-filled.icc-custom .bp-social a {
+    color: var(--ic-on, var(--btn-text));
+    background: var(--ic-bg, var(--btn-bg));
+}
+
 .ic-outline .bp-social a {
-    border: 1.5px solid color-mix(in srgb, var(--text) 45%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--ic-c, var(--text)) 45%, transparent);
+}
+
+.ic-outline.icc-brand .bp-social a,
+.ic-outline.icc-custom .bp-social a {
+    border-color: var(--ic-c, color-mix(in srgb, var(--text) 45%, transparent));
 }
 
 .bp-social a:hover {
@@ -813,6 +865,10 @@ a {
 
 .al-left .bp-section-title {
     text-align: left;
+}
+
+.al-right .bp-section-title {
+    text-align: right;
 }
 
 /* gallery */

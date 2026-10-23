@@ -124,6 +124,35 @@ document.addEventListener('input', (event) => {
     }
 });
 
+// Image inputs uploaded with their form: preview and file name before saving.
+// <div data-file-preview data-pending-text="..."> <img data-file-preview-img> <input type=file data-file-preview-input> <p data-file-preview-name>
+document.addEventListener('change', (event) => {
+    const input = event.target;
+
+    if (!input.matches('[data-file-preview-input]')) {
+        return;
+    }
+
+    const root = input.closest('[data-file-preview]');
+    const name = $('[data-file-preview-name]', root);
+    const file = input.files?.[0];
+    name.hidden = !file;
+
+    if (!file) {
+        return;
+    }
+
+    name.textContent = `${file.name} — ${root.dataset.pendingText}`;
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+        const img = $('[data-file-preview-img]', root);
+        img.src = reader.result;
+        img.hidden = false;
+        $('[data-file-preview-empty]', root)?.setAttribute('hidden', '');
+    });
+    reader.readAsDataURL(file);
+});
+
 // Repeatable rows: <div data-repeater> <template data-repeater-template> ... </template> <div data-repeater-list> ... <button data-repeater-add>
 export function initRepeaters(root = document) {
     $$('[data-repeater]', root).forEach((repeater) => {

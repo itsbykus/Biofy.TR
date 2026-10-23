@@ -93,6 +93,7 @@ class ProfileRenderer
             'fonts' => ThemeSettings::fontsUsed($resolved),
             'blocks' => $blocks,
             'socialLinks' => $snapshot['social_links'] ?? [],
+            'socialCss' => ThemeSettings::socialBrandCss($resolved, array_column($snapshot['social_links'] ?? [], 'platform')),
             'showBranding' => ! $this->entitlements->allows($owner, Entitlements::REMOVE_BRANDING),
             'verified' => $profile->verified_at !== null,
             'preview' => $preview,

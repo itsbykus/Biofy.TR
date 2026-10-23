@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\MediaFile;
 use App\Models\ProfileBlock;
 use App\Services\BlockService;
+use App\Services\MediaService;
 use App\Services\ProfileService;
+use App\Services\SocialLinkService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -163,6 +165,65 @@ class EditorTest extends TestCase
         $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'instagram', 'value' => 'https://evil.com/mito'])->assertStatus(422);
         $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'website', 'value' => 'javascript:alert(1)'])->assertStatus(422);
         $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'unknownplatform', 'value' => 'x'])->assertStatus(422);
+
+        // Not web profiles: a WhatsApp number becomes a click-to-chat link, an e-mail address a mailto: link.
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'whatsapp', 'value' => '0555 123 45 67'])->assertOk();
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'whatsapp', 'value' => 'https://wa.me/905551234567'])->assertOk();
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'email', 'value' => 'Mailto:Hello@Example.com'])->assertOk();
+        $this->assertSame(['https://wa.me/905551234567', 'https://wa.me/905551234567', 'mailto:hello@example.com'], $profile->fresh()->socialLinks->pluck('url')->slice(1)->values()->all());
+
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'whatsapp', 'value' => 'call me'])->assertStatus(422)->assertJsonValidationErrors('value');
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'whatsapp', 'value' => 'https://evil.example/905551234567'])->assertStatus(422);
+        $this->actingAs($user)->postJson(route('social.store', $profile), ['platform' => 'email', 'value' => 'javascript:alert(1)'])->assertStatus(422)->assertJsonValidationErrors('value');
+    }
+
+    public function test_e_mail_and_whatsapp_icons_on_the_page(): void
+    {
+        $user = $this->makeUser();
+        $profile = $this->makeProfile($user);
+        app(SocialLinkService::class)->create($profile, 'email', 'hello@example.com');
+        app(SocialLinkService::class)->create($profile, 'whatsapp', '+90 555 123 45 67');
+
+        $html = $this->actingAs($user)->get(route('pages.preview', $profile))->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<a href="mailto:hello@example.com" class="br-email"\s+rel=#', $html, 'mailto: opens no new tab');
+        $this->assertMatchesRegularExpression('#<a href="https://wa.me/905551234567" class="br-whatsapp"\s+target="_blank"#', $html);
+    }
+
+    public function test_media_library_renders_once_a_page_is_published(): void
+    {
+        $user = $this->makeUser();
+        $avatar = MediaFile::query()->create(['user_id' => $user->id, 'path' => 'avatar/a.webp', 'mime' => 'image/webp', 'size' => 10, 'sha256' => str_repeat('0', 64)]);
+        $profile = $this->makeProfile($user);
+        $profile->forceFill(['avatar_media_id' => $avatar->id])->save();
+        app(ProfileService::class)->publish($profile->fresh(), $user);
+
+        // The published snapshot comes back as an array (model cast); this used to fail with "Array to string conversion".
+        $this->actingAs($user)->get(route('media.index'))->assertOk()->assertSee(__('media.in_use_badge'));
+        $this->assertContains($avatar->id, app(MediaService::class)->referencedIds($user));
+    }
+
+    public function test_basic_customisation_reaches_the_page(): void
+    {
+        $user = $this->makeUser();
+        $profile = $this->makeProfile($user);
+        app(SocialLinkService::class)->create($profile, 'instagram', '@mito');
+
+        $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => $profile->theme_key, 'settings' => [
+            'align' => 'right', 'font' => 'outfit', 'button_style' => 'outline', 'button_shadow' => 'hard', 'button_border_width' => 3,
+            'icon_style' => 'filled', 'icon_shape' => 'rounded', 'icon_color' => 'brand',
+        ]])->assertOk();
+
+        $html = $this->get(route('pages.preview', $profile))->assertOk()->getContent();
+        foreach (['al-right', 'bs-outline', 'sh-hard', 'ic-filled', 'ish-rounded', 'icc-brand'] as $class) {
+            $this->assertMatchesRegularExpression('/<body class="[^"]*\b'.$class.'\b/', $html, $class);
+        }
+        $this->assertStringContainsString('--btn-border-w:3px', $html);
+        $this->assertMatchesRegularExpression('/\.br-instagram\{--ic-bg:#[0-9A-F]{6};--ic-on:#(111111|FFFFFF);/', $html);
+
+        $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => $profile->theme_key, 'settings' => ['icon_color' => 'custom', 'icon_custom_color' => '#ff0000']])->assertOk();
+        $html = $this->get(route('pages.preview', $profile))->getContent();
+        $this->assertStringContainsString('--icon-color:#FF0000;--icon-on:#FFFFFF;', $html);
+        $this->assertStringNotContainsString('.br-instagram{', $html);
     }
 
     public function test_theme_selection_respects_premium_and_sanitises_settings(): void
@@ -172,12 +233,13 @@ class EditorTest extends TestCase
 
         $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => 'neon'])->assertStatus(422);
         $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => 'sunny'])->assertOk();
-        $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => 'sunny', 'settings' => ['bg_color' => '#123456', 'font' => 'fraunces', 'text_color' => 'red;}</style>']])->assertOk();
+        $this->actingAs($user)->putJson(route('pages.theme', $profile), ['theme_key' => 'sunny', 'settings' => ['bg_color' => '#123456', 'font' => 'fraunces', 'heading_font' => 'fraunces', 'text_color' => 'red;}</style>']])->assertOk();
 
         $settings = $profile->fresh()->theme_settings;
         $this->assertSame('sunny', $profile->fresh()->theme_key);
         $this->assertSame('#123456', $settings['bg_color']);
-        $this->assertArrayNotHasKey('font', $settings, 'advanced customisation is not in Basic');
+        $this->assertSame('fraunces', $settings['font'], 'the body font is part of every plan');
+        $this->assertArrayNotHasKey('heading_font', $settings, 'advanced customisation is not in Basic');
         $this->assertArrayNotHasKey('text_color', $settings);
 
         $pro = $this->makeUser([], 'pro');

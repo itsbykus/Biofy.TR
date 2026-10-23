@@ -337,6 +337,9 @@ return [
 
     'settings' => [
         'help' => 'Platform settings. Secret values are stored encrypted and never shown again.',
+        'media_choose' => 'Choose image',
+        'media_replace' => 'Replace',
+        'media_pending' => 'press "Save" below to upload it',
         'secret_saved' => '•••••••• (saved)',
         'secret_empty' => 'No value saved',
         'secret_keep' => 'Type a new value to change it; leave empty to keep the current one.',

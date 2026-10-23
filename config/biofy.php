@@ -12,7 +12,7 @@
 return [
 
     // Bumped on every release; compared with the installed version to detect pending updates.
-    'version' => '1.0.1',
+    'version' => '1.0.2',
 
     'brand_color' => '#FFCF00',
 
@@ -43,6 +43,8 @@ return [
         'lang', 'locale', 'biofy', 'www', 'mail', 'ftp', 'cdn', 'app', 'null', 'undefined', 'index',
         'home', 'search', 'explore', 'billing', 'checkout', 'payment', 'subscribe', 'webhook', 'webhooks',
         'security', 'test', 'demo', 'u', 'p', 'qr', 'preview', 'error', 'errors',
+        // Application folders: refused by their .htaccess when the package sits in the web root (layout C).
+        'bootstrap', 'config', 'database', 'resources', 'routes',
     ],
 
     'slug' => [
@@ -94,6 +96,7 @@ return [
         'twitch' => ['hosts' => ['twitch.tv'], 'template' => 'https://twitch.tv/{handle}'],
         'threads' => ['hosts' => ['threads.net', 'threads.com'], 'template' => 'https://www.threads.net/@{handle}'],
         'bluesky' => ['hosts' => ['bsky.app'], 'template' => 'https://bsky.app/profile/{handle}'],
+        'whatsapp' => ['hosts' => ['wa.me', 'whatsapp.com'], 'template' => null], // phone number -> https://wa.me/<digits>
         'telegram' => ['hosts' => ['t.me', 'telegram.me'], 'template' => 'https://t.me/{handle}'],
         'discord' => ['hosts' => ['discord.gg', 'discord.com'], 'template' => 'https://discord.gg/{handle}'],
         'pinterest' => ['hosts' => ['pinterest.com'], 'template' => 'https://pinterest.com/{handle}'],
@@ -104,6 +107,7 @@ return [
         'medium' => ['hosts' => ['medium.com'], 'template' => 'https://medium.com/@{handle}'],
         'reddit' => ['hosts' => ['reddit.com'], 'template' => 'https://www.reddit.com/user/{handle}'],
         'mastodon' => ['hosts' => [], 'template' => null],
+        'email' => ['hosts' => [], 'template' => null], // e-mail address -> mailto:
         'website' => ['hosts' => [], 'template' => null],
     ],
 

@@ -3,7 +3,7 @@
     $s = $settings;
     $bodyClasses = implode(' ', [
         'bp', 't-'.$theme['key'], 'l-'.$theme['layout'], 'm-'.$s['mode'], 'bs-'.$s['button_style'], 'sh-'.$s['button_shadow'],
-        'cs-'.$s['card_style'], 'av-'.$s['avatar_shape'], 'bn-'.($p['banner'] ? $s['banner_style'] : 'none'), 'ic-'.$s['icon_style'],
+        'cs-'.$s['card_style'], 'av-'.$s['avatar_shape'], 'bn-'.($p['banner'] ? $s['banner_style'] : 'none'), 'ic-'.$s['icon_style'], 'ish-'.$s['icon_shape'], 'icc-'.$s['icon_color'],
         'w-'.$s['page_width'], 'al-'.$s['align'], 'sp-'.$s['spacing'], 'an-'.$s['animation'], 'bg-'.$s['bg_type'],
     ]);
     $nonce = \Illuminate\Support\Facades\Vite::cspNonce();
@@ -36,7 +36,7 @@
     @if ($p['avatar'])
         <link rel="icon" href="{{ $p['avatar'] }}">
     @endif
-    <style nonce="{{ $nonce }}">:root{ {!! $cssVariables !!} }</style>
+    <style nonce="{{ $nonce }}">:root{ {!! $cssVariables !!} }{!! $socialCss !!}</style>
     @vite(array_merge(['resources/css/profile.css', 'resources/js/profile.js'], array_map(fn ($f) => 'resources/css/fonts/'.$f.'.css', $fonts)))
     @unless ($seo['noindex'])
         <script type="application/ld+json" nonce="{{ $nonce }}">{!! json_encode([
@@ -50,7 +50,8 @@
                 'jobTitle' => $p['title'] ?: null,
                 'description' => $p['bio_short'] ?: null,
                 'image' => $p['avatar'] ? url($p['avatar']) : null,
-                'sameAs' => array_values(array_column($socialLinks, 'url')) ?: null,
+                // Profiles elsewhere only (not the e-mail address or the WhatsApp number).
+                'sameAs' => array_values(array_column(array_filter($socialLinks, fn ($link) => ! in_array($link['platform'], ['email', 'whatsapp'], true)), 'url')) ?: null,
             ]),
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
     @endunless

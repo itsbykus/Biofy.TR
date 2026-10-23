@@ -85,6 +85,30 @@ class AdminTest extends TestCase
         $this->get('/auditme')->assertNotFound();
     }
 
+    public function test_brand_images_are_uploaded_with_the_settings_form(): void
+    {
+        $admin = $this->makeSuperAdmin();
+        $session = ['auth.password_confirmed_at' => time()];
+        $this->actingAs($admin)->withSession($session)->get(route('admin.settings.edit', 'brand'))->assertOk()
+            ->assertSee(__('admin.settings.media_choose'))->assertSee('data-file-preview-input', false);
+
+        $img = imagecreatetruecolor(200, 80);
+        ob_start();
+        imagepng($img);
+        $png = (string) ob_get_clean();
+
+        $this->actingAs($admin)->withSession($session)->put(route('admin.settings.update', 'brand'), [
+            'site__logo_media_id' => \Illuminate\Http\UploadedFile::fake()->createWithContent('logo.png', $png),
+            'site__primary_color' => '#FFCF00', 'site__secondary_color' => '#111111', 'site__accent_color' => '#2563EB',
+            'profiles__default_theme' => app(Settings::class)->get('profiles.default_theme'),
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $logo = \App\Models\MediaFile::query()->find(app(Settings::class)->get('site.logo_media_id'));
+        $this->assertNotNull($logo);
+        $this->assertNull($logo->user_id, 'platform asset');
+        $this->actingAs($admin)->withSession($session)->get(route('admin.settings.edit', 'brand'))->assertSee($logo->url())->assertSee(__('admin.settings.media_replace'));
+    }
+
     public function test_secret_settings_are_encrypted_masked_and_never_logged(): void
     {
         $admin = $this->makeSuperAdmin();

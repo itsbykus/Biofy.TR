@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\UserFacingException;
 use App\Models\Profile;
 use App\Models\ProfileSocialLink;
+use App\Support\Phone;
 use App\Support\SafeUrl;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -84,6 +85,27 @@ class SocialLinkService
 
         $config = $platforms[$platform];
         $value = trim($value);
+
+        if ($platform === 'email') {
+            $email = strtolower((string) preg_replace('/^mailto:/i', '', $value));
+
+            if (strlen($email) > 254 || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw ValidationException::withMessages(['value' => __('social.invalid_email')]);
+            }
+
+            return 'mailto:'.$email;
+        }
+
+        // A WhatsApp number becomes a click-to-chat link; wa.me / whatsapp.com URLs are checked below.
+        if ($platform === 'whatsapp' && ! preg_match('#^https?://#i', $value) && ! str_contains($value, '/')) {
+            $phone = Phone::normalize($value);
+
+            if ($phone === null) {
+                throw ValidationException::withMessages(['value' => __('social.invalid_phone')]);
+            }
+
+            return 'https://wa.me/'.ltrim($phone, '+');
+        }
         // Handles may contain dots (instagram "mito.tr"), so only treat input as a URL when it clearly is one.
         $looksLikeUrl = (bool) preg_match('#^https?://#i', $value)
             || str_contains($value, '/')

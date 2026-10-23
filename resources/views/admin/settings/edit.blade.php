@@ -45,18 +45,25 @@
                             </div>
                             @break
                         @case('media')
-                            <div>
-                                <span class="label">{{ $label }}</span>
+                            {{-- The file is uploaded with the form ("Save"); the preview shows the choice before that. --}}
+                            <div data-file-preview data-pending-text="{{ __('admin.settings.media_pending') }}">
+                                <span class="label" id="f-{{ $input }}-label">{{ $label }}</span>
                                 <div class="flex items-center gap-4">
-                                    <div class="grid size-16 place-items-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
-                                        @if ($field['media'])<img src="{{ $field['media']->url() }}" alt="" class="max-h-full max-w-full object-contain">@else<x-icon name="image" class="text-zinc-400" />@endif
+                                    <div class="grid size-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
+                                        <img data-file-preview-img src="{{ $field['media']?->url() }}" alt="" class="max-h-full max-w-full object-contain" @if (! $field['media']) hidden @endif>
+                                        <x-icon name="image" class="text-zinc-400" data-file-preview-empty :hidden="(bool) $field['media']" />
                                     </div>
-                                    <div class="space-y-1">
-                                        <input type="file" name="{{ $input }}" accept="image/png,image/jpeg,image/webp" class="text-sm" aria-label="{{ $label }}">
+                                    <div class="space-y-1.5">
+                                        <label class="btn btn-secondary btn-sm">
+                                            <x-icon name="upload" class="size-3.5" />{{ $field['media'] ? __('admin.settings.media_replace') : __('admin.settings.media_choose') }}
+                                            <input type="file" name="{{ $input }}" accept="image/png,image/jpeg,image/webp" class="sr-only" data-file-preview-input aria-labelledby="f-{{ $input }}-label">
+                                        </label>
+                                        <p class="text-xs font-medium text-amber-700" data-file-preview-name hidden></p>
                                         @if ($field['media'])<label class="flex items-center gap-2 text-xs text-zinc-600"><input type="checkbox" name="{{ $input }}__remove" value="1" class="checkbox">{{ __('common.remove') }}</label>@endif
                                     </div>
                                 </div>
                                 @if ($help)<p class="help">{{ $help }}</p>@endif
+                                @error($input)<p class="error">{{ $message }}</p>@enderror
                             </div>
                             @break
                         @case('color')

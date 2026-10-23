@@ -146,6 +146,9 @@ check_site() {
     url=$(absolute "$base" "$(upload_media "$base" "$jar" "$WORK/test.png")")
     [ "$url" != "$base" ] && pass "$host: image uploaded" || fail "$host: upload failed"
     expect_eq "$host: uploaded image served" "$(http_code "$url")" 200
+    expect_eq "$host: media library with an image" "$(http_code -b "$jar" "$base/dashboard/media")" 200
+    # Must reach the application in layout C too (a /lang/... URL was refused by lang/.htaccess).
+    expect_eq "$host: language switch" "$(http_code -b "$jar" "$base/locale/en")" 302
     docker exec hosting sh -c "echo '<?php echo 6*7;' > /home/$3/probe.php"
     body_lacks "$host: PHP inside media/ is not executed" "$base/media/probe.php" 42
     docker exec hosting rm -f "/home/$3/probe.php"

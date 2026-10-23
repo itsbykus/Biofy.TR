@@ -2,6 +2,8 @@
 
 namespace App\Themes;
 
+use App\Support\Icons;
+
 /**
  * Schema + sanitiser for per-profile theme customisation. Every value that ends
  * up in the page's CSS is either a validated #RRGGBB colour, a clamped integer
@@ -24,23 +26,27 @@ class ThemeSettings
             'bg_gradient_angle' => ['type' => 'int', 'min' => 0, 'max' => 360, 'tier' => 'advanced'],
             'bg_image_media_id' => ['type' => 'media', 'tier' => 'advanced'],
             'bg_overlay' => ['type' => 'int', 'min' => 0, 'max' => 80, 'tier' => 'advanced'],
-            'muted_color' => ['type' => 'color', 'tier' => 'advanced'],
+            'muted_color' => ['type' => 'color', 'tier' => 'basic'],
             'card_bg' => ['type' => 'color', 'tier' => 'advanced'],
-            'button_style' => ['type' => 'enum', 'options' => ['fill', 'outline', 'soft', 'glass', 'underline'], 'tier' => 'advanced'],
-            'button_radius' => ['type' => 'int', 'min' => 0, 'max' => 999, 'tier' => 'advanced'],
-            'button_border_width' => ['type' => 'int', 'min' => 0, 'max' => 4, 'tier' => 'advanced'],
-            'button_border_color' => ['type' => 'color', 'tier' => 'advanced'],
-            'button_shadow' => ['type' => 'enum', 'options' => ['none', 'soft', 'hard', 'glow'], 'tier' => 'advanced'],
+            'button_style' => ['type' => 'enum', 'options' => ['fill', 'outline', 'soft', 'glass', 'underline'], 'tier' => 'basic'],
+            'button_radius' => ['type' => 'int', 'min' => 0, 'max' => 999, 'tier' => 'basic'],
+            'button_border_width' => ['type' => 'int', 'min' => 0, 'max' => 4, 'tier' => 'basic'],
+            'button_border_color' => ['type' => 'color', 'tier' => 'basic'],
+            'button_shadow' => ['type' => 'enum', 'options' => ['none', 'soft', 'hard', 'glow'], 'tier' => 'basic'],
             'card_style' => ['type' => 'enum', 'options' => ['flat', 'outlined', 'elevated', 'glass'], 'tier' => 'advanced'],
             'avatar_size' => ['type' => 'int', 'min' => 56, 'max' => 160, 'tier' => 'advanced'],
             'avatar_shape' => ['type' => 'enum', 'options' => ['circle', 'rounded', 'square'], 'tier' => 'advanced'],
             'banner_style' => ['type' => 'enum', 'options' => ['none', 'cover', 'contained'], 'tier' => 'advanced'],
-            'font' => ['type' => 'enum', 'options' => array_keys(ThemeRegistry::FONTS), 'tier' => 'advanced'],
+            'font' => ['type' => 'enum', 'options' => array_keys(ThemeRegistry::FONTS), 'tier' => 'basic'],
             'heading_font' => ['type' => 'enum', 'options' => array_keys(ThemeRegistry::FONTS), 'tier' => 'advanced'],
             'font_size' => ['type' => 'int', 'min' => 14, 'max' => 19, 'tier' => 'advanced'],
-            'icon_style' => ['type' => 'enum', 'options' => ['filled', 'outline', 'plain'], 'tier' => 'advanced'],
+            'icon_style' => ['type' => 'enum', 'options' => ['filled', 'outline', 'plain'], 'tier' => 'basic'],
+            'icon_shape' => ['type' => 'enum', 'options' => ['circle', 'rounded', 'square'], 'tier' => 'basic'],
+            // theme = text/button colours, brand = each platform's own colour, custom = icon_custom_color
+            'icon_color' => ['type' => 'enum', 'options' => ['theme', 'brand', 'custom'], 'tier' => 'basic'],
+            'icon_custom_color' => ['type' => 'color', 'tier' => 'basic'],
             'page_width' => ['type' => 'enum', 'options' => ['narrow', 'medium', 'wide'], 'tier' => 'advanced'],
-            'align' => ['type' => 'enum', 'options' => ['center', 'left'], 'tier' => 'advanced'],
+            'align' => ['type' => 'enum', 'options' => ['center', 'left', 'right'], 'tier' => 'basic'],
             'spacing' => ['type' => 'enum', 'options' => ['compact', 'normal', 'relaxed'], 'tier' => 'advanced'],
             'animation' => ['type' => 'enum', 'options' => ['none', 'subtle', 'lively'], 'tier' => 'advanced'],
         ];
@@ -87,7 +93,8 @@ class ThemeSettings
         $mode = $overrides['mode'] ?? $defaults['mode'];
         $palette = $theme['palettes'][$mode] ?? reset($theme['palettes']);
         $resolved = array_merge(
-            ['bg_gradient_from' => $palette['bg_color'], 'bg_gradient_to' => $palette['bg_color'], 'bg_gradient_angle' => 180, 'bg_overlay' => 30, 'bg_image_media_id' => null],
+            ['bg_gradient_from' => $palette['bg_color'], 'bg_gradient_to' => $palette['bg_color'], 'bg_gradient_angle' => 180, 'bg_overlay' => 30, 'bg_image_media_id' => null,
+                'icon_shape' => 'circle', 'icon_color' => 'theme', 'icon_custom_color' => $palette['text_color']],
             $defaults,
             $palette,
             ['mode' => $mode],
@@ -137,6 +144,8 @@ class ThemeSettings
             '--font' => $fonts[$s['font']]['family'] ?? $fonts['inter']['family'],
             '--font-heading' => $fonts[$s['heading_font']]['family'] ?? $fonts['inter']['family'],
             '--font-size' => ((int) $s['font_size']).'px',
+            '--icon-color' => $s['icon_custom_color'],
+            '--icon-on' => self::onColor($s['icon_custom_color']),
         ];
 
         $css = '';
@@ -151,6 +160,59 @@ class ThemeSettings
         }
 
         return $css;
+    }
+
+    /**
+     * Per-platform icon colours for icon_color = brand, e.g. ".br-instagram{--ic-bg:#FF0069;...}".
+     * Colours come from the bundled brand list (validated #RRGGBB) and platform keys from config,
+     * so nothing user-supplied reaches the CSS. A brand colour that would be hard to see on the page
+     * background is only used for filled icons; outline/plain icons then keep the text colour.
+     */
+    public static function socialBrandCss(array $s, array $platforms): string
+    {
+        if (($s['icon_color'] ?? 'theme') !== 'brand') {
+            return '';
+        }
+
+        $css = '';
+
+        foreach (array_unique($platforms) as $platform) {
+            $hex = strtoupper((string) (Icons::brand($platform)['hex'] ?? ''));
+
+            if (! preg_match('/^[a-z_]+$/', $platform) || ! preg_match('/^#[0-9A-F]{6}$/', $hex)) {
+                continue;
+            }
+
+            $css .= '.br-'.$platform.'{--ic-bg:'.$hex.';--ic-on:'.self::onColor($hex).';'
+                .(self::contrast($hex, $s['bg_color']) >= 1.8 ? '--ic-c:'.$hex.';' : '').'}';
+        }
+
+        return $css;
+    }
+
+    /** Dark or light foreground for text/icons placed on $hex. */
+    public static function onColor(string $hex): string
+    {
+        return self::luminance($hex) > 0.45 ? '#111111' : '#FFFFFF';
+    }
+
+    private static function contrast(string $a, string $b): float
+    {
+        [$light, $dark] = [max(self::luminance($a), self::luminance($b)), min(self::luminance($a), self::luminance($b))];
+
+        return ($light + 0.05) / ($dark + 0.05);
+    }
+
+    /** WCAG relative luminance of a #RRGGBB colour. */
+    private static function luminance(string $hex): float
+    {
+        $channels = array_map(function (string $pair) {
+            $c = hexdec($pair) / 255;
+
+            return $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+        }, str_split(ltrim($hex, '#'), 2));
+
+        return 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
     }
 
     /** The font keys a page needs (to load only those font files). */

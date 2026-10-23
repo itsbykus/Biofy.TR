@@ -1,10 +1,16 @@
 @php
     $s = $themeSettings;
+    // Every plan (ThemeSettings tier "basic").
+    $basicGroups = [
+        'text' => ['font', 'align'],
+        'buttons' => ['button_style', 'button_radius', 'button_border_width', 'button_border_color', 'button_shadow'],
+        'social' => ['icon_style', 'icon_shape', 'icon_color', 'icon_custom_color'],
+    ];
+    // profile.advanced_customization (tier "advanced").
     $fieldGroups = [
-        'background' => ['bg_type', 'bg_gradient_from', 'bg_gradient_to', 'bg_gradient_angle', 'bg_image_media_id', 'bg_overlay', 'card_bg'],
-        'typography' => ['font', 'heading_font', 'font_size', 'muted_color'],
-        'buttons' => ['button_style', 'button_radius', 'button_border_width', 'button_border_color', 'button_shadow', 'card_style'],
-        'layout' => ['avatar_size', 'avatar_shape', 'banner_style', 'icon_style', 'page_width', 'align', 'spacing', 'animation'],
+        'background' => ['bg_type', 'bg_gradient_from', 'bg_gradient_to', 'bg_gradient_angle', 'bg_image_media_id', 'bg_overlay'],
+        'typography' => ['heading_font', 'font_size'],
+        'layout' => ['card_bg', 'card_style', 'avatar_size', 'avatar_shape', 'banner_style', 'page_width', 'spacing', 'animation'],
     ];
 @endphp
 <div class="space-y-6">
@@ -46,16 +52,30 @@
             </div>
             <x-form.select name="settings[mode]" :label="__('themes.fields.mode')" :value="$s['mode']" :options="['light' => __('themes.options.light'), 'dark' => __('themes.options.dark')]" :help="__('themes.mode_help')" />
             <div class="grid gap-4 sm:grid-cols-2">
-                @foreach (['bg_color', 'text_color', 'button_bg', 'button_text'] as $field)
+                @foreach (['bg_color', 'text_color', 'muted_color', 'button_bg', 'button_text'] as $field)
                     @include('dashboard.pages.partials.theme-field', ['field' => $field])
                 @endforeach
             </div>
         </section>
 
+        @foreach ($basicGroups as $group => $fields)
+            <details class="card" @if ($loop->first) open @endif>
+                <summary class="cursor-pointer px-5 py-4 text-sm font-semibold">{{ __('themes.groups.'.$group) }}</summary>
+                <div class="grid gap-4 border-t border-zinc-100 p-5 sm:grid-cols-2">
+                    @foreach ($fields as $field)
+                        @include('dashboard.pages.partials.theme-field', ['field' => $field])
+                    @endforeach
+                    @if ($group === 'social')
+                        <p class="help sm:col-span-2">{{ __('themes.icon_color_help') }}</p>
+                    @endif
+                </div>
+            </details>
+        @endforeach
+
         @if ($can['advanced_customization'])
             @foreach ($fieldGroups as $group => $fields)
-                <details class="card" @if ($loop->first) open @endif>
-                    <summary class="cursor-pointer px-5 py-4 text-sm font-semibold">{{ __('themes.groups.'.$group) }}</summary>
+                <details class="card">
+                    <summary class="cursor-pointer px-5 py-4 text-sm font-semibold">{{ __('themes.groups.'.$group) }} <span class="badge badge-yellow ml-1">Pro</span></summary>
                     <div class="grid gap-4 border-t border-zinc-100 p-5 sm:grid-cols-2">
                         @foreach ($fields as $field)
                             @include('dashboard.pages.partials.theme-field', ['field' => $field])

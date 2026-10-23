@@ -62,6 +62,10 @@ Uygulama kodu, `.env` ve yedekler web'den hiçbir şekilde erişilemez.
 
 Bazı paneller alt alan adlarını `public_html/bio.site.com` gibi bir klasöre bağlar ve bunu değiştirmeye izin vermez. Bu durumda paketin **tamamını** o klasöre yükleyin. Kök `.htaccess` her isteği `public/`'e yönlendirir; hassas klasörlerin her birinde erişimi engelleyen `.htaccess` vardır; nokta ile başlayan dosyalar reddedilir. Klasöre WordPress alan adı üzerinden (`site.com/bio.site.com/...`) gelen istekler de aynı kurallarla engellenir ve uygulama bilinmeyen alan adına yanıt vermez.
 
+Aynı durum, alan adının kendi klasörü (ör. `/home/KULLANICI/biofy.tr`) Document Root olarak kalıp paketin tamamı oraya yüklendiğinde de geçerlidir. Panel izin veriyorsa (yeni cPanel: **Domains → Manage → Document Root**) kök dizini `…/public` yapıp yerleşim A'ya geçmek daha güvenlidir; dosyaları taşımak gerekmez.
+
+Bu yerleşimde uygulama klasörlerinin adıyla başlayan adresler (`/lang/…`, `/config/…`) sunucu tarafından uygulamaya ulaşmadan reddedilir. Bu yüzden uygulamanın hiçbir adresi bu adlarla başlamaz ve bu adlar kullanıcı sayfa adresi olarak alınamaz (testlerle güvence altında).
+
 Kurulumdan sonra **mutlaka** Yönetim → Sistem → **Hassas dosya erişim testi**ni çalıştırın; tüm satırlar yeşil olmalıdır. Bu yerleşim, sunucu `.htaccess` dosyalarını uyguladığı sürece güvenlidir (Apache/LiteSpeed paylaşımlı hostlarda uygular).
 
 ## Dosya izinleri

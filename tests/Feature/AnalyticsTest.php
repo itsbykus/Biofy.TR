@@ -29,6 +29,8 @@ class AnalyticsTest extends TestCase
 
     public function test_views_are_recorded_deduplicated_and_bots_ignored(): void
     {
+        // Midday, so travelling 31 minutes below stays on the same (Istanbul) day whenever the suite runs.
+        $this->travelTo(now('Europe/Istanbul')->setTime(12, 0));
         [, $profile] = $this->publishedProfileWithLink();
 
         $this->flushHeaders()->withHeaders(['User-Agent' => self::BROWSER, 'Referer' => 'https://l.instagram.com/x'])->get('/stats')->assertOk();
