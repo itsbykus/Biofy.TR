@@ -24,7 +24,14 @@ Geliştirici bilgisayarında (PHP 8.3+, Composer, Node 22):
 php scripts/build-release.php     # → dist/biofy-tr-<sürüm>.zip ve .sha256
 ```
 
-Paket `vendor/` ve derlenmiş `public/build/` içerir; `.env`, testler, geliştirme bağımlılıkları, `node_modules` ve kullanıcı yüklemeleri içermez (betik bunları bulursa durur). GitHub Actions'taki "Deployment checks" iş akışı da her `main` push'unda paketi üretir, test eder ve 14 gün süreyle indirilebilir tutar. CI'da üretilen paket her seferinde yeni bir imza anahtarıyla imzalanır; dağıtacağınız paketleri kendi kalıcı anahtarınızla yerelde üretin ([UPDATE.md](UPDATE.md#geliştiriciler-için-sürüm-üretme)).
+Paket `vendor/` ve derlenmiş `public/build/` içerir; `.env`, testler, geliştirme bağımlılıkları, `node_modules` ve kullanıcı yüklemeleri içermez (betik bunları bulursa durur). GitHub Actions'taki "Deployment checks" iş akışı da her `main` push'unda paketi üretir, test eder ve 14 gün süreyle indirilebilir tutar; bu test paketi her seferinde geçici bir anahtarla imzalanır.
+
+**Resmi sürümler:** `config/biofy.php` sürümüyle aynı bir etiket (`v1.0.0` gibi) gönderildiğinde "Release" iş akışı çalışır:
+
+- Docker imajını GitHub Packages'a yayımlar: `ghcr.io/itsbykus/biofy-claude:<sürüm>`, `:<major.minor>`, `:latest`
+- FTP paketini kalıcı anahtarla (`BIOFY_RELEASE_SIGNING_KEY` repo secret'ı) imzalar ve `.sha256` dosyasıyla birlikte GitHub Release'e ekler.
+
+Etiket ile `config/biofy.php` sürümü uyuşmazsa veya secret yoksa iş akışı durur. Anahtarın yedeği bakımcının bilgisayarındadır (`~/.biofy-devtools/release-signing.key`); kaybolursa yeni paketler mevcut kurulumlarda `bad_signature` verir ([UPDATE.md](UPDATE.md#geliştiriciler-için-sürüm-üretme)).
 
 ## Gizli bilgiler
 

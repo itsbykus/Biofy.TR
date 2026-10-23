@@ -1,0 +1,109 @@
+name: Release
+
+# Pushing a tag such as v1.0.0 publishes:
+#   - the Docker image to GitHub Packages: ghcr.io/<owner>/<repo>:<version>, :<major.minor>, :latest
+#   - a GitHub release with the signed FTP package (shared hosting) and its SHA-256 file
+# The release signing key comes from the BIOFY_RELEASE_SIGNING_KEY secret; it is never stored in the repository.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  version:
+    name: Check tag against config/biofy.php
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          version=$(grep -oP "'version' => '\K[^']+" config/biofy.php)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match config/biofy.php version $version"; exit 1
+          fi
+
+  docker-image:
+    name: Docker image (GitHub Packages)
+    needs: version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"   # registry names must be lowercase
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=Biofy.TR
+            org.opencontainers.image.description=Multi-tenant link-in-bio SaaS (Laravel, Apache, PHP 8.4)
+            org.opencontainers.image.licenses=MIT
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  ftp-package:
+    name: FTP package (GitHub release)
+    needs: docker-image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: bcmath, gd, intl, sodium, zip
+          tools: composer:v2
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Release signing key
+        env:
+          SIGNING_KEY: ${{ secrets.BIOFY_RELEASE_SIGNING_KEY }}
+        run: |
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "::error::Secret BIOFY_RELEASE_SIGNING_KEY is missing; refusing to sign with a throw-away key"; exit 1
+          fi
+          umask 077
+          printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/release-signing.key"
+          echo "BIOFY_SIGNING_KEY=$RUNNER_TEMP/release-signing.key" >> "$GITHUB_ENV"
+      - run: php scripts/build-release.php
+      - name: Remove the key from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release-signing.key"
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          image="ghcr.io/${GITHUB_REPOSITORY,,}:$version"
+          cat > "$RUNNER_TEMP/notes.md" <<EOF
+          ## Biofy.TR $version
+
+          | Deployment | Artifact |
+          |---|---|
+          | Shared (WordPress) hosting, FTP | \`biofy-tr-$version.zip\` below (check it against \`biofy-tr-$version.zip.sha256\`), then follow [docs/INSTALLATION.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/docs/INSTALLATION.md) |
+          | Coolify / Docker | Build from this repository ([docs/COOLIFY.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/docs/COOLIFY.md)) or use the image \`$image\` |
+
+          Release notes: [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/CHANGELOG.md)
+          EOF
+          gh release create "$GITHUB_REF_NAME" dist/biofy-tr-*.zip dist/biofy-tr-*.zip.sha256 \
+            --title "Biofy.TR $version" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag

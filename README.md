@@ -1,74 +1,76 @@
 # Biofy.TR
 
-**Türkçe** · [English](README.en.md)
+[Türkçe](README.tr.md) · **English**
 
-Çok kullanıcılı (multi-tenant) **link-in-bio SaaS** platformu. Kullanıcılar kayıt olur, hazır temalardan birini seçer, bağlantılarını ve içerik bloklarını ekler, mobil uyumlu sayfalarını `https://biofy.tr/kullaniciadi` adresinde veya kendi alan adlarında yayınlar ve ziyaret/tıklama istatistiklerini izler.
+A multi-tenant **link-in-bio SaaS** platform. Users sign up, pick a ready-made theme, add their links and content blocks, publish a mobile-friendly page at `https://biofy.tr/username` or on their own domain, and follow their visit and click statistics.
 
-- **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
-- **Diller:** Türkçe (varsayılan) ve İngilizce
-- **Dağıtım:** (1) paylaşımlı WordPress hosting — FTP + web sihirbazı, sunucuda SSH/Composer/Node gerekmez; (2) Coolify — GitHub'a her push'ta otomatik Docker dağıtımı
-- **Sürüm:** 1.0.0
+- **Stack:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (precompiled) · dependency-free JavaScript
+- **Languages:** Turkish (default) and English
+- **Deployment:** (1) shared WordPress hosting — FTP + web installer, no SSH/Composer/Node needed on the server; (2) Coolify — automatic Docker deployment on every push to GitHub
+- **Version:** 1.0.0
 
-## Öne çıkanlar
+## Highlights
 
-| Alan | Özet |
+| Area | Summary |
 |---|---|
-| Hesaplar | E-posta/parola, e-posta doğrulama, parola sıfırlama, Google ile giriş (OAuth/OIDC), TOTP iki adımlı doğrulama + kurtarma kodları, oturum yönetimi, güvenlik geçmişi, KVKK veri dışa aktarma ve hesap silme |
-| Editör | 20 blok türü, sürükle-bırak ve klavye ile sıralama, canlı mobil/masaüstü önizleme, taslak ↔ yayın ayrımı, sürüm geçmişi, değişiklikleri geri alma, çoklu sekme/çakışma koruması, zamanlanmış bloklar |
-| Temalar | 12 birbirinden farklı tema (düzen, tipografi, buton ve kart stilleri), güvenli özelleştirme (renk, degrade, görsel arka plan, yazı tipi, köşe, gölge, hizalama, animasyon) |
-| Paketler | Basic / Pro / Premium; merkezi yetki motoru (platform kısıtı → hesap durumu → kullanıcıya özel izin → paket → varsayılan), kotalar, süreli atamalar |
-| Analitik | Çerezsiz, IP saklamayan görüntülenme/tıklama sayımı, bot ve tekrar filtreleri, günlük toplulaştırma, kaynak/cihaz/tarayıcı/ülke kırılımları, CSV |
-| Alan adları | DNS TXT ile sahiplik doğrulaması, CNAME/A kontrolü, HTTPS doğrulaması, bilinmeyen host reddi |
-| Yönetim | Gerçek veriden dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS, menüler, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, güncelleme, denetim kayıtları |
-| API | `/api/v1` REST API, Sanctum token'ları (hash'li), yetki kapsamları, token/kullanıcı bazlı hız sınırı, OpenAPI 3 dokümanı |
+| Accounts | E-mail/password, e-mail verification, password reset, Google sign-in (OAuth/OIDC), TOTP two-factor authentication + recovery codes, session management, security history, personal data export (KVKK/GDPR) and account deletion |
+| Editor | 20 block types, drag-and-drop and keyboard reordering, live mobile/desktop preview, draft ↔ published separation, version history, discard changes, multi-tab/conflict protection, scheduled blocks |
+| Themes | 12 distinct themes (layout, typography, button and card styles), safe customization (colors, gradients, image background, font, corners, shadows, alignment, animation) |
+| Plans | Basic / Pro / Premium; central entitlement engine (platform limit → account status → per-user override → plan → default), quotas, time-limited assignments |
+| Analytics | Cookie-less view/click counting without storing IP addresses, bot and repeat filtering, daily aggregation, referrer/device/browser/country breakdowns, CSV export |
+| Custom domains | Ownership check via DNS TXT, CNAME/A check, HTTPS verification, unknown hosts rejected |
+| Administration | Dashboard from real data, user/page moderation, plan and feature catalogue, CMS, menus, e-mail templates, SMTP/Google settings, media, backup/restore, system health, updates, audit logs |
+| API | `/api/v1` REST API, Sanctum tokens (hashed), abilities, per-token/per-user rate limits, OpenAPI 3 document |
 
-## Hızlı başlangıç
+## Quick start
 
-**Paylaşımlı (WordPress) hosting**
+**Shared (WordPress) hosting**
 
-1. `biofy-tr-1.0.0.zip` paketini açın ve FTP ile bir alt alan adına yükleyin (yerleşimler: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
-2. Hosting panelinizde WordPress'ten ayrı, **boş** bir MySQL/MariaDB veritabanı oluşturun.
-3. Alt alan adını açın; kurulum sihirbazı başlar. Adımlar: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+1. Extract `biofy-tr-1.0.0.zip` and upload it over FTP for a subdomain (layouts: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
+2. In your hosting panel, create an **empty** MySQL/MariaDB database, separate from WordPress.
+3. Open the subdomain; the installer starts. Steps: [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
 **Coolify**
 
-1. Coolify'da bu depoyu "Docker Compose" build pack ile ekleyin, `app` servisine alan adı verin.
-2. `APP_URL`, `APP_KEY`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` ve ilk superadmin için `BIOFY_ADMIN_*` değişkenlerini girin, Deploy'a basın.
-3. Ayrıntılar: [docs/COOLIFY.md](docs/COOLIFY.md).
+1. In Coolify, add this repository with the "Docker Compose" build pack and assign a domain to the `app` service.
+2. Set `APP_URL`, `APP_KEY`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` and, for the first superadmin, the `BIOFY_ADMIN_*` variables, then press Deploy.
+3. Details: [docs/COOLIFY.md](docs/COOLIFY.md).
 
-## Geliştirme ortamı
+## Development
 
 ```bash
 composer install
-npm ci && npm run build        # veya npm run dev
+npm ci && npm run build        # or npm run dev
 cp .env.example .env && php artisan key:generate
-# .env içinde APP_ENV=local, APP_DEBUG=true ve veritabanı bilgileri
+# in .env: APP_ENV=local, APP_DEBUG=true and your database settings
 php artisan migrate --seed
-touch storage/app/private/installed.lock   # web sihirbazını atlamak için
+touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 116 test
-php scripts/build-release.php   # FTP paketi -> dist/
+php artisan test                # 116 tests
+php scripts/build-release.php   # FTP package -> dist/
 ```
 
-## Dokümantasyon
+## Documentation
 
-| Doküman | İçerik |
+[SECURITY](docs/SECURITY.md) is available in English; the other detailed documents are currently in Turkish.
+
+| Document | Contents |
 |---|---|
-| [ARCHITECTURE](docs/ARCHITECTURE.md) | Modüller, istek akışı, önemli kararlar |
-| [DATABASE](docs/DATABASE.md) | Tablolar, ilişkiler, indeksler, tenant izolasyonu |
-| [SECURITY](docs/SECURITY.md) | Tehdit modeli ve uygulanan önlemler |
-| [DEPLOYMENT](docs/DEPLOYMENT.md) | İki dağıtım yönteminin karşılaştırması, sürüm paketi üretme |
-| [SHARED_HOSTING](docs/SHARED_HOSTING.md) | WordPress hosting gereksinimleri, yerleşimler, dosya izinleri |
-| [COOLIFY](docs/COOLIFY.md) | Coolify kurulumu, ortam değişkenleri, otomatik dağıtım, migration, kalıcı veri |
-| [INSTALLATION](docs/INSTALLATION.md) · [UPDATE](docs/UPDATE.md) | Kurulum ve güncelleme kılavuzları |
-| [OPERATIONS](docs/OPERATIONS.md) | Cron, e-posta, yedekleme/geri yükleme, alan adları, üretime alma kontrol listesi, bilinen sınırlamalar |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Modules, request flow, key decisions |
+| [DATABASE](docs/DATABASE.md) | Tables, relations, indexes, tenant isolation |
+| [SECURITY](docs/SECURITY.md) | Threat model and implemented measures |
+| [DEPLOYMENT](docs/DEPLOYMENT.md) | Comparison of the two deployment methods, building a release package |
+| [SHARED_HOSTING](docs/SHARED_HOSTING.md) | WordPress hosting requirements, layouts, file permissions |
+| [COOLIFY](docs/COOLIFY.md) | Coolify setup, environment variables, automatic deployment, migrations, persistent data |
+| [INSTALLATION](docs/INSTALLATION.md) · [UPDATE](docs/UPDATE.md) | Installation and update guides |
+| [OPERATIONS](docs/OPERATIONS.md) | Cron, e-mail, backup/restore, domains, production checklist, known limitations |
 | [API](docs/API.md) · [openapi.yaml](docs/openapi.yaml) | REST API |
-| [TESTING](docs/TESTING.md) | Test paketi, dağıtım testleri ve kapsam dışı kalanlar |
-| [CHANGELOG](CHANGELOG.md) | Sürüm notları |
-| [ROADMAP](docs/ROADMAP.md) | Ödeme altyapısı hazırlığı ve sonraki adımlar |
+| [TESTING](docs/TESTING.md) | Test suite, deployment tests and what is not covered |
+| [CHANGELOG](CHANGELOG.md) | Release notes |
+| [ROADMAP](docs/ROADMAP.md) | Payment readiness and next steps |
 
-> Hukuki sayfalar (Gizlilik, Kullanım Koşulları, Çerez, KVKK) düzenlenebilir **başlangıç taslaklarıdır**; yayına almadan önce hukuk danışmanınıza inceletin.
+> The legal pages (Privacy, Terms of Use, Cookies, KVKK) are editable **starting drafts**; have them reviewed by your legal counsel before going live.
 
-## Lisans
+## License
 
 [MIT](LICENSE)
