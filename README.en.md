@@ -70,3 +70,7 @@ The detailed documents are currently in Turkish.
 | [ROADMAP](docs/ROADMAP.md) | Payment readiness and next steps |
 
 > The legal pages (Privacy, Terms of Use, Cookies, KVKK) are editable **starting drafts**; have them reviewed by your legal counsel before going live.
+
+## License
+
+[MIT](LICENSE)

@@ -68,3 +68,7 @@ php scripts/build-release.php   # FTP paketi -> dist/
 | [ROADMAP](docs/ROADMAP.md) | Ödeme altyapısı hazırlığı ve sonraki adımlar |
 
 > Hukuki sayfalar (Gizlilik, Kullanım Koşulları, Çerez, KVKK) düzenlenebilir **başlangıç taslaklarıdır**; yayına almadan önce hukuk danışmanınıza inceletin.
+
+## Lisans
+
+[MIT](LICENSE)

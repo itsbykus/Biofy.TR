@@ -130,6 +130,7 @@ $copy = [
     '.htaccess' => [],
     'README.md' => [],
     'README.en.md' => [],
+    'LICENSE' => [],
     'CHANGELOG.md' => [],
 ];
 
