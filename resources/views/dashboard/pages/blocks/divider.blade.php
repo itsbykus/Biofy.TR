@@ -1,0 +1,1 @@
+<x-form.select name="data[style]" :label="__('blocks.fields.style')" :value="$data['style'] ?? 'line'" :options="['line' => __('blocks.divider_styles.line'), 'dots' => __('blocks.divider_styles.dots'), 'space' => __('blocks.divider_styles.space')]" />

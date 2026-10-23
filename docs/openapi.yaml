@@ -1,0 +1,365 @@
+openapi: 3.1.0
+info:
+  title: Biofy.TR API
+  version: 1.0.0
+  description: |
+    Personal REST API of a Biofy.TR account. Requires the "API access" plan feature and a
+    Bearer token created in the dashboard. Every change is written to the page draft; call
+    `publish` to make it visible to visitors. Records of other accounts answer 404.
+servers:
+  - url: https://{host}/api/v1
+    variables:
+      host:
+        default: biofy.tr
+security:
+  - bearer: []
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: "Personal access token (format `id|secret`). Abilities: profiles:read, profiles:write, links:read, links:write, analytics:read, domains:read."
+  parameters:
+    ProfileId: { name: profile, in: path, required: true, schema: { type: integer } }
+    LinkId: { name: link, in: path, required: true, schema: { type: integer } }
+    DomainId: { name: domain, in: path, required: true, schema: { type: integer } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+  responses:
+    Error:
+      description: Error envelope
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: The draft was changed elsewhere (stale `revision`).
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+              conflict: { type: boolean, const: true }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [unauthenticated, forbidden, feature_unavailable, not_found, method_not_allowed, validation_failed, unprocessable, rate_limited, unavailable, server_error]
+            message: { type: string }
+            details:
+              type: object
+              additionalProperties: { type: array, items: { type: string } }
+    Meta:
+      type: object
+      properties:
+        current_page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        last_page: { type: integer }
+    Profile:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        url: { type: string, format: uri }
+        status: { type: string, enum: [draft, published, suspended, archived] }
+        display_name: { type: string }
+        title: { type: [string, 'null'] }
+        bio_short: { type: [string, 'null'] }
+        bio_long: { type: [string, 'null'] }
+        contact_email: { type: [string, 'null'] }
+        contact_phone: { type: [string, 'null'] }
+        location: { type: [string, 'null'] }
+        language: { type: string, enum: [tr, en] }
+        theme: { type: string }
+        seo:
+          type: object
+          properties:
+            title: { type: [string, 'null'] }
+            description: { type: [string, 'null'] }
+            noindex: { type: boolean }
+        has_unpublished_changes: { type: boolean }
+        revision: { type: integer, description: Draft revision for optimistic concurrency }
+        published_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    Link:
+      type: object
+      properties:
+        id: { type: integer }
+        profile_id: { type: integer }
+        type: { type: string, enum: [link, email, phone, whatsapp, map, product, donation, calendar, link_group] }
+        position: { type: integer }
+        visible: { type: boolean }
+        data: { type: object, additionalProperties: true }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: string, format: date-time }
+    LinkInput:
+      type: object
+      properties:
+        type: { type: string, default: link }
+        data:
+          type: object
+          additionalProperties: true
+          example: { title: Web sitem, url: 'https://ornek.com' }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        position: { type: integer }
+        visible: { type: boolean, description: PATCH only }
+    Domain:
+      type: object
+      properties:
+        id: { type: integer }
+        hostname: { type: string }
+        profile_id: { type: [integer, 'null'] }
+        status: { type: string }
+        ssl_status: { type: string }
+        dns:
+          type: object
+          properties:
+            txt_name: { type: string }
+            txt_value: { type: string }
+        dns_verified_at: { type: [string, 'null'], format: date-time }
+        last_checked_at: { type: [string, 'null'], format: date-time }
+        last_error: { type: [string, 'null'] }
+
+paths:
+  /me:
+    get:
+      summary: Current account, plan and limits
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer }
+                      name: { type: string }
+                      username: { type: string }
+                      email: { type: string }
+                      locale: { type: string }
+                      package: { type: [object, 'null'] }
+                      limits:
+                        type: object
+                        properties:
+                          pages: { type: integer, description: '-1 = unlimited' }
+                          links_per_page: { type: integer }
+                          api_rate_limit_per_minute: { type: integer }
+                      token: { type: object }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+  /profiles:
+    get:
+      summary: List pages (profiles:read)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: status, in: query, schema: { type: string, enum: [draft, published, suspended, archived] } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Profile' } }
+                  meta: { $ref: '#/components/schemas/Meta' }
+    post:
+      summary: Create a page (profiles:write)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [display_name, slug]
+              properties:
+                display_name: { type: string, maxLength: 80 }
+                slug: { type: string, minLength: 3, maxLength: 30, pattern: '^[a-z0-9][a-z0-9_-]*$' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } }
+        '422': { $ref: '#/components/responses/Error' }
+  /profiles/{profile}:
+    parameters: [{ $ref: '#/components/parameters/ProfileId' }]
+    get:
+      summary: Get a page (profiles:read)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } }
+        '404': { $ref: '#/components/responses/Error' }
+    patch:
+      summary: Update page draft details (profiles:write)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revision: { type: integer, description: 'Optional; 409 when stale' }
+                display_name: { type: string, maxLength: 80 }
+                title: { type: [string, 'null'], maxLength: 120 }
+                bio_short: { type: [string, 'null'], maxLength: 300 }
+                bio_long: { type: [string, 'null'], maxLength: 3000 }
+                contact_email: { type: [string, 'null'], format: email }
+                contact_phone: { type: [string, 'null'] }
+                location: { type: [string, 'null'], maxLength: 120 }
+                language: { type: string, enum: [tr, en] }
+                seo_title: { type: [string, 'null'], maxLength: 120 }
+                seo_description: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/Error' }
+  /profiles/{profile}/publish:
+    parameters: [{ $ref: '#/components/parameters/ProfileId' }]
+    post:
+      summary: Publish the current draft (profiles:write)
+      responses:
+        '200':
+          description: OK (data includes `version`)
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } }
+  /profiles/{profile}/unpublish:
+    parameters: [{ $ref: '#/components/parameters/ProfileId' }]
+    post:
+      summary: Unpublish (profiles:write)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } }
+  /profiles/{profile}/links:
+    parameters: [{ $ref: '#/components/parameters/ProfileId' }]
+    get:
+      summary: List link blocks (links:read)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Link' } }
+                  meta: { $ref: '#/components/schemas/Meta' }
+    post:
+      summary: Add a link (links:write)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LinkInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Link' } } }
+        '422': { $ref: '#/components/responses/Error' }
+  /links/{link}:
+    parameters: [{ $ref: '#/components/parameters/LinkId' }]
+    patch:
+      summary: Update a link; `data` is merged (links:write)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LinkInput' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Link' } } }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Delete a link (links:write)
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/Error' }
+  /profiles/{profile}/analytics:
+    parameters: [{ $ref: '#/components/parameters/ProfileId' }]
+    get:
+      summary: Aggregated analytics (analytics:read)
+      description: Range is clamped to the plan's history length. Breakdowns (referrers, devices, browsers, countries) only with the detailed-analytics feature.
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      profile_id: { type: integer }
+                      from: { type: string, format: date }
+                      to: { type: string, format: date }
+                      totals: { type: object }
+                      daily: { type: array, items: { type: object } }
+                      top_links: { type: array, items: { type: object } }
+                      referrers: { type: array, items: { type: object } }
+                      devices: { type: array, items: { type: object } }
+                      browsers: { type: array, items: { type: object } }
+                      countries: { type: array, items: { type: object } }
+  /domains:
+    get:
+      summary: List custom domains (domains:read)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Domain' } }
+                  meta: { $ref: '#/components/schemas/Meta' }
+  /domains/{domain}:
+    parameters: [{ $ref: '#/components/parameters/DomainId' }]
+    get:
+      summary: Get a custom domain (domains:read)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Domain' } } }
+        '404': { $ref: '#/components/responses/Error' }

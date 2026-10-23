@@ -1,0 +1,11 @@
+# CI only: adds an HTTPS reverse proxy in front of the app, like Coolify's Traefik.
+services:
+  proxy:
+    image: caddy:2
+    ports:
+      - "443:443"
+    volumes:
+      - ./scripts/ci/docker/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      app:
+        condition: service_healthy

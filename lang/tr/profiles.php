@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'account_inactive' => 'Hesabın aktif olmadığı için sayfa yayınlanamaz.',
+    'archived' => 'Sayfa arşivlendi ve yayından kaldırıldı.',
+    'blocks' => 'Blok',
+    'create' => 'Sayfayı oluştur',
+    'create_help' => 'Yeni bir bio sayfası oluştur. Adresi daha sonra da değiştirebilirsin.',
+    'created' => 'Sayfa oluşturuldu. Şimdi içerik ekleyebilirsin.',
+    'delete_confirm_mismatch' => 'Onay için sayfa adresini aynen yazmalısın.',
+    'deleted' => 'Sayfa ve tüm verileri silindi.',
+    'index_help' => 'Paketin en fazla :limit aktif sayfaya izin veriyor.',
+    'limit_reached' => 'Paketindeki sayfa sınırına ulaştın.',
+    'limit_reached_short' => 'Sayfa sınırına ulaşıldı',
+    'nothing_published' => 'Bu sayfanın henüz yayınlanmış bir sürümü yok.',
+    'page' => 'Sayfa',
+    'published' => 'Sayfa yayınlandı! Değişiklikler artık ziyaretçilere görünüyor.',
+    'restore' => 'Geri yükle',
+    'restored' => 'Sayfa arşivden çıkarıldı (taslak).',
+    'reverted' => 'Taslak, yayındaki sürüme geri döndürüldü.',
+    'slug_changed' => 'Sayfa adresi güncellendi.',
+    'suspended_cannot_publish' => 'Bu sayfa yönetim tarafından askıya alındığı için yayınlanamaz.',
+    'unpublished' => 'Sayfa yayından kaldırıldı ve taslağa alındı.',
+    'updated' => 'Güncelleme',
+];

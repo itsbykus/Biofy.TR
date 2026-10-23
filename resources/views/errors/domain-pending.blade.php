@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', __('errors.domain_pending_title'))
+@section('code', '…')
+@section('heading', __('errors.domain_pending_title'))
+@section('message', __('errors.domain_pending_text'))

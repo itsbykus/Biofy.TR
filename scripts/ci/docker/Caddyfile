@@ -1,0 +1,10 @@
+# Stand-in for Coolify's proxy in CI: terminates HTTPS and forwards to the app container.
+{
+	local_certs
+	skip_install_trust
+}
+
+biofy.test {
+	tls internal
+	reverse_proxy app:80
+}

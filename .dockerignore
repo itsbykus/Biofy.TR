@@ -1,0 +1,43 @@
+# Secrets and local state never enter the image.
+.env
+.env.*
+!.env.example
+auth.json
+*.key
+*.pem
+
+# Version control, editors, local tooling
+.git
+.github
+.idea
+.vscode
+.cursor
+.claude
+.codex
+AGENTS.md
+CLAUDE.md
+
+# Built or installed inside the image
+node_modules
+vendor
+public/build
+public/hot
+bootstrap/cache/*.php
+dist
+
+# Runtime data (lives in volumes)
+storage/app/private/*
+!storage/app/private/.gitignore
+storage/app/public/*
+!storage/app/public/.gitignore
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+storage/logs/*
+public/media/*
+!public/media/.htaccess
+database/*.sqlite*
+*.log
+.phpunit.result.cache
+.phpunit.cache

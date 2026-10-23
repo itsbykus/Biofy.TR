@@ -1,0 +1,28 @@
+# Biofy.TR — fallback for hosts where the WHOLE package must live inside the web root
+# (e.g. public_html). Every request is routed into public/; nothing else is reachable.
+# Preferred setup: point the domain's document root to the public/ folder instead
+# (then this file is never used). See docs/SHARED_HOSTING.md.
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Hidden files (.env, .git, ...) are never served.
+    RewriteRule (^|/)\.(?!well-known(/|$)) - [F,L]
+
+    # Everything goes through public/.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Second line of defence if mod_rewrite is unavailable.
+<FilesMatch "(?i)^(\.env.*|composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|vite\.config\.js|release-manifest\.(json|sig)|.*\.md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

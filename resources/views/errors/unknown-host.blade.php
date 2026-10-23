@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', '404')
+@section('code', '?')
+@section('heading', __('errors.unknown_host_title'))
+@section('message', __('errors.unknown_host_text'))

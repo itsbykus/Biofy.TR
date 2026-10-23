@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'delete_confirm' => 'Delete this file?',
+    'deleted' => 'File deleted',
+    'empty_text' => 'Images you upload are listed here.',
+    'empty_title' => 'No files yet',
+    'help' => 'Images used for your profile picture, cover and blocks.',
+    'in_use' => 'This file is used on a page; remove it from the block or profile first.',
+    'in_use_badge' => 'In use',
+    'invalid_image' => 'The image could not be read or is too large.',
+    'invalid_purpose' => 'Invalid upload type.',
+    'invalid_type' => 'Only JPG, PNG, WEBP and GIF images can be uploaded.',
+    'library' => 'Choose from library',
+    'quota_exceeded' => 'Your storage is full. Delete unused files or upgrade your plan.',
+    'rules' => 'JPG, PNG, WEBP or GIF; max 5 MB. Images are re-processed and resized for safety; metadata such as location is removed.',
+    'storage' => 'Storage',
+    'too_large' => 'The file is too large (max :max).',
+    'unused' => 'Unused',
+    'upload' => 'Upload',
+    'upload_failed' => 'The upload failed.',
+    'uploaded' => 'Image uploaded',
+    'uploading' => 'Uploading…',
+];

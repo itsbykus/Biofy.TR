@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', '429')
+@section('code', '429')
+@section('heading', __('errors.429_title'))
+@section('message', __('errors.429_text'))

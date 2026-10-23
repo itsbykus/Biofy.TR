@@ -1,0 +1,2 @@
+<p class="text-sm text-zinc-600">{{ __('blocks.types.social_icons.help') }} <a href="{{ route('pages.edit', ['profile' => $profile, 'tab' => 'social']) }}" class="font-medium underline">{{ __('editor.tabs.social') }}</a></p>
+<x-form.select name="data[size]" :label="__('blocks.fields.size')" :value="$data['size'] ?? 'md'" :options="['sm' => __('blocks.sizes.sm'), 'md' => __('blocks.sizes.md'), 'lg' => __('blocks.sizes.lg')]" />

@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'account_inactive' => 'The page cannot be published because the account is not active.',
+    'archived' => 'The page was archived and unpublished.',
+    'blocks' => 'Blocks',
+    'create' => 'Create page',
+    'create_help' => 'Create a new bio page. You can change its address later.',
+    'created' => 'Page created. Now add some content.',
+    'delete_confirm_mismatch' => 'Type the page address exactly to confirm.',
+    'deleted' => 'The page and all its data were deleted.',
+    'index_help' => 'Your plan allows up to :limit active pages.',
+    'limit_reached' => 'You reached the page limit of your plan.',
+    'limit_reached_short' => 'Page limit reached',
+    'nothing_published' => 'This page has no published version yet.',
+    'page' => 'Page',
+    'published' => 'Page published! Visitors now see your changes.',
+    'restore' => 'Restore',
+    'restored' => 'The page was restored from the archive (as draft).',
+    'reverted' => 'The draft was reset to the published version.',
+    'slug_changed' => 'The page address was updated.',
+    'suspended_cannot_publish' => 'This page was suspended by the platform and cannot be published.',
+    'unpublished' => 'The page was unpublished and is now a draft.',
+    'updated' => 'Updated',
+];
