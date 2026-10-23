@@ -96,6 +96,15 @@ done
 [ -f "$HOSTING/user/public_html/bio2/.htaccess" ] && pass "dotfiles (.htaccess) uploaded" || fail ".htaccess not uploaded"
 ls "$HOSTING/user/biofy/vendor/autoload.php" "$HOSTING/user/biofy/public/build/manifest.json" >/dev/null && pass "vendor/ and public/build/ shipped (no Composer/Node on the server)" || fail "package incomplete"
 
+section "Wrong download: GitHub's \"Source code\" archive"
+# What GitHub attaches to every release next to the real package (Biofy.TR-<version>.zip).
+git archive --format=tar --prefix=src-archive/ HEAD | tar -x -C "$HOSTING/user"
+CURL_OPTS=(--resolve src.example.test:80:127.0.0.1)
+body_contains "installer explains the wrong archive" "http://src.example.test/?lang=en" 'Source code (zip)'
+body_contains "installer names the package to download" "http://src.example.test/?lang=en" "biofy-tr-$(grep -oP "'version' => '\K[^']+" config/biofy.php).zip"
+body_lacks "installation cannot continue" "http://src.example.test/?lang=en" 'value="requirements"'
+expect_eq "verify-release.php rejects the archive" "$(git archive --format=zip --prefix=Biofy.TR-src/ -o "$WORK/Biofy.TR-src.zip" HEAD && php scripts/verify-release.php "$WORK/Biofy.TR-src.zip" >/dev/null; echo $?)" 1
+
 # run_installer HOST DB USER PASS APP_DIR
 run_installer() {
     local host=$1 base="http://$1" jar="$WORK/install-$1" page="$WORK/page-$1.html" token

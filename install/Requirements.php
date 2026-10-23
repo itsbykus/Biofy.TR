@@ -48,8 +48,13 @@ final class Requirements
         $envWritable = is_file($this->base.'/.env') ? is_writable($this->base.'/.env') : is_writable($this->base);
         $checks[] = $this->check('writable:env', $envWritable, true, '.env');
 
-        $checks[] = $this->check('vendor', is_file($this->base.'/vendor/autoload.php'), true, 'vendor/autoload.php');
-        $checks[] = $this->check('assets', is_file($this->public.'/build/manifest.json'), true, 'build/manifest.json');
+        $checks[] = $this->check('vendor', $this->hasVendor(), true, 'vendor/autoload.php');
+        $checks[] = $this->check('assets', $this->hasAssets(), true, 'build/manifest.json');
+
+        // Release packages list every file they ship; an interrupted FTP upload shows up here.
+        if (($missing = $this->missingPackageFiles()) !== null) {
+            $checks[] = $this->check('complete', $missing === [], true, $missing === [] ? '' : '(✖ '.count($missing).': '.implode(', ', array_slice($missing, 0, 3)).(count($missing) > 3 ? ', …' : '').')');
+        }
 
         $memory = $this->bytes((string) ini_get('memory_limit'));
         $checks[] = $this->check('memory', $memory < 0 || $memory >= 128 * 1024 * 1024, false, (string) ini_get('memory_limit'));
@@ -67,6 +72,80 @@ final class Requirements
         }
 
         return true;
+    }
+
+    /** vendor/ or public/build/ is missing: usually GitHub's "Source code" archive was uploaded instead of the release package. */
+    public function isSourceArchive(): bool
+    {
+        return ! $this->hasVendor() || ! is_file($this->public.'/build/manifest.json');
+    }
+
+    /** Version of the uploaded code, read without booting the framework. */
+    public function version(): string
+    {
+        preg_match("/'version' => '([^']+)'/", (string) @file_get_contents($this->base.'/config/biofy.php'), $m);
+
+        return $m[1] ?? '';
+    }
+
+    private function hasVendor(): bool
+    {
+        return is_file($this->base.'/vendor/autoload.php') && is_file($this->base.'/vendor/laravel/framework/src/Illuminate/Foundation/Application.php');
+    }
+
+    /** The Vite manifest and every file it references. */
+    private function hasAssets(): bool
+    {
+        $manifest = json_decode((string) @file_get_contents($this->public.'/build/manifest.json'), true);
+
+        if (! is_array($manifest) || $manifest === []) {
+            return false;
+        }
+
+        foreach ($manifest as $entry) {
+            foreach (array_merge([$entry['file'] ?? ''], $entry['css'] ?? [], $entry['assets'] ?? []) as $file) {
+                if ($file === '' || ! is_file($this->public.'/build/'.$file)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Files listed in release-manifest.json that are not on the server (null without a manifest,
+     * e.g. in a development checkout). public/ files are looked up where public/ actually is.
+     * Dot-files other than .htaccess are skipped: some FTP clients hide them and the application
+     * does not need them.
+     *
+     * @return list<string>|null
+     */
+    public function missingPackageFiles(): ?array
+    {
+        $manifest = json_decode((string) @file_get_contents($this->base.'/release-manifest.json'), true);
+
+        if (! is_array($manifest['files'] ?? null)) {
+            return null;
+        }
+
+        $missing = [];
+
+        foreach (array_keys($manifest['files']) as $file) {
+            $name = basename($file);
+
+            if ($name[0] === '.' && $name !== '.htaccess') {
+                continue;
+            }
+
+            $path = str_starts_with($file, 'public/') ? $this->public.'/'.substr($file, 7) : $this->base.'/'.$file;
+
+            if (! is_file($path)) {
+                $missing[] = $file;
+            }
+        }
+
+        return $missing;
     }
 
     public static function isHttps(): bool

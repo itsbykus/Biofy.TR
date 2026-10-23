@@ -7,7 +7,8 @@
 |   php scripts/build-release.php --no-npm   (reuse the existing public/build)
 |
 | Steps: compile assets -> copy runtime files to a staging folder -> composer install
-| --no-dev -> add web-access guards -> SHA-256 manifest signed with Ed25519 -> zip.
+| --no-dev -> add web-access guards -> SHA-256 manifest signed with Ed25519 -> zip ->
+| scripts/verify-release.php (the zip and its .sha256 are deleted when a check fails).
 | The signing key is kept OUTSIDE the repository (BIOFY_SIGNING_KEY or ~/.biofy-devtools).
 */
 
@@ -149,7 +150,9 @@ foreach (['storage/app/private', 'storage/app/public', 'storage/framework/cache/
 
 step('Installing production dependencies (composer install --no-dev)');
 $composer = getenv('COMPOSER_BIN') ?: 'composer';
+run($composer.' validate --no-check-publish --no-interaction', $stage); // composer.lock in sync with composer.json
 run($composer.' install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts', $stage);
+run($composer.' check-platform-reqs --no-dev --no-interaction', $stage); // PHP version and extensions the packages need
 run(PHP_BINARY.' artisan package:discover --ansi', $stage);
 
 // Booting the framework in the (unconfigured) staging folder may write a log; it never ships.
@@ -218,6 +221,15 @@ $zip->close();
 
 $hash = hash_file('sha256', $zipPath);
 file_put_contents($zipPath.'.sha256', $hash.'  '.basename($zipPath)."\n");
+
+step('Verifying the package');
+$verify = proc_open([PHP_BINARY, __DIR__.'/verify-release.php', $zipPath, '--forbid-content-of='.$keyFile], [1 => STDOUT, 2 => STDERR], $pipes, $root);
+if (! is_resource($verify) || proc_close($verify) !== 0) {
+    @unlink($zipPath);
+    @unlink($zipPath.'.sha256');
+    fwrite(STDERR, "Package verification failed; the zip was deleted (staging folder kept for inspection: {$stage}).\n");
+    exit(1);
+}
 
 step('Done');
 fwrite(STDOUT, sprintf("    %s (%.1f MB)\n    sha256 %s\n", $zipPath, filesize($zipPath) / 1048576, $hash));

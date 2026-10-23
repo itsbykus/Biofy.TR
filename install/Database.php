@@ -34,16 +34,36 @@ final class Database
             return ['ok' => false, 'error' => 'version', 'server' => $version];
         }
 
-        // Refuse a database that already holds tables with this prefix (never overwrite data).
+        // Refuse any existing table with this prefix (another application such as WordPress, or a
+        // finished installation): data is never overwritten or mixed. Same rule as biofy:container-setup.
+        // Compared case-insensitively (lower_case_table_names differs between hosts).
         $prefix = (string) ($c['prefix'] ?? '');
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE ?');
-        $stmt->execute([str_replace('_', '\\_', $prefix).'%']);
+        $tables = array_values(array_filter(array_map('strtolower', self::tables($pdo)), fn (string $table) => str_starts_with($table, strtolower($prefix))));
 
-        if ((int) $stmt->fetchColumn() > 0 && in_array($prefix.'users', self::tables($pdo), true)) {
+        if ($tables !== [] && ! self::resumable($pdo, $prefix, $tables)) {
             return ['ok' => false, 'error' => 'not_empty', 'server' => $version];
         }
 
         return ['ok' => true, 'error' => null, 'server' => $version];
+    }
+
+    /**
+     * An interrupted earlier attempt of this installer: the schema exists but no account was
+     * created yet (accounts are created in one transaction at the very end). Migrations and
+     * seeders are re-runnable, so the installation can continue on this database.
+     */
+    private static function resumable(PDO $pdo, string $prefix, array $tables): bool
+    {
+        if (! in_array(strtolower($prefix).'migrations', $tables, true)) {
+            return false;
+        }
+
+        if (! in_array(strtolower($prefix).'users', $tables, true)) {
+            return true;
+        }
+
+        // The prefix was validated above ([A-Za-z0-9_]); tables are created with it exactly as typed.
+        return $pdo->query('SELECT 1 FROM `'.$prefix.'users` LIMIT 1')->fetchColumn() === false;
     }
 
     public static function connect(array $c): PDO

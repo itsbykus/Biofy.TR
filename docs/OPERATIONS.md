@@ -61,7 +61,7 @@ Davranış: yalnızca Google'ın doğruladığı e-postalar kabul edilir. Aynı 
 1. Yönetim → Ayarlar → API ve alan adları: CNAME hedefi (ör. `biofy.tr`) ve/veya A kaydı IP'si girin.
 2. Kullanıcı panelden alan adını ekler; uygulama bir TXT kaydı üretir: `_biofy-verify.<alan-adı>` → `biofy-verify=<token>`.
 3. Kullanıcı DNS'e TXT ve CNAME/A kaydını ekleyip "Doğrula"ya basar. Uygulama TXT kaydını ve yönlendirmeyi kontrol eder; ardından alan adına HTTPS ile `/.well-known/biofy-domain-check` isteği yaparak sertifikayı ve sunucuya gerçekten ulaşıldığını doğrular.
-4. Sunucu tarafında alan adının siteye bağlanması ve sertifika üretilmesi **hosting panelinde** yapılır ([SHARED_HOSTING.md](SHARED_HOSTING.md#müşteri-alan-adları-için-sunucu-ayarı)). Uygulama SSL sertifikası üretmez; HTTPS çalışmıyorsa durumu dürüstçe "SSL bekleniyor" olarak gösterir. "HTTPS zorunlu" kapalıysa yalnızca DNS doğrulamasıyla HTTP üzerinden yayına alınabilir (önerilmez).
+4. Sunucu tarafında alan adının siteye bağlanması ve sertifika üretilmesi **hosting panelinde** yapılır ([SHARED_HOSTING.md](SHARED_HOSTING.md#müşteri-alan-adları-özel-domain)). Uygulama SSL sertifikası üretmez; HTTPS çalışmıyorsa durumu dürüstçe "SSL bekleniyor" olarak gösterir. "HTTPS zorunlu" kapalıysa yalnızca DNS doğrulamasıyla HTTP üzerinden yayına alınabilir (önerilmez).
 
 Bir alan adı aynı anda tek bir hesaba bağlı olabilir. IDN (Türkçe karakterli) alan adları v1'de desteklenmez; punycode biçimi (`xn--...`) girilebilir.
 
@@ -108,7 +108,7 @@ Sunucu dışı kopya önerilir: yedeği düzenli olarak indirin.
 - [ ] Proxy/Cloudflare kullanılıyorsa `TRUSTED_PROXIES` ayarlandı
 - [ ] HTTPS kalıcıysa HSTS açıldı (Ayarlar → Güvenlik)
 
-## Bilinen sınırlamalar (v1.0.0)
+## Bilinen sınırlamalar (v1.0.x)
 
 - Ödeme alma yoktur; paketler yönetici tarafından atanır. Fiyatlar bilgilendirme amaçlıdır.
 - Alt klasöre kurulum (`site.com/biofy`) desteklenmez; alan adı veya alt alan adı kullanın.

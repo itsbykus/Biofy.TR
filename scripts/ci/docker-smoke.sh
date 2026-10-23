@@ -40,6 +40,18 @@ section "Build and first start"
 expect_eq "container health" "$(docker inspect -f '{{.State.Health.Status}}' "$("${COMPOSE[@]}" ps -q app)")" healthy
 output_contains "first start installed the application" "Installed. Sign in" "${COMPOSE[@]}" logs --no-color app
 
+section "Image contents (built inside the image, independent of the FTP package)"
+for path in vendor/autoload.php public/build/manifest.json public/index.php artisan install/installer.php; do
+    "${COMPOSE[@]}" exec -T app test -f "$path" && pass "image has $path" || fail "image lacks $path"
+done
+for path in .env .git node_modules tests docs scripts docker dist vendor/phpunit vendor/fakerphp vendor/mockery storage/app/private/install.key; do
+    "${COMPOSE[@]}" exec -T app test -e "$path" && fail "image contains $path" || pass "image has no $path"
+done
+output_contains "vendor/ installed without dev packages" nodev \
+    "${COMPOSE[@]}" exec -T app php -r 'echo json_decode(file_get_contents("vendor/composer/installed.json"))->dev ? "dev" : "nodev";'
+output_contains "every file of the Vite manifest is in the image" assets-ok \
+    "${COMPOSE[@]}" exec -T app php -r 'foreach (json_decode(file_get_contents("public/build/manifest.json"), true) as $e) { foreach (array_merge([$e["file"]], $e["css"] ?? [], $e["assets"] ?? []) as $f) { if (! is_file("public/build/$f")) { echo "missing $f"; exit; } } } echo "assets-ok";'
+
 section "HTTPS behind the proxy"
 expect_eq "GET /up" "$(http_code "$BASE/up")" 200
 expect_eq "GET /" "$(http_code "$BASE/")" 200

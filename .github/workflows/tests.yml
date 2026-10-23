@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: PHP syntax (application, installer, scripts, tests)
+        run: find app bootstrap config database install lang public routes scripts tests -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+      - run: composer validate --no-check-publish
       - run: composer install --no-interaction --no-progress --prefer-dist
       - run: npm ci --no-audit --no-fund && npm run build
       - run: cp .env.example .env && php artisan key:generate --ansi

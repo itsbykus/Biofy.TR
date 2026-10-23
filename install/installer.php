@@ -238,8 +238,15 @@ switch ($step) {
             $rows .= '<tr><td>'.$state.'</td><td>'.$e($t('req_'.explode(':', $check['key'])[0], ['x' => $check['detail'] ?: (explode(':', $check['key'])[1] ?? '')])).'</td><td>'.($check['required'] ? $e($t('required')) : $e($t('recommended'))).'</td></tr>';
         }
         $passes = $requirements->passes();
+        // The two most common upload mistakes get their own explanation instead of the generic one.
+        $hint = match (true) {
+            $requirements->isSourceArchive() => '<div class="err">'.$e($t('req_source_archive', ['v' => $requirements->version() ?: 'x.y.z'])).'</div>',
+            ($requirements->missingPackageFiles() ?? []) !== [] => '<div class="err">'.$e($t('req_incomplete')).'</div>',
+            default => '',
+        };
+        $serverFailures = array_filter($requirements->all(), fn ($check) => $check['required'] && ! $check['ok'] && ! in_array($check['key'], ['vendor', 'assets', 'complete'], true));
         $body .= '<p>'.$e($t('intro')).'</p><table class="req">'.$rows.'</table>'
-            .($passes ? $form('requirements', '', $t('continue')) : '<div class="err">'.$e($t('req_failed')).'</div><p><a href="?lang='.$lang.'">'.$e($t('recheck')).'</a></p>');
+            .($passes ? $form('requirements', '', $t('continue')) : $hint.($hint === '' || $serverFailures !== [] ? '<div class="err">'.$e($t('req_failed')).'</div>' : '').'<p><a href="?lang='.$lang.'">'.$e($t('recheck')).'</a></p>');
 }
 
 bi_render($t('step_'.$step), $body, $lang, $t);
@@ -247,12 +254,9 @@ bi_render($t('step_'.$step), $body, $lang, $t);
 /** Performs the installation. Throws on failure (nothing is locked until the very end). */
 function bi_install(array $db, array $site): void
 {
-    if (! is_file(BIOFY_BASE.'/.env') || ! str_contains((string) file_get_contents(BIOFY_BASE.'/.env'), 'APP_KEY=base64:')) {
-        $key = EnvWriter::generateKey();
-    } else {
-        preg_match('/^APP_KEY=(\S+)/m', (string) file_get_contents(BIOFY_BASE.'/.env'), $m);
-        $key = $m[1] ?? EnvWriter::generateKey();
-    }
+    // Re-use the key of an interrupted earlier attempt: secrets the seeders already encrypted
+    // with it, such as the cron token, must stay readable.
+    $key = EnvWriter::existingKey((string) @file_get_contents(BIOFY_BASE.'/.env')) ?? EnvWriter::generateKey();
 
     $release = is_file(BIOFY_BASE.'/release-public-key.txt') ? trim((string) file_get_contents(BIOFY_BASE.'/release-public-key.txt')) : '';
     $env = EnvWriter::build([
@@ -286,37 +290,45 @@ function bi_install(array $db, array $site): void
     Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
 
     $settings = app(App\Services\Settings::class);
-    $settings->setMany([
-        'site.name' => $site['name'],
-        'site.default_locale' => $site['locale'],
-        'site.timezone' => $site['timezone'],
-        'site.support_email' => $site['admin_email'],
-        'mail.from_name' => $site['name'],
-        'system.installed_version' => config('biofy.version'),
-        'system.installed_at' => now()->toIso8601String(),
-    ]);
 
-    $user = new App\Models\User([
-        'name' => $site['admin_name'],
-        'username' => $site['admin_username'],
-        'email' => $site['admin_email'],
-        'password' => $site['admin_password'],
-        'locale' => $site['locale'],
-    ]);
-    $user->email_verified_at = now();
-    $user->password_changed_at = now();
-    $user->save();
-    $user->roles()->attach(App\Models\Role::query()->where('key', App\Models\Role::SUPERADMIN)->value('id'), ['created_at' => now()]);
+    // All or nothing: a failure here leaves no account behind, so the database stays resumable
+    // (Database::test accepts a schema without users) and the installer can simply be run again.
+    Illuminate\Support\Facades\DB::transaction(function () use ($settings, $site) {
+        $settings->setMany([
+            'site.name' => $site['name'],
+            'site.default_locale' => $site['locale'],
+            'site.timezone' => $site['timezone'],
+            'site.support_email' => $site['admin_email'],
+            'mail.from_name' => $site['name'],
+            'system.installed_version' => config('biofy.version'),
+            'system.installed_at' => now()->toIso8601String(),
+        ]);
 
-    if ($package = app(App\Services\Entitlements::class)->defaultPackage()) {
-        App\Models\UserPackageAssignment::query()->create(['user_id' => $user->id, 'package_id' => $package->id, 'starts_at' => now(), 'source' => 'system']);
-    }
+        $user = new App\Models\User([
+            'name' => $site['admin_name'],
+            'username' => $site['admin_username'],
+            'email' => $site['admin_email'],
+            'password' => $site['admin_password'],
+            'locale' => $site['locale'],
+        ]);
+        $user->email_verified_at = now();
+        $user->password_changed_at = now();
+        $user->save();
+        $user->roles()->attach(App\Models\Role::query()->where('key', App\Models\Role::SUPERADMIN)->value('id'), ['created_at' => now()]);
 
-    app(App\Services\AuditLogger::class)->log('system.installed', $user, ['version' => config('biofy.version')], $user);
+        if ($package = app(App\Services\Entitlements::class)->defaultPackage()) {
+            App\Models\UserPackageAssignment::query()->create(['user_id' => $user->id, 'package_id' => $package->id, 'starts_at' => now(), 'source' => 'system']);
+        }
+
+        app(App\Services\AuditLogger::class)->log('system.installed', $user, ['version' => config('biofy.version')], $user);
+    });
+    $settings->flush();
     $GLOBALS['bi_cron_token'] = (string) $settings->get('cron.token');
 
     // Lock the installer: from now on index.php boots the application instead.
-    file_put_contents(BI_LOCK, json_encode(['installed_at' => gmdate('c'), 'version' => config('biofy.version')]), LOCK_EX);
+    if (file_put_contents(BI_LOCK, json_encode(['installed_at' => gmdate('c'), 'version' => config('biofy.version')]), LOCK_EX) === false) {
+        throw new RuntimeException('Installed, but storage/app/private/installed.lock could not be written. Create that file (any content) with FTP to finish and lock the installer.');
+    }
     @unlink(BI_KEY_FILE);
 }
 

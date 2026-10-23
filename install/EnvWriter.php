@@ -10,6 +10,12 @@ final class EnvWriter
         return 'base64:'.base64_encode(random_bytes(32));
     }
 
+    /** APP_KEY of an existing .env file, quoted (as written by build()) or not. */
+    public static function existingKey(string $env): ?string
+    {
+        return preg_match('/^APP_KEY=(["\']?)(base64:[A-Za-z0-9+\/]{43}=)\1\s*$/m', $env, $m) ? $m[2] : null;
+    }
+
     public static function quote(string $value): string
     {
         // Line breaks are never valid in these values; quotes and "$" are escaped (no variable expansion).

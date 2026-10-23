@@ -7,7 +7,7 @@ A multi-tenant **link-in-bio SaaS** platform. Users sign up, pick a ready-made t
 - **Stack:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (precompiled) · dependency-free JavaScript
 - **Languages:** Turkish (default) and English
 - **Deployment:** (1) shared WordPress hosting — FTP + web installer, no SSH/Composer/Node needed on the server; (2) Coolify — automatic Docker deployment on every push to GitHub
-- **Version:** 1.0.0
+- **Version:** 1.0.1
 
 ## Highlights
 
@@ -26,9 +26,12 @@ A multi-tenant **link-in-bio SaaS** platform. Users sign up, pick a ready-made t
 
 **Shared (WordPress) hosting**
 
-1. Extract `biofy-tr-1.0.0.zip` and upload it over FTP for a subdomain (layouts: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
-2. In your hosting panel, create an **empty** MySQL/MariaDB database, separate from WordPress.
-3. Open the subdomain; the installer starts. Steps: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+1. Download **`biofy-tr-<version>.zip`** from the **Assets** of the [latest release](https://github.com/itsbykus/Biofy.TR/releases/latest) and check it against its `.sha256` file. Do not use GitHub's automatic "Source code" archives (`Biofy.TR-<version>.zip`): they contain neither `vendor/` nor `public/build/`.
+2. Extract it and upload it over FTP for a subdomain (layouts: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
+3. In your hosting panel, create an **empty** MySQL/MariaDB database, separate from WordPress.
+4. Open the subdomain; the installer starts. Steps: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+
+No terminal, Composer, npm or Node.js is needed on the hosting account; those tools are only used on the machine (or in GitHub Actions) that builds the package.
 
 **Coolify**
 
@@ -46,8 +49,8 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 116 tests
-php scripts/build-release.php   # FTP package -> dist/
+php artisan test                # 122 tests
+php scripts/build-release.php   # FTP package -> dist/, verified by scripts/verify-release.php
 ```
 
 ## Documentation

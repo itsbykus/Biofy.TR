@@ -1,6 +1,8 @@
 # Paylaşımlı (WordPress) hosting
 
-Biofy.TR, WordPress çalıştıran sıradan bir paylaşımlı hosting hesabında (cPanel, Plesk, DirectAdmin; Apache veya LiteSpeed) **WordPress'ten ayrı bir uygulama olarak** çalışır. Kurulum yalnızca FTP/dosya yöneticisi ve tarayıcıyla yapılır; terminal, SSH, Composer veya Node.js gerekmez. Adım adım kurulum: [INSTALLATION.md](INSTALLATION.md).
+Biofy.TR, WordPress çalıştıran sıradan bir paylaşımlı hosting hesabında (cPanel, Plesk, DirectAdmin; Apache veya LiteSpeed) **WordPress'ten ayrı bir uygulama olarak** çalışır. Kurulum yalnızca FTP/dosya yöneticisi ve tarayıcıyla yapılır; terminal, SSH, Composer, npm veya Node.js gerekmez. Adım adım kurulum: [INSTALLATION.md](INSTALLATION.md).
+
+Yüklenecek dosya GitHub Releases'taki **`biofy-tr-<sürüm>.zip`** paketidir (`vendor/` ve `public/build/` dahil). GitHub'ın otomatik eklediği "Source code" arşivleri (`Biofy.TR-<sürüm>.zip`) hostingde çalışmaz ([ayrıntı](INSTALLATION.md#1-doğru-dosyayı-indirin)).
 
 ## Gereksinimler
 
@@ -25,7 +27,7 @@ Kurulum sihirbazının ilk adımı bunları otomatik kontrol eder.
 | Konu | Durum |
 |---|---|
 | Dosyalar | Biofy.TR kendi klasöründedir; WordPress dosyalarına dokunmaz. Önerilen yerleşimde `public_html` dışındadır. |
-| Veritabanı | Ayrı veritabanı kullanılır. Sihirbaz dolu bir veritabanına (ör. WordPress'inkine) kurulumu reddeder. |
+| Veritabanı | Ayrı veritabanı kullanılır. Sihirbaz, seçilen tablo önekiyle başlayan herhangi bir tablo bulunan veritabanını reddeder; önek boşken WordPress'in veritabanı da reddedilir. Ayrı veritabanı açılamıyorsa aynı veritabanı farklı bir önekle (ör. `bio_`) kullanılabilir, ancak ayrı veritabanı önerilir (yedekler ve yetkiler ayrı kalır). |
 | `.htaccess` | Biofy.TR klasörlerindeki kendi `.htaccess` dosyaları `RewriteEngine On` içerir; bu yüzden üst klasördeki WordPress yönlendirme kuralları devralınmaz. WordPress'in `.htaccess` dosyası değiştirilmez. |
 | Çerezler / oturum | Alt alan adındaki Biofy.TR çerezleri yalnızca o alan adına yazılır; WordPress oturumlarıyla çakışmaz. |
 | PHP sürümü | Alan adı başına ayrı seçilebilir. |
@@ -37,7 +39,7 @@ Kurulum sihirbazının ilk adımı bunları otomatik kontrol eder.
 
 ```
 /home/KULLANICI/public_html/        ← WordPress (değişmez)
-/home/KULLANICI/biofy/              ← Biofy.TR paketinin tamamı
+/home/KULLANICI/biofy/              ← Biofy.TR paketinin tamamı (ZIP'teki biofy-tr-<sürüm>/ klasörünün içeriği)
 /home/KULLANICI/biofy/public        ← bio.site.com'un Document Root'u
 ```
 

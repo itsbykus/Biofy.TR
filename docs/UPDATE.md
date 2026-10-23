@@ -27,7 +27,7 @@ Yönetim → Sistem → **Dosya bütünlüğünü doğrula** şu sonuçlardan bi
 ## Adımlar
 
 1. **Yedek alın:** Yönetim → Yedekler → "Şimdi yedekle" ve dosyayı indirin. `.env` dosyasının bir kopyasını saklayın.
-2. Yeni paketin `.sha256` değerini kontrol edin ve arşivi açın.
+2. GitHub Releases → Assets'ten `biofy-tr-<sürüm>.zip` paketini indirin ("Source code" arşivini değil), `.sha256` değerini kontrol edin ([komutlar](INSTALLATION.md#1-doğru-dosyayı-indirin)) ve arşivi açın.
 3. Yeni dosyaları FTP ile mevcut kurulumun **üzerine** yükleyin. Şunlara **dokunmayın**:
    - `.env`
    - `storage/` (yedekler, loglar, kurulum kilidi)
@@ -53,5 +53,6 @@ php scripts/build-release.php --no-npm   # derlenmiş public/build zaten güncel
 ```
 
 - İmza anahtarı `BIOFY_SIGNING_KEY` ortam değişkeninden veya `~/.biofy-devtools/release-signing.key` dosyasından okunur; yoksa oluşturulur. **Bu dosyayı kaybetmeyin ve paylaşmayın:** kaybolursa sonraki paketler mevcut kurulumlarda `bad_signature` verir (kurulumdaki `.env` anahtarı elle güncellenmedikçe).
-- Sürüm numarası `config/biofy.php → version` değeridir. Yeni sürümde artırılmalıdır; aksi halde panel güncelleme beklediğini algılamaz.
-- Betik pakette `.env`, SQLite, log, `node_modules`, `tests`, PHPUnit veya Faker bulunursa hata verip durur.
+- Sürüm numarası `config/biofy.php → version` değeridir. Yeni sürümde artırılmalıdır; aksi halde panel güncelleme beklediğini algılamaz. Yayımlanmış bir paket aynı numarayla yeniden üretilip değiştirilmez.
+- Betik sonunda `scripts/verify-release.php` çalışır (vendor/, public/build/, kurulum dosyaları, sırlar, imza, SHA-256; ayrıntı: [DEPLOYMENT.md](DEPLOYMENT.md#sürüm-paketi-üretme-paylaşımlı-hosting-için)). Bir kontrol başarısız olursa ZIP silinir ve betik hata koduyla çıkar.
+- Paketin mevcut kurulumlarda `bad_signature` vermeyeceğini doğrulamak için: `php scripts/verify-release.php dist/biofy-tr-<sürüm>.zip --public-key=<kurulumlardaki BIOFY_RELEASE_PUBLIC_KEY>`.

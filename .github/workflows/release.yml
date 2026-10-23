@@ -25,6 +25,9 @@ permissions:
 
 env:
   TAG: ${{ inputs.tag || github.ref_name }}
+  # Public half of BIOFY_RELEASE_SIGNING_KEY. Installations pin it on first install, so a package
+  # signed with any other key would fail their integrity check (bad_signature).
+  RELEASE_PUBLIC_KEY: mUsYHBi0/DkwZChdck9pa7Hv2WzbAE6CV/6XXniqqEI=
 
 jobs:
   version:
@@ -107,10 +110,12 @@ jobs:
           umask 077
           printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/release-signing.key"
           echo "BIOFY_SIGNING_KEY=$RUNNER_TEMP/release-signing.key" >> "$GITHUB_ENV"
-      - run: php scripts/build-release.php
+      - run: php scripts/build-release.php   # also runs scripts/verify-release.php
       - name: Remove the key from the runner
         if: always()
         run: rm -f "$RUNNER_TEMP/release-signing.key"
+      - name: Package is signed with the pinned release key
+        run: php scripts/verify-release.php dist/biofy-tr-*.zip --public-key="$RELEASE_PUBLIC_KEY"
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -125,7 +130,18 @@ jobs:
           | Shared (WordPress) hosting, FTP | \`biofy-tr-$version.zip\` below (check it against \`biofy-tr-$version.zip.sha256\`), then follow [docs/INSTALLATION.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/docs/INSTALLATION.md) |
           | Coolify / Docker | Build from this repository ([docs/COOLIFY.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/docs/COOLIFY.md)) or use the image \`$image\` |
 
+          > **Shared hosting:** upload \`biofy-tr-$version.zip\` only. The "Source code (zip)" / "Source code (tar.gz)" archives that GitHub adds automatically contain neither \`vendor/\` nor \`public/build/\`; the installer stops with an explanation if they are uploaded. No Composer, npm or Node.js is needed on the server.
+          >
+          > **Paylaşımlı hosting:** yalnızca \`biofy-tr-$version.zip\` dosyasını yükleyin. GitHub'ın otomatik eklediği "Source code" arşivlerinde \`vendor/\` ve \`public/build/\` yoktur; sunucuda Composer, npm veya Node.js gerekmez.
+
           Release notes: [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/CHANGELOG.md)
           EOF
           gh release create "$GITHUB_REF_NAME" dist/biofy-tr-*.zip dist/biofy-tr-*.zip.sha256 \
             --title "Biofy.TR $version" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
+      - name: Verify the published assets (as users download them)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir "$RUNNER_TEMP/published"
+          gh release download "$GITHUB_REF_NAME" --pattern 'biofy-tr-*' --dir "$RUNNER_TEMP/published"
+          php scripts/verify-release.php "$RUNNER_TEMP"/published/biofy-tr-*.zip --public-key="$RELEASE_PUBLIC_KEY"

@@ -29,6 +29,9 @@ Testler bellek içi SQLite ile çalışır (`phpunit.xml`); harici servis gerekm
 | `Feature/SecurityTest` | CSRF, kayıtlı/yansıyan XSS, SQL enjeksiyonu, dosya yükleme saldırıları ve yeniden kodlama, kota, açık yönlendirme, `.htaccess` korumaları, bakım modu, cron anahtarı, production debug kapalı |
 | `Feature/PageRenderTest` | Genel site, kullanıcı paneli, yönetim ve hata sayfalarının hatasız render edilmesi |
 | `Feature/TranslationCompletenessTest` | TR/EN anahtar eşitliği |
+| `Unit/InstallerTest` | Kurulum sihirbazı: kaynak kodu arşivinin (vendor/build yok) tanınması, Vite manifestindeki her dosyanın kontrolü, `release-manifest.json` ile eksik FTP yüklemesinin tespiti (yerleşim B dahil), `.env` üretimi (`APP_DEBUG=false`, güvenli tırnaklama, Laravel'in dotenv ayrıştırıcısıyla okuma), yarıda kalan denemede `APP_KEY`'in korunması, yalnızca hesapsız yarım kurulumun devam ettirilebilmesi; `verify-release.php`'nin kaynak arşivini reddetmesi |
+
+CI ayrıca tüm PHP dosyalarında sözdizimi kontrolü (`php -l`) ve `composer validate` çalıştırır.
 
 ## Dağıtım testleri (GitHub Actions)
 
@@ -37,12 +40,14 @@ Testler bellek içi SQLite ile çalışır (`phpunit.xml`); harici servis gerekm
 **Coolify (Docker)** — `scripts/ci/docker-smoke.sh`
 - `docker-compose.yml` ile imaj derlenir; önünde Coolify'ın Traefik'i yerine HTTPS sonlandıran Caddy çalışır.
 - İlk açılışta ortam değişkenleriyle kurulum, health check, `Secure`/`HttpOnly` çerez, https URL üretimi, superadmin girişi, görsel yükleme.
+- İmaj içeriği: `vendor/autoload.php`, `public/build/manifest.json` ve manifestteki her dosya var; `.env`, `.git`, `node_modules`, `tests`, geliştirme paketleri yok; `vendor/` `--no-dev` kurulmuş.
 - Hassas yolların (`.env`, `vendor`, `storage`…) erişilemezliği, `media/` içinde PHP çalışmaması, bilinmeyen Host reddi, kodun web kullanıcısı için salt okunur olması.
 - Konteynerler yeniden derlenip oluşturulduktan sonra veritabanı ve yüklenen görselin korunması.
 - Yeni migration içeren bir sonraki açılışta önce yedek alınması, sonra migration'ın uygulanması.
 
 **Paylaşımlı WordPress hosting** — `scripts/ci/shared-hosting-smoke.sh`
-- `scripts/build-release.php` ile FTP paketi üretilir.
+- `scripts/build-release.php` ile FTP paketi üretilir ve `scripts/verify-release.php` ile doğrulanır (ayrıntı: [DEPLOYMENT.md](DEPLOYMENT.md#sürüm-paketi-üretme-paylaşımlı-hosting-için)).
+- GitHub'ın "Source code" arşivi yüklendiğinde sihirbazın doğru paketi söyleyip kuruluma izin vermemesi ve doğrulayıcının bu arşivi reddetmesi.
 - Apache + PHP 8.3 + MariaDB 10.6 üzerinde çalışan bir WordPress kurulumu hazırlanır (PHP, cPanel'deki gibi hesap kullanıcısıyla çalışır).
 - Paket **FTP ile** (lftp → pyftpdlib) yüklenir; sunucuda hiçbir komut çalıştırılmaz.
 - Web sihirbazıyla üç yerleşimde kurulum: A (`public_html` dışında), B (yalnızca public dosyalar alt alan adı klasöründe), C (paketin tamamı WordPress'in `public_html`'i içinde).

@@ -6,7 +6,8 @@ Depodaki `Dockerfile` ve `docker-compose.yml` ile Coolify, ana dala (`main`) yap
 
 | Konu | Nasıl |
 |---|---|
-| İmaj | PHP 8.4 + Apache (mod_php), çok aşamalı derleme: Vite/Tailwind (Node 22) → Composer `--no-dev` → çalışma imajı. İmajda `.env`, test veya geliştirme dosyası yok. |
+| İmaj | PHP 8.4 + Apache (mod_php), çok aşamalı derleme: Vite/Tailwind (Node 22, `npm ci`) → Composer `--no-dev` (composer.lock) → çalışma imajı. İmajda `.env`, test, `node_modules`, geliştirme paketi veya geliştirme dosyası yok (CI her push'ta imajın içini kontrol eder). |
+| FTP paketinden bağımsız | `vendor/` ve `public/build/` imajın içinde derlenir. Depodaki yerel `vendor/`, `public/build/` ve `dist/` (paylaşımlı hosting ZIP'i) `.dockerignore` ile derleme bağlamına hiç girmez; Coolify için paket üretmeniz gerekmez. |
 | Veritabanı | `mysql:8.4` servisi, bağlantı `DB_*` değişkenleriyle |
 | Kalıcı veri | `biofy-storage` → `storage/` (yedekler, loglar, cache, kurulum kilidi) · `biofy-media` → `public/media/` (yüklenen görseller) · `biofy-mysql` → veritabanı |
 | İlk kurulum | Web sihirbazı yerine `biofy:container-setup` komutu: migration + seed + `BIOFY_ADMIN_*` ile superadmin. Web kurulum sihirbazı konteynerde kapalıdır. |
@@ -34,10 +35,10 @@ Depodaki `Dockerfile` ve `docker-compose.yml` ile Coolify, ana dala (`main`) yap
    | `BIOFY_ADMIN_EMAIL` | İlk superadmin e-postası |
    | `BIOFY_ADMIN_PASSWORD` | En az 10 karakter, harf + rakam |
 
-   İsteğe bağlı: `APP_NAME` (site adı, varsayılan `Biofy.TR`), `APP_LOCALE` (`tr`/`en`), `BIOFY_TIMEZONE` (`Europe/Istanbul`), `DB_DATABASE`/`DB_USERNAME` (varsayılan `biofy`), `BIOFY_BACKUP_BEFORE_MIGRATE` (`true`), `BIOFY_SCHEDULER` (`true`).
+   İsteğe bağlı: `APP_NAME` (site adı, varsayılan `Biofy.TR`), `APP_LOCALE` (`tr`/`en`), `BIOFY_TIMEZONE` (`Europe/Istanbul`), `DB_DATABASE`/`DB_USERNAME` (varsayılan `biofy`), `BIOFY_BACKUP_BEFORE_MIGRATE` (`true`), `BIOFY_SCHEDULER` (`true`), `BIOFY_ADMIN_NAME` (`Site Admin`), `TRUSTED_PROXIES` (`*`; Coolify proxy'si tek giriş noktası olduğu için), `SESSION_SECURE_COOKIE` (`true`; yalnızca HTTPS'siz test ortamında `false`), `DB_CONNECTION`/`DB_HOST`/`DB_PORT` (varsayılan: aynı compose dosyasındaki `mysql` servisi; harici veritabanı için değiştirin). Yukarıdakilerle birlikte bu liste `docker-compose.yml`'deki `environment` bölümünün tamamıdır; orada olmayan bir değişken konteynere aktarılmaz.
 5. **General → Auto Deploy** açık olsun (GitHub App ile varsayılan olarak açıktır).
 6. **Deploy.** İlk derleme birkaç dakika sürer. Loglarda `Installed. Sign in at …/login` görünür; `https://biofy.example.com/login` adresinden giriş yapın.
-7. İlk girişten sonra: `BIOFY_ADMIN_PASSWORD` değişkenini silebilirsiniz (yalnızca ilk kurulumda kullanılır), 2FA'yı açın ve [kurulum sonrası adımları](INSTALLATION.md#4-kurulum-sonrası-önerilen-sıra) uygulayın (SMTP, marka, yedek indirme).
+7. İlk girişten sonra: `BIOFY_ADMIN_PASSWORD` değişkenini silebilirsiniz (yalnızca ilk kurulumda kullanılır), 2FA'yı açın ve [kurulum sonrası adımları](INSTALLATION.md#5-kurulum-sonrası-önerilen-sıra) uygulayın (SMTP, marka, yedek indirme).
 
 ## Sonraki dağıtımlar
 

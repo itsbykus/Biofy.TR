@@ -7,7 +7,7 @@
 - **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
 - **Diller:** Türkçe (varsayılan) ve İngilizce
 - **Dağıtım:** (1) paylaşımlı WordPress hosting — FTP + web sihirbazı, sunucuda SSH/Composer/Node gerekmez; (2) Coolify — GitHub'a her push'ta otomatik Docker dağıtımı
-- **Sürüm:** 1.0.0
+- **Sürüm:** 1.0.1
 
 ## Öne çıkanlar
 
@@ -26,9 +26,12 @@
 
 **Paylaşımlı (WordPress) hosting**
 
-1. `biofy-tr-1.0.0.zip` paketini açın ve FTP ile bir alt alan adına yükleyin (yerleşimler: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
-2. Hosting panelinizde WordPress'ten ayrı, **boş** bir MySQL/MariaDB veritabanı oluşturun.
-3. Alt alan adını açın; kurulum sihirbazı başlar. Adımlar: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+1. [Son sürümün](https://github.com/itsbykus/Biofy.TR/releases/latest) **Assets** bölümünden **`biofy-tr-<sürüm>.zip`** dosyasını indirin ve `.sha256` dosyasıyla karşılaştırın. GitHub'ın otomatik "Source code" arşivlerini (`Biofy.TR-<sürüm>.zip`) kullanmayın: onlarda `vendor/` ve `public/build/` yoktur.
+2. Paketi açın ve FTP ile bir alt alan adına yükleyin (yerleşimler: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
+3. Hosting panelinizde WordPress'ten ayrı, **boş** bir MySQL/MariaDB veritabanı oluşturun.
+4. Alt alan adını açın; kurulum sihirbazı başlar. Adımlar: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+
+Hosting hesabında terminal, Composer, npm veya Node.js gerekmez; bu araçlar yalnızca paketi üreten bilgisayarda (veya GitHub Actions'ta) kullanılır.
 
 **Coolify**
 
@@ -46,8 +49,8 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 116 test
-php scripts/build-release.php   # FTP paketi -> dist/
+php artisan test                # 122 test
+php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
 
 ## Dokümantasyon
