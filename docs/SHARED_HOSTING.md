@@ -1,78 +1,80 @@
-# Paylaşımlı hosting rehberi ve uyumluluk kontrol listesi
+# Paylaşımlı (WordPress) hosting
 
-## Uyumluluk kontrol listesi
+Biofy.TR, WordPress çalıştıran sıradan bir paylaşımlı hosting hesabında (cPanel, Plesk, DirectAdmin; Apache veya LiteSpeed) **WordPress'ten ayrı bir uygulama olarak** çalışır. Kurulum yalnızca FTP/dosya yöneticisi ve tarayıcıyla yapılır; terminal, SSH, Composer veya Node.js gerekmez. Adım adım kurulum: [INSTALLATION.md](INSTALLATION.md).
+
+## Gereksinimler
 
 Kurulum sihirbazının ilk adımı bunları otomatik kontrol eder.
 
 | Gereksinim | Zorunlu | Not |
 |---|---|---|
-| PHP **8.3+** (8.4 önerilir) | ✔ | cPanel: "Select PHP Version" / "MultiPHP Manager" |
-| Eklentiler: pdo, pdo_mysql, mbstring, openssl, tokenizer, xml, dom, ctype, json, fileinfo, **gd**, **zip**, session, filter | ✔ | Çoğu hostingde varsayılan açık |
-| Eklentiler: curl, sodium, intl, bcmath | önerilen | curl: HTTPS alan adı kontrolü, Google; sodium: yedek şifreleme |
-| GD WebP desteği | önerilen | Yoksa görseller PNG kaydedilir |
-| MySQL 5.7+ / MariaDB 10.3+, InnoDB, utf8mb4 | ✔ | Boş bir veritabanı |
-| Apache + `mod_rewrite` + `.htaccess` (AllowOverride) | ✔ | LiteSpeed uyumludur. Nginx için aşağıdaki örneğe bakın. |
-| Yazılabilir: `storage/*`, `bootstrap/cache`, `public/media`, ana klasör (`.env` için) | ✔ | Genelde 755 klasör / 644 dosya yeterli |
-| `memory_limit` ≥ 128M, `max_execution_time` ≥ 60 | önerilen | Yedekleme/geri yükleme için daha yüksek değerler iyidir |
-| `dns_get_record` fonksiyonu | önerilen | Özel alan adı doğrulaması için |
-| SSL sertifikası (Let's Encrypt/AutoSSL) | önerilen | Ana alan adı ve müşteri alan adları için |
-| Cron | isteğe bağlı | Yoksa uygulama çalışır; bakım görevleri yönetici paneli ziyaretlerinde hafif modda çalışır |
+| PHP **8.3+** (8.4 önerilir) | ✔ | Alan adı başına seçilebilir (cPanel → MultiPHP Manager). WordPress'in PHP sürümünü değiştirmeniz gerekmez. |
+| Eklentiler: pdo_mysql, mbstring, openssl, tokenizer, xml, dom, ctype, json, fileinfo, **gd**, **zip**, session, filter | ✔ | WordPress hostlarında genellikle hepsi açıktır |
+| Eklentiler: curl, sodium, intl, bcmath | önerilen | curl: alan adı HTTPS kontrolü, Google girişi; sodium: yedek şifreleme |
+| MySQL 5.7+ / MariaDB 10.3+ (InnoDB, utf8mb4) | ✔ | **WordPress'ten ayrı, boş bir veritabanı** ve ayrı bir kullanıcı |
+| Apache veya LiteSpeed, `mod_rewrite`, `.htaccess` | ✔ | WordPress kalıcı bağlantıları çalışıyorsa bu koşul zaten sağlanıyordur |
+| Yazılabilir klasörler: `storage/`, `bootstrap/cache/`, `public/media/`, uygulama klasörü (`.env` için) | ✔ | Varsayılan izinler yeterli (aşağıya bakın) |
+| `memory_limit` ≥ 128M, `max_execution_time` ≥ 60, `upload_max_filesize` ≥ 6M | önerilen | Yedekleme için daha yüksek değerler iyidir |
+| SSL (AutoSSL / Let's Encrypt) | önerilen | Alt alan adı için de etkinleştirin |
+| Cron | isteğe bağlı | [OPERATIONS.md](OPERATIONS.md#cron) |
 
-**Desteklenmeyen durumlar:** PHP 8.2 ve altı · alt klasöre kurulum (`site.com/biofy`) · `.htaccess`'in yok sayıldığı Apache yapılandırmaları (Nginx dışında) · yalnızca PostgreSQL sunan hostlar. Sihirbaz bu durumlarda durur ve sebebini gösterir.
+**Desteklenmeyen:** WordPress'in bulunduğu alan adının alt klasörüne kurulum (`site.com/biofy`). Biofy.TR bir **alt alan adında** (`bio.site.com`) veya **ayrı bir alan adında** çalışmalıdır.
 
-## Yerleşim A: web kökü `public/` (önerilen)
+## WordPress ile birlikte çalışma
 
-Hosting paneliniz alan adının "Document Root" ayarını değiştirmeye izin veriyorsa bu yerleşimi kullanın.
+| Konu | Durum |
+|---|---|
+| Dosyalar | Biofy.TR kendi klasöründedir; WordPress dosyalarına dokunmaz. Önerilen yerleşimde `public_html` dışındadır. |
+| Veritabanı | Ayrı veritabanı kullanılır. Sihirbaz dolu bir veritabanına (ör. WordPress'inkine) kurulumu reddeder. |
+| `.htaccess` | Biofy.TR klasörlerindeki kendi `.htaccess` dosyaları `RewriteEngine On` içerir; bu yüzden üst klasördeki WordPress yönlendirme kuralları devralınmaz. WordPress'in `.htaccess` dosyası değiştirilmez. |
+| Çerezler / oturum | Alt alan adındaki Biofy.TR çerezleri yalnızca o alan adına yazılır; WordPress oturumlarıyla çakışmaz. |
+| PHP sürümü | Alan adı başına ayrı seçilebilir. |
+| Önbellek eklentileri | LiteSpeed Cache, WP Rocket vb. yalnızca WordPress yanıtlarını önbelleğe alır. Uygulama `public_html` dışında olduğunda (yerleşim A/B) WordPress'in `.htaccess` ve `.user.ini` ayarlarından hiç etkilenmez. |
 
-```
-/home/kullanici/biofy/          ← paketin tüm içeriği
-/home/kullanici/biofy/public    ← alan adının Document Root'u
-```
+## Yerleşimler
 
-- cPanel: Domains → ilgili alan adı → Document Root: `biofy/public`
-- Plesk: Hosting Settings → Document root: `/biofy/public`
-
-## Yerleşim B: uygulama dışarıda, yalnızca `public` içeriği `public_html`'de
-
-Document Root değiştirilemiyorsa uygulamayı web kökünün **dışına** koyun:
+### A — Önerilen: uygulama `public_html` dışında, alt alan adının kökü `public/`
 
 ```
-/home/kullanici/biofy/           ← paketin tüm içeriği (klasör adı tam olarak "biofy" olmalı)
-/home/kullanici/public_html/     ← biofy/public klasörünün İÇERİĞİ (index.php, .htaccess, build/, media/)
+/home/KULLANICI/public_html/        ← WordPress (değişmez)
+/home/KULLANICI/biofy/              ← Biofy.TR paketinin tamamı
+/home/KULLANICI/biofy/public        ← bio.site.com'un Document Root'u
 ```
 
-`public_html/index.php`, uygulamayı otomatik olarak `../biofy` içinde bulur. Kurulum sihirbazı bu durumu algılar ve `bootstrap/public-path.php` dosyasını yazar; cron/CLI komutları da doğru medya klasörünü kullanır.
+- cPanel: **Domains → Create A New Domain** (veya Subdomains) → `bio.site.com`, "Share document root" işaretini kaldırın, Document Root: `biofy/public`.
+- Plesk: **Add Subdomain** → Document root: `/biofy/public`.
+- DirectAdmin: alt alan adının klasörünü `biofy/public` olarak ayarlayın (panel izin veriyorsa); yoksa B'yi kullanın.
 
-## Yerleşim C: her şey `public_html` altında (son çare)
+Uygulama kodu, `.env` ve yedekler web'den hiçbir şekilde erişilemez.
 
-Ana klasöre erişim hiç yoksa paketin tamamını `public_html` içine yükleyin. Kök `.htaccess` tüm istekleri `public/`'e yönlendirir; her hassas klasörde erişimi engelleyen bir `.htaccess` bulunur. Kurulumdan sonra **mutlaka** Yönetim → Sistem → "Hassas dosya erişim testi"ni çalıştırın ve tüm satırların yeşil olduğunu doğrulayın. Bu yerleşim, sunucu `.htaccess` dosyalarını uyguladığı sürece güvenlidir.
+### B — Document Root değiştirilemiyorsa: yalnızca `public/` içeriği alt alan adı klasöründe
 
-## Nginx (VPS / bazı yönetilen hostlar)
-
-```nginx
-server {
-    server_name biofy.tr *.biofy.tr;      # müşteri alan adları için default_server da kullanılabilir
-    root /var/www/biofy/public;
-    index index.php;
-    client_max_body_size 8m;
-
-    location ~ /\.(?!well-known) { deny all; }
-    location /media/ { location ~ \.php$ { deny all; } try_files $uri =404; }
-    location / { try_files $uri $uri/ /index.php?$query_string; }
-    location ~ \.php$ {
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
-    }
-}
+```
+/home/KULLANICI/bio.site.com/       ← panelin oluşturduğu klasör: biofy/public İÇERİĞİ (index.php, .htaccess, build/, media/)
+/home/KULLANICI/biofy/              ← paketin tamamı (klasör adı tam olarak "biofy")
 ```
 
-## Müşteri alan adları için sunucu ayarı
+`index.php` uygulamayı `../biofy` içinde bulur; sihirbaz bunu algılayıp `bootstrap/public-path.php` dosyasını yazar (cron ve yedekler aynı medya klasörünü kullanır). Alt alan adı klasörü `public_html` **dışında** olmalıdır; aksi halde C'yi kullanın.
 
-Kullanıcıların alan adları sizin sunucunuza yönlendiğinde, web sunucusunun bu alan adlarını aynı `public/` klasörüne yönlendirmesi gerekir:
+### C — Son çare: alt alan adı klasörü `public_html` içinde
 
-- **cPanel:** her müşteri alan adını "Alias / Parked Domain" olarak ekleyin (Document Root aynı olur) ve AutoSSL'in sertifika üretmesini bekleyin. Bu işlem hosting paneli tarafındadır; uygulama sertifika üretmez.
-- **VPS:** varsayılan sunucu bloğu (catch-all) + Caddy "on-demand TLS" veya certbot.
-- Yönetim → Ayarlar → API ve alan adları bölümüne kullanıcılara gösterilecek CNAME hedefini ve/veya A kaydı IP'sini girin.
+Bazı paneller alt alan adlarını `public_html/bio.site.com` gibi bir klasöre bağlar ve bunu değiştirmeye izin vermez. Bu durumda paketin **tamamını** o klasöre yükleyin. Kök `.htaccess` her isteği `public/`'e yönlendirir; hassas klasörlerin her birinde erişimi engelleyen `.htaccess` vardır; nokta ile başlayan dosyalar reddedilir. Klasöre WordPress alan adı üzerinden (`site.com/bio.site.com/...`) gelen istekler de aynı kurallarla engellenir ve uygulama bilinmeyen alan adına yanıt vermez.
 
-Uygulama, bilinmeyen alan adlarına gelen istekleri her durumda reddeder.
+Kurulumdan sonra **mutlaka** Yönetim → Sistem → **Hassas dosya erişim testi**ni çalıştırın; tüm satırlar yeşil olmalıdır. Bu yerleşim, sunucu `.htaccess` dosyalarını uyguladığı sürece güvenlidir (Apache/LiteSpeed paylaşımlı hostlarda uygular).
+
+## Dosya izinleri
+
+Paylaşımlı hostlarda PHP, hesap kullanıcısıyla (suEXEC / LSAPI / PHP-FPM) çalışır; FTP ile yüklenen dosyalar zaten bu kullanıcıya aittir.
+
+| Öğe | İzin |
+|---|---|
+| Klasörler | `755` |
+| Dosyalar | `644` |
+| `.env` | `640` (sihirbaz böyle yazar; `600` da olur) |
+| `storage/`, `bootstrap/cache/`, `public/media/` | `755` — 777 **kullanmayın** |
+
+Sihirbaz yazma izni eksikse hangi klasör olduğunu gösterir.
+
+## Müşteri alan adları (özel domain)
+
+Kullanıcıların kendi alan adlarını kullanabilmesi için her alan adının hosting hesabınıza "Alias / Parked Domain" olarak eklenmesi ve Document Root'unun Biofy.TR ile aynı olması gerekir (yerleşim A'da `biofy/public`). SSL'i AutoSSL üretir; uygulama sertifika üretmez. Yönetim → Ayarlar → API ve alan adları bölümüne kullanıcılara gösterilecek CNAME hedefini ve/veya A kaydı IP'sini girin. Ayrıntılar: [OPERATIONS.md](OPERATIONS.md#özel-alan-adları-ve-ssl).

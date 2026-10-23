@@ -149,6 +149,12 @@ step('Installing production dependencies (composer install --no-dev)');
 $composer = getenv('COMPOSER_BIN') ?: 'composer';
 run($composer.' install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts', $stage);
 run(PHP_BINARY.' artisan package:discover --ansi', $stage);
+
+// Booting the framework in the (unconfigured) staging folder may write a log; it never ships.
+foreach (glob($stage.'/storage/logs/*.log') ?: [] as $log) {
+    fwrite(STDOUT, '    (removing build-time log '.basename($log).': '.trim(substr((string) file_get_contents($log), 0, 300))." ...)\n");
+    unlink($log);
+}
 @unlink($stage.'/bootstrap/cache/packages.php') || true;
 @unlink($stage.'/bootstrap/cache/services.php') || true;
 

@@ -4,8 +4,11 @@ Sunucuda terminal, Composer, npm veya Node.js **gerekmez**. Paket; production ba
 
 ## 1. Hazırlık
 
-1. Hosting panelinden PHP sürümünü **8.3 veya 8.4** yapın ([uyumluluk listesi](SHARED_HOSTING.md)).
-2. Bir **MySQL/MariaDB veritabanı** ve tüm yetkilere sahip bir kullanıcı oluşturun. Veritabanı **boş** olmalıdır.
+> Bu kılavuz paylaşımlı hosting içindir. Coolify için: [COOLIFY.md](COOLIFY.md).
+
+1. Biofy.TR için bir **alt alan adı** (ör. `bio.site.com`) veya ayrı bir alan adı oluşturun; WordPress'in alt klasörüne kurulmaz. Document Root ayarı için [SHARED_HOSTING.md](SHARED_HOSTING.md#yerleşimler).
+2. Bu alan adının PHP sürümünü **8.3 veya 8.4** yapın (WordPress'inkini değiştirmeniz gerekmez).
+3. WordPress'ten ayrı bir **MySQL/MariaDB veritabanı** ve tüm yetkilere sahip bir kullanıcı oluşturun. Veritabanı **boş** olmalıdır.
 3. Alan adı için SSL sertifikasını etkinleştirin (önerilir).
 4. `biofy-tr-1.0.0.zip` dosyasının bütünlüğünü kontrol edin: `biofy-tr-1.0.0.zip.sha256` dosyasındaki değer, dosyanın SHA-256 özetiyle aynı olmalıdır.
 

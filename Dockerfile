@@ -39,7 +39,7 @@ RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-
 COPY . .
 RUN composer dump-autoload --no-dev --optimize \
     && php artisan package:discover --ansi \
-    && rm -rf tests docs scripts docker install/*.md node_modules
+    && rm -rf tests docs scripts docker node_modules storage/logs/*.log
 
 # --- 4. Final image ------------------------------------------------------------
 FROM base AS runtime

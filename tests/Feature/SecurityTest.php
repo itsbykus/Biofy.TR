@@ -165,10 +165,13 @@ class SecurityTest extends TestCase
         $root = file_get_contents(base_path('.htaccess'));
         $this->assertStringContainsString('RewriteRule ^(.*)$ public/$1', $root);
 
-        foreach (['app', 'bootstrap', 'config', 'database', 'install', 'lang', 'resources', 'routes', 'storage', 'tests', 'vendor'] as $dir) {
+        foreach (['app', 'bootstrap', 'config', 'database', 'install', 'lang', 'resources', 'routes', 'storage', 'tests'] as $dir) {
             $this->assertFileExists(base_path($dir.'/.htaccess'), "{$dir}/.htaccess must deny web access");
             $this->assertStringContainsString('Require all denied', file_get_contents(base_path($dir.'/.htaccess')));
         }
+
+        // vendor/ (installed by Composer, not versioned) and docs/ get their guard while the release is packaged.
+        $this->assertMatchesRegularExpression("/foreach \(\[[^\]]*'vendor'[^\]]*'docs'\] as \\\$dir\)/", file_get_contents(base_path('scripts/build-release.php')));
 
         $public = file_get_contents(public_path('.htaccess'));
         $this->assertStringContainsString('Options -Indexes', $public);
