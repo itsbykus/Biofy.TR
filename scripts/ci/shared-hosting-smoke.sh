@@ -55,13 +55,23 @@ curl "${CURL_OPTS[@]}" -s -o /dev/null --data-urlencode "weblog_title=CI Blog" -
     "http://example.test/wp-admin/install.php?step=2"
 body_contains "WordPress is installed and running" "http://example.test/" "CI Blog"
 [ -f "$HOSTING/user/public_html/.htaccess" ] && pass "WordPress .htaccess present in public_html" || fail "WordPress .htaccess missing"
-# Baseline (before Biofy.TR exists), so the same check at the end shows whether anything changed.
-body_contains "WordPress routes its own URLs (baseline)" "http://example.test/no-such-page/" "wp-content"
-if ! grep -q wp-content "$WORK/body"; then
-    echo "  .htaccess:"; sed 's/^/    /' "$HOSTING/user/public_html/.htaccess"
-    docker exec hosting apache2ctl -M 2>/dev/null >"$WORK/mods" || true
-    grep -i rewrite "$WORK/mods" || echo "    mod_rewrite not loaded"
-fi
+# Pretty permalinks, as on most real sites: the option plus the rules WordPress writes when saving them.
+docker exec db mariadb -h127.0.0.1 -uroot -prootpw wordpress -e "UPDATE wp_options SET option_value='/%postname%/' WHERE option_name='permalink_structure'"
+cat > "$HOSTING/user/public_html/.htaccess" <<'HTACCESS'
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+HTACCESS
+# Baseline (before Biofy.TR exists); the same check runs again at the end.
+body_contains "WordPress pretty URL /hello-world/ (baseline)" "http://example.test/hello-world/" "Hello world"
 
 section "Upload the release over FTP"
 python3 -m venv "$WORK/ftpenv" && "$WORK/ftpenv/bin/pip" install -q pyftpdlib
@@ -159,7 +169,7 @@ done
 section "WordPress still works"
 CURL_OPTS=(--resolve example.test:80:127.0.0.1)
 body_contains "WordPress home page" "http://example.test/" "CI Blog"
-body_contains "WordPress still routes its own URLs (.htaccess)" "http://example.test/no-such-page/" "wp-content"
+body_contains "WordPress pretty URL /hello-world/ still works" "http://example.test/hello-world/" "Hello world"
 expect_eq "WordPress login page" "$(http_code "http://example.test/wp-login.php")" 200
 
 finish
