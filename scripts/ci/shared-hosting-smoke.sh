@@ -46,6 +46,7 @@ docker run -d --name hosting --network hostnet -p 80:80 \
     biofy-ci-hosting >/dev/null
 for _ in $(seq 1 60); do [ -f "$HOSTING/user/public_html/wp-config.php" ] && break; sleep 2; done
 sleep 3
+echo "  PHP runs as: $(docker exec hosting sh -c 'echo "$APACHE_RUN_USER"') (runner uid $RUN_UID); wp-config.php owner: $(stat -c %u "$HOSTING/user/public_html/wp-config.php")"
 
 CURL_OPTS=(--resolve example.test:80:127.0.0.1)
 curl "${CURL_OPTS[@]}" -s -o /dev/null --data-urlencode "weblog_title=CI Blog" --data "user_name=wpadmin&admin_password=Wp-Pass-12345&admin_password2=Wp-Pass-12345&pw_weak=1&admin_email=wp@example.com&blog_public=0" \
@@ -55,7 +56,8 @@ body_contains "WordPress is installed and running" "http://example.test/" "CI Bl
 
 section "Upload the release over FTP"
 python3 -m venv "$WORK/ftpenv" && "$WORK/ftpenv/bin/pip" install -q pyftpdlib
-"$WORK/ftpenv/bin/python" -m pyftpdlib -i 127.0.0.1 -p 2121 -u ftpuser -P ftppass -d "$HOSTING" -w >"$WORK/ftp.log" 2>&1 &
+# Typical FTP server defaults: files 644, folders 755.
+(umask 022; exec "$WORK/ftpenv/bin/python" -m pyftpdlib -i 127.0.0.1 -p 2121 -u ftpuser -P ftppass -d "$HOSTING" -w >"$WORK/ftp.log" 2>&1) &
 FTP_PID=$!
 sleep 2
 unzip -q "$ZIP" -d "$WORK/release"
@@ -87,7 +89,9 @@ run_installer() {
     grep -q 'class="bad"' "$page" && fail "$host: a required check failed" || pass "$host: requirements met"
     post --data action=requirements >/dev/null; get
     grep -q 'name="install_key"' "$page" || fail "$host: install key step not shown"
-    post --data action=key --data-urlencode "install_key=$(tr -d '\r\n' < "$HOSTING/$5/storage/app/private/install.key")" >/dev/null; get
+    # Read on the server side, as the owner would with the hosting file manager.
+    echo "  install.key: $(docker exec hosting stat -c '%u:%g %a' "/home/$5/storage/app/private/install.key" 2>&1)"
+    post --data action=key --data-urlencode "install_key=$(docker exec hosting cat "/home/$5/storage/app/private/install.key" | tr -d '\r\n')" >/dev/null; get
     post --data action=database --data host=db --data port=3306 --data "database=$2" --data "username=$3" --data-urlencode "password=$4" --data prefix= >/dev/null; get
     grep -q 'name="admin_username"' "$page" && pass "$host: database accepted" || fail "$host: database step failed"
     post --data action=site --data-urlencode "url=$base" --data-urlencode "name=Biofy $host" --data locale=tr --data timezone=Europe/Istanbul \
@@ -111,14 +115,14 @@ check_site() {
     url=$(absolute "$base" "$(upload_media "$base" "$jar" "$WORK/test.png")")
     [ "$url" != "$base" ] && pass "$host: image uploaded" || fail "$host: upload failed"
     expect_eq "$host: uploaded image served" "$(http_code "$url")" 200
-    echo '<?php echo 6*7;' > "$HOSTING/$3/probe.php"
+    docker exec hosting sh -c "echo '<?php echo 6*7;' > /home/$3/probe.php"
     body_lacks "$host: PHP inside media/ is not executed" "$base/media/probe.php" 42
-    rm -f "$HOSTING/$3/probe.php"
+    docker exec hosting rm -f "/home/$3/probe.php"
     for path in /.env /.htaccess /composer.json /artisan /storage/app/private/installed.lock /vendor/autoload.php /install/installer.php /bootstrap/app.php /config/app.php /docs/INSTALLATION.md /release-manifest.json; do
         expect_in "$host: GET $path" "$(http_code "$base$path")" 403 404
     done
     body_lacks "$host: .env content never served" "$base/.env" "APP_KEY"
-    docker exec -u "$RUN_UID:$RUN_GID" hosting php "/home/${2}/artisan" biofy:maintenance >/dev/null && pass "$host: CLI/cron command runs" || fail "$host: artisan failed"
+    docker exec -u "$(stat -c %u:%g "$HOSTING/$2/.env")" hosting php "/home/${2}/artisan" biofy:maintenance >/dev/null && pass "$host: CLI/cron command runs" || fail "$host: artisan failed"
 }
 
 make_png "$WORK/test.png"

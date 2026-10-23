@@ -25,14 +25,26 @@ expect_in() {
 
 http_code() { curl "${CURL_OPTS[@]}" -s -o /dev/null -w '%{http_code}' "$@" || true; }
 
+# Bodies are saved before searching: with pipefail, "curl | grep -q" can fail on SIGPIPE after a match.
+fetch() { curl "${CURL_OPTS[@]}" -s -o "$WORK/body" "$1" || true; }
+
 # body_contains LABEL URL NEEDLE
 body_contains() {
-    if curl "${CURL_OPTS[@]}" -s "$2" | grep -q -- "$3"; then pass "$1"; else fail "$1: '$3' not found at $2"; fi
+    fetch "$2"
+    if grep -q -- "$3" "$WORK/body"; then pass "$1"; else fail "$1: '$3' not found at $2"; fi
 }
 
 # body_lacks LABEL URL NEEDLE  (e.g. secrets must never be served)
 body_lacks() {
-    if curl "${CURL_OPTS[@]}" -s "$2" | grep -q -- "$3"; then fail "$1: '$3' was served at $2"; else pass "$1"; fi
+    fetch "$2"
+    if grep -q -- "$3" "$WORK/body"; then fail "$1: '$3' was served at $2"; else pass "$1"; fi
+}
+
+# output_contains LABEL NEEDLE COMMAND...  (runs the command into a file, then searches it)
+output_contains() {
+    local label=$1 needle=$2; shift 2
+    "$@" >"$WORK/out" 2>&1 || true
+    if grep -q -- "$needle" "$WORK/out"; then pass "$label"; else fail "$label: '$needle' not in output of: $*"; fi
 }
 
 # login BASE JAR EMAIL PASSWORD -> prints the redirect target
@@ -60,10 +72,11 @@ PY
 # upload_media BASE JAR FILE -> prints the public URL of the stored image
 upload_media() {
     local base=$1 jar=$2 token
-    token=$(curl "${CURL_OPTS[@]}" -sS -c "$jar" -b "$jar" "$base/dashboard/media" | grep -o 'name="csrf-token" content="[^"]*"' | head -1 | sed 's/.*content="//; s/"$//')
+    curl "${CURL_OPTS[@]}" -sS -c "$jar" -b "$jar" -o "$WORK/media.html" "$base/dashboard/media"
+    token=$(grep -o 'name="csrf-token" content="[^"]*"' "$WORK/media.html" | head -1 | sed 's/.*content="//; s/"$//')
     curl "${CURL_OPTS[@]}" -sS -c "$jar" -b "$jar" -H 'Accept: application/json' -H "X-CSRF-TOKEN: $token" \
-        -F "file=@$3;type=image/png" -F purpose=block "$base/dashboard/media" \
-        | python3 -c 'import json,sys; print(json.load(sys.stdin).get("url",""))' 2>/dev/null || true
+        -F "file=@$3;type=image/png" -F purpose=block -o "$WORK/upload.json" "$base/dashboard/media" || true
+    python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("url",""))' "$WORK/upload.json" 2>/dev/null || true
 }
 
 # absolute BASE URL -> URL made absolute against BASE

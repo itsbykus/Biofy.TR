@@ -38,7 +38,7 @@ wait_healthy() {
 section "Build and first start"
 "${COMPOSE[@]}" up -d --build --wait --wait-timeout 900
 expect_eq "container health" "$(docker inspect -f '{{.State.Health.Status}}' "$("${COMPOSE[@]}" ps -q app)")" healthy
-"${COMPOSE[@]}" logs --no-color app | grep -q "Installed. Sign in" && pass "first start installed the application" || fail "install message missing"
+output_contains "first start installed the application" "Installed. Sign in" "${COMPOSE[@]}" logs --no-color app
 
 section "HTTPS behind the proxy"
 expect_eq "GET /up" "$(http_code "$BASE/up")" 200
@@ -70,7 +70,7 @@ expect_eq "code is not writable by the web user" "$("${COMPOSE[@]}" exec -T app 
 
 section "Redeploy: rebuild and recreate containers (volumes kept)"
 "${COMPOSE[@]}" up -d --build --force-recreate --wait --wait-timeout 900
-"${COMPOSE[@]}" logs --no-color app | grep -q "up to date; no pending migrations" && pass "no reinstall, nothing to migrate" || fail "unexpected setup output after redeploy"
+output_contains "no reinstall, nothing to migrate" "up to date; no pending migrations" "${COMPOSE[@]}" logs --no-color app
 rm -f "$JAR"
 expect_eq "admin can still sign in (database kept)" "$(login "$BASE" "$JAR" "$BIOFY_ADMIN_EMAIL" "$BIOFY_ADMIN_PASSWORD")" "$BASE/admin"
 expect_eq "uploaded image survived (media volume kept)" "$(http_code "$MEDIA_URL")" 200
@@ -79,9 +79,9 @@ section "Next release with a new migration: backup first, then migrate"
 "${COMPOSE[@]}" exec -T -u root app sh -c 'cat > database/migrations/2099_01_01_000000_ci_probe.php' < scripts/ci/docker/ci_probe_migration.php
 "${COMPOSE[@]}" restart app
 wait_healthy && pass "healthy after migrating" || fail "not healthy after migrating"
-"${COMPOSE[@]}" logs --no-color app | grep -q "backup first" && pass "pre-migration backup announced" || fail "no backup before migrating"
-"${COMPOSE[@]}" exec -T app sh -c 'ls storage/app/private/backups' | grep -q pre_update && pass "pre_update backup stored in the storage volume" || fail "backup file missing"
-"${COMPOSE[@]}" exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "SHOW TABLES LIKE '"'"'ci_probe'"'"'" "$MYSQL_DATABASE"' 2>/dev/null | grep -q ci_probe \
-    && pass "migration applied" || fail "migration not applied"
+output_contains "pre-migration backup announced" "backup first" "${COMPOSE[@]}" logs --no-color app
+output_contains "pre_update backup stored in the storage volume" pre_update "${COMPOSE[@]}" exec -T app ls storage/app/private/backups
+output_contains "migration applied" ci_probe \
+    "${COMPOSE[@]}" exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "SHOW TABLES LIKE '"'"'ci_probe'"'"'" "$MYSQL_DATABASE"'
 
 finish
