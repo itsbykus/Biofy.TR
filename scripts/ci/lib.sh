@@ -31,7 +31,7 @@ fetch() { curl "${CURL_OPTS[@]}" -s -o "$WORK/body" "$1" || true; }
 # body_contains LABEL URL NEEDLE
 body_contains() {
     fetch "$2"
-    if grep -q -- "$3" "$WORK/body"; then pass "$1"; else fail "$1: '$3' not found at $2"; fi
+    if grep -q -- "$3" "$WORK/body"; then pass "$1"; else fail "$1: '$3' not found at $2 (body starts: $(head -c 300 "$WORK/body" | tr '\n' ' '))"; fi
 }
 
 # body_lacks LABEL URL NEEDLE  (e.g. secrets must never be served)

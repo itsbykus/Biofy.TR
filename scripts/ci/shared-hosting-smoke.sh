@@ -21,7 +21,7 @@ on_exit() {
     if [ "$code" -ne 0 ] || [ "$FAILURES" -ne 0 ]; then
         echo "---- hosting logs ----"; docker logs --tail 100 hosting 2>&1 || true
         for log in "$HOSTING"/user/biofy/storage/logs/*.log "$HOSTING"/user2/biofy/storage/logs/*.log "$HOSTING"/user/public_html/bio2/storage/logs/*.log; do
-            [ -f "$log" ] && { echo "---- $log"; tail -40 "$log"; }
+            [ -f "$log" ] && { echo "---- $log"; docker exec hosting tail -40 "/home/${log#"$HOSTING"/}" 2>&1 || tail -40 "$log"; }
         done
     fi
 }
@@ -38,15 +38,17 @@ CREATE DATABASE user_biofya; CREATE USER 'user_a'@'%' IDENTIFIED BY 'a-pass-123'
 CREATE DATABASE user2_biofyb; CREATE USER 'user2_b'@'%' IDENTIFIED BY 'b-pass-123'; GRANT ALL ON user2_biofyb.* TO 'user2_b'@'%';
 CREATE DATABASE user_biofyc; CREATE USER 'user_c'@'%' IDENTIFIED BY 'c-pass-123'; GRANT ALL ON user_biofyc.* TO 'user_c'@'%';
 SQL
-docker build -q -t biofy-ci-hosting scripts/ci/shared-hosting >/dev/null
+docker build -q --build-arg ACCOUNT_UID="$RUN_UID" --build-arg ACCOUNT_GID="$RUN_GID" -t biofy-ci-hosting scripts/ci/shared-hosting >/dev/null
 docker run -d --name hosting --network hostnet -p 80:80 \
-    -e APACHE_RUN_USER="#$RUN_UID" -e APACHE_RUN_GROUP="#$RUN_GID" \
     -e WORDPRESS_DB_HOST=db -e WORDPRESS_DB_USER=wp -e WORDPRESS_DB_PASSWORD=wp-pass-123 -e WORDPRESS_DB_NAME=wordpress \
     -v "$HOSTING/user:/home/user" -v "$HOSTING/user/public_html:/var/www/html" -v "$HOSTING/user2:/home/user2" \
     biofy-ci-hosting >/dev/null
 for _ in $(seq 1 60); do [ -f "$HOSTING/user/public_html/wp-config.php" ] && break; sleep 2; done
 sleep 3
-echo "  PHP runs as: $(docker exec hosting sh -c 'echo "$APACHE_RUN_USER"') (runner uid $RUN_UID); wp-config.php owner: $(stat -c %u "$HOSTING/user/public_html/wp-config.php")"
+docker exec hosting sh -c 'echo "<?php echo posix_getuid();" > /var/www/html/ci-uid.php'
+PHP_UID=$(curl -s --resolve example.test:80:127.0.0.1 http://example.test/ci-uid.php || true)
+docker exec hosting rm -f /var/www/html/ci-uid.php
+expect_eq "PHP runs as the hosting account (FTP) user" "$PHP_UID" "$RUN_UID"
 
 CURL_OPTS=(--resolve example.test:80:127.0.0.1)
 curl "${CURL_OPTS[@]}" -s -o /dev/null --data-urlencode "weblog_title=CI Blog" --data "user_name=wpadmin&admin_password=Wp-Pass-12345&admin_password2=Wp-Pass-12345&pw_weak=1&admin_email=wp@example.com&blog_public=0" \
@@ -97,7 +99,10 @@ run_installer() {
     post --data action=site --data-urlencode "url=$base" --data-urlencode "name=Biofy $host" --data locale=tr --data timezone=Europe/Istanbul \
         --data admin_name=Owner --data admin_username=owner --data admin_email=owner@example.com \
         --data-urlencode "admin_password=$ADMIN_PW" --data-urlencode "admin_password_confirmation=$ADMIN_PW" >/dev/null; get
-    expect_eq "$host: install request" "$(post --data action=install)" 200
+    local status
+    status=$(post --data action=install)
+    expect_eq "$host: install request" "$status" 200
+    [ "$status" = 200 ] || get   # a failed install redirects back with the error message
     [ -f "$HOSTING/$5/storage/app/private/installed.lock" ] && pass "$host: installer locked itself" || fail "$host: lock file missing"
     [ ! -f "$HOSTING/$5/storage/app/private/install.key" ] && pass "$host: install key removed" || fail "$host: install key still present"
     expect_eq "$host: .env permissions" "$(stat -c %a "$HOSTING/$5/.env")" 640
