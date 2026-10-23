@@ -359,7 +359,9 @@ class BackupService
     /** @return list<string> */
     private function tables(): array
     {
-        $tables = array_map(fn ($t) => is_array($t) ? $t['name'] : $t, Schema::getTableListing(schemaQualified: false));
+        // Only this connection's database: without a schema Laravel lists every database the user can
+        // see (on shared hosting often WordPress' as well), and those tables are not ours to back up.
+        $tables = array_map(fn ($t) => is_array($t) ? $t['name'] : $t, Schema::getTableListing(Schema::getCurrentSchemaListing(), false));
         $prefix = DB::connection()->getTablePrefix();
 
         return array_values(array_filter(

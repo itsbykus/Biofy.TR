@@ -47,6 +47,7 @@ return [
         'unsigned' => 'The manifest is unsigned or no public key is configured; only file integrity was checked.',
         'bad_signature' => 'Manifest signature INVALID! Files may not match the official release.',
         'no_manifest' => 'Release manifest not found.',
+        'incomplete' => 'Verification stopped at the time limit; not every file was checked. Try again or raise PHP max_execution_time in your hosting panel.',
         'files_mismatch' => 'Some files are missing or modified.',
     ],
     'checks' => [

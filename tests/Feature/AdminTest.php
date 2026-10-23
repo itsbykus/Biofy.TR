@@ -98,7 +98,7 @@ class AdminTest extends TestCase
         $png = (string) ob_get_clean();
 
         $this->actingAs($admin)->withSession($session)->put(route('admin.settings.update', 'brand'), [
-            'site__logo_media_id' => \Illuminate\Http\UploadedFile::fake()->createWithContent('logo.png', $png),
+            'site__logo_media_id' => \Illuminate\Http\UploadedFile::fake()->createWithContent('logo.png', $png), 'site__logo_height' => 40,
             'site__primary_color' => '#FFCF00', 'site__secondary_color' => '#111111', 'site__accent_color' => '#2563EB',
             'profiles__default_theme' => app(Settings::class)->get('profiles.default_theme'),
         ])->assertSessionHasNoErrors()->assertRedirect();

@@ -13,8 +13,8 @@
         </div>
     @endif
 
-    <header class="sticky top-0 z-30 border-b border-zinc-100 bg-white/90 backdrop-blur">
-        <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6" aria-label="{{ __('common.main_navigation') }}">
+    <header class="sticky top-0 z-30 border-b border-zinc-100 bg-white/90 text-zinc-900 backdrop-blur">
+        <nav class="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6" aria-label="{{ __('common.main_navigation') }}">
             <x-logo />
             <ul class="hidden items-center gap-1 md:flex">
                 @foreach ($site['header_menu'] as $item)
@@ -51,40 +51,53 @@
         @yield('content')
     </main>
 
-    <footer class="border-t border-zinc-100 bg-zinc-50">
-        <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+    @php
+        $f = $site['footer'];
+        // Admin → Settings → Footer → style
+        $tone = [
+            'light' => ['wrap' => 'border-t border-zinc-100 bg-zinc-50 text-zinc-900', 'muted' => 'text-zinc-500', 'link' => 'text-zinc-600 hover:text-zinc-900', 'line' => 'border-zinc-200', 'chip' => 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:text-zinc-900 hover:ring-zinc-300'],
+            'dark' => ['wrap' => 'bg-ink text-white', 'muted' => 'text-zinc-400', 'link' => 'text-zinc-300 hover:text-white', 'line' => 'border-white/10', 'chip' => 'bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20'],
+            'brand' => ['wrap' => 'bg-brand text-ink', 'muted' => 'text-ink/70', 'link' => 'text-ink/80 hover:text-ink', 'line' => 'border-ink/15', 'chip' => 'bg-ink/10 text-ink ring-1 ring-ink/15 hover:bg-ink/20'],
+        ][$f['style']];
+    @endphp
+    <footer class="{{ $tone['wrap'] }}">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
             <div>
-                <x-logo size="sm" />
-                <p class="mt-3 max-w-sm text-sm text-zinc-500">{{ $site['footer_text'] ?: $site['tagline'] }}</p>
-                @if ($site['social'])
-                    <ul class="mt-4 flex gap-2">
+                <x-logo variant="footer" />
+                <p class="mt-4 max-w-sm text-sm leading-relaxed {{ $tone['muted'] }}">{{ $site['footer_text'] ?: $site['tagline'] }}</p>
+                @if ($f['show_social'] && $site['social'])
+                    <ul class="mt-5 flex flex-wrap gap-2">
                         @foreach ($site['social'] as $platform => $url)
-                            <li><a href="{{ $url }}" target="_blank" rel="noopener" class="grid size-9 place-items-center rounded-full bg-white text-zinc-700 ring-1 ring-zinc-200 hover:text-zinc-900"><x-brand-icon :platform="$platform" class="size-4" /></a></li>
+                            <li><a href="{{ $url }}" target="_blank" rel="noopener" class="grid size-9 place-items-center rounded-full transition {{ $tone['chip'] }}" aria-label="{{ __('social.platforms.'.$platform) }}"><x-brand-icon :platform="$platform" class="size-4" /></a></li>
                         @endforeach
                     </ul>
                 @endif
             </div>
-            <nav aria-label="{{ __('common.footer_navigation') }}">
-                <h2 class="text-sm font-semibold text-zinc-900">{{ __('site.footer.product') }}</h2>
-                <ul class="mt-3 space-y-2 text-sm">
-                    @foreach ($site['header_menu'] as $item)
-                        <li><a href="{{ $item['url'] }}" class="text-zinc-600 hover:text-zinc-900">{{ $item['label'] }}</a></li>
-                    @endforeach
-                </ul>
-            </nav>
-            <nav aria-label="{{ __('site.footer.company') }}">
-                <h2 class="text-sm font-semibold text-zinc-900">{{ __('site.footer.company') }}</h2>
-                <ul class="mt-3 space-y-2 text-sm">
-                    @foreach ($site['footer_menu'] as $item)
-                        <li><a href="{{ $item['url'] }}" class="text-zinc-600 hover:text-zinc-900">{{ $item['label'] }}</a></li>
-                    @endforeach
-                </ul>
-            </nav>
+            @if ($site['header_menu'])
+                <nav aria-label="{{ $f['product_title'] }}">
+                    <h2 class="text-sm font-semibold">{{ $f['product_title'] }}</h2>
+                    <ul class="mt-4 space-y-2.5 text-sm">
+                        @foreach ($site['header_menu'] as $item)
+                            <li><a href="{{ $item['url'] }}" class="{{ $tone['link'] }}" @if ($item['external']) target="_blank" rel="noopener" @endif>{{ $item['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+            @endif
+            @if ($site['footer_menu'])
+                <nav aria-label="{{ $f['company_title'] }}">
+                    <h2 class="text-sm font-semibold">{{ $f['company_title'] }}</h2>
+                    <ul class="mt-4 space-y-2.5 text-sm">
+                        @foreach ($site['footer_menu'] as $item)
+                            <li><a href="{{ $item['url'] }}" class="{{ $tone['link'] }}" @if ($item['external']) target="_blank" rel="noopener" @endif>{{ $item['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+            @endif
         </div>
-        <div class="border-t border-zinc-200">
-            <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-zinc-500 sm:flex-row sm:px-6">
-                <p>© {{ date('Y') }} {{ $site['name'] }}. {{ __('site.footer.rights') }}</p>
-                <x-lang-switcher />
+        <div class="border-t {{ $tone['line'] }}">
+            <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs sm:flex-row sm:px-6 {{ $tone['muted'] }}">
+                <p>{{ $f['copyright'] }}</p>
+                <x-lang-switcher :tone="$f['style'] === 'dark' ? 'dark' : 'light'" />
             </div>
         </div>
     </footer>

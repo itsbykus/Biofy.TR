@@ -160,6 +160,7 @@ class MediaService
         return array_values(array_filter([
             $settings->get('site.logo_media_id'),
             $settings->get('site.favicon_media_id'),
+            $settings->get('footer.logo_media_id'),
             $settings->get('seo.og_image_media_id'),
         ]));
     }

@@ -12,7 +12,7 @@
 return [
 
     // Bumped on every release; compared with the installed version to detect pending updates.
-    'version' => '1.0.2',
+    'version' => '1.0.3',
 
     'brand_color' => '#FFCF00',
 

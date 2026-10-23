@@ -47,6 +47,7 @@ return [
         'unsigned' => 'Manifest imzasız veya genel anahtar tanımlı değil; yalnızca dosya bütünlüğü kontrol edildi.',
         'bad_signature' => 'Manifest imzası GEÇERSİZ! Dosyalar resmi sürümle eşleşmiyor olabilir.',
         'no_manifest' => 'Sürüm manifesti bulunamadı.',
+        'incomplete' => 'Süre sınırı nedeniyle doğrulama yarıda kaldı; dosyaların tamamı kontrol edilmedi. Tekrar deneyin veya hosting panelinden PHP max_execution_time değerini artırın.',
         'files_mismatch' => 'Bazı dosyalar eksik veya değişmiş.',
     ],
     'checks' => [

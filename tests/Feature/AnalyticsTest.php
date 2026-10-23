@@ -15,6 +15,15 @@ class AnalyticsTest extends TestCase
 
     protected bool $seed = true;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Analytics days are Istanbul days while now() is UTC: at midday both are the same date,
+        // so the suite does not depend on the hour it runs (it failed between 21:00 and 24:00 UTC).
+        $this->travelTo(now('Europe/Istanbul')->setTime(12, 0));
+    }
+
     private const BROWSER = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
     private function publishedProfileWithLink(string $slug = 'stats', string $package = 'pro'): array
@@ -29,8 +38,6 @@ class AnalyticsTest extends TestCase
 
     public function test_views_are_recorded_deduplicated_and_bots_ignored(): void
     {
-        // Midday, so travelling 31 minutes below stays on the same (Istanbul) day whenever the suite runs.
-        $this->travelTo(now('Europe/Istanbul')->setTime(12, 0));
         [, $profile] = $this->publishedProfileWithLink();
 
         $this->flushHeaders()->withHeaders(['User-Agent' => self::BROWSER, 'Referer' => 'https://l.instagram.com/x'])->get('/stats')->assertOk();

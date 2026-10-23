@@ -2,6 +2,24 @@
 
 Sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.0.3] — 2026-10-24
+
+Yeni ana sayfa, footer ve logo ayarları. Veritabanı değişikliği (migration) yoktur; 1.0.2 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir. Yeni ayarlar varsayılan değerleriyle gelir; görünüm, siz değiştirene kadar önceki sürüme yakındır.
+
+### Eklenenler
+- **Yönetim → Ayarlar → Alt bilgi (footer):** görünüm (açık / koyu / marka rengi), ayrı footer logosu ve yüksekliği, logonun yanındaki marka yazısı (göster/gizle, metin), açıklama metni, sosyal ikonları göster/gizle, iki bağlantı sütununun başlıkları, `{year}` ve `{site}` destekli telif metni. Bağlantılar her zamanki gibi Yönetim → Menüler'den yönetilir.
+- **Yönetim → Ayarlar → Marka:** logo yüksekliği (16–96 px). Görsel logoya veya metin logoya uygulanır; üst menü buna göre büyür.
+- **Yeniden tasarlanan ana sayfa (landing)** ve ayarları: giriş bölümü görünümü (ışıltılı / koyu / sade), rozet metni, ikinci buton (metin + bağlantı), "Nasıl çalışır?" bölümü, düzenlenebilir özellikler başlığı/metni, kapanış bölümü başlığı/metni; "Nasıl çalışır?", "Özellikler", "Temalar" ve "Fiyatlandırma" bölümleri ayrı ayrı açılıp kapatılabilir.
+
+### Düzeltilenler
+- **Sosyal ikonlarda e-posta (ve web sitesi) ikonu bozuktu:** çizgi ikonları içi dolu çiziliyordu.
+- **Ayarlarda onay kutuları kapatılamıyordu:** işareti kaldırılan bir kutu "değiştirme" olarak yorumlanıp kaydedilmiyordu (ör. duyuru bandı, arama motoru dizinleme, Google ile giriş).
+- **Yapılandırılmış veri (JSON-LD) bozuktu:** ana sayfa ve bio sayfalarında `@context` anahtarı Laravel'in Blade direktifi olarak derleniyordu; arama motorları geçersiz JSON görüyordu.
+- **Güncelleme öncesi yedek başarısız oluyordu ("Undefined array key 0"):** veritabanı kullanıcısı başka veritabanlarını da görebiliyorsa (paylaşımlı hostingde sık görülür, ör. WordPress'inki) yedekleme o veritabanlarının tablolarını da almaya çalışıyordu. Bu da "Güncellemeyi uygula"yı durduruyordu. Artık yalnızca uygulamanın kendi veritabanı yedeklenir.
+- **"Dosya bütünlüğünü doğrula" 30 saniyelik PHP sınırına takılıyordu** (500 hatası). Ayrıca süre dolup dosyaların bir kısmı kontrol edilmeden kalınca sonuç yine "ok" görünüyordu. Doğrulama artık izin verilen yerde süre sınırını uzatıyor, gerçek sınırdan önce duruyor ve tamamlanamazsa "yarıda kaldı" diyor.
+- Ayarlar kaydedildikten sonra aynı istek döngüsünde eski site bilgileri kullanılabiliyordu.
+- Analitik testleri UTC 21:00–24:00 arasında çalıştırıldığında başarısız oluyordu (test saati artık sabit).
+
 ## [1.0.2] — 2026-10-23
 
 İlk canlı kurulumda bildirilen sorunlar. Veritabanı değişikliği (migration) yoktur; 1.0.1 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir.

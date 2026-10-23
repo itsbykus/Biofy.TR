@@ -27,6 +27,21 @@ class BackupTest extends TestCase
         \Illuminate\Foundation\Testing\RefreshDatabaseState::$migrated = false;
     }
 
+    public function test_only_this_database_is_backed_up(): void
+    {
+        // Shared hosting: the database user often sees other databases too (e.g. WordPress).
+        \Illuminate\Support\Facades\DB::statement("ATTACH DATABASE ':memory:' AS wordpress");
+        \Illuminate\Support\Facades\DB::statement('CREATE TABLE wordpress.wp_options (option_name TEXT)');
+        $this->assertContains('wp_options', \Illuminate\Support\Facades\Schema::getTableListing(null, false), 'Laravel lists every visible database');
+
+        $tables = (fn () => $this->tables())->call(app(BackupService::class));
+        $this->assertNotContains('wp_options', $tables);
+        $this->assertContains('users', $tables);
+
+        $record = app(BackupService::class)->create('manual');
+        $this->assertSame('completed', $record->status, 'used to fail with "Undefined array key 0"');
+    }
+
     public function test_backup_is_created_verified_and_protected(): void
     {
         $admin = $this->makeSuperAdmin();

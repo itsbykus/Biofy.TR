@@ -40,7 +40,7 @@
     @vite(array_merge(['resources/css/profile.css', 'resources/js/profile.js'], array_map(fn ($f) => 'resources/css/fonts/'.$f.'.css', $fonts)))
     @unless ($seo['noindex'])
         <script type="application/ld+json" nonce="{{ $nonce }}">{!! json_encode([
-            '@context' => 'https://schema.org',
+            '@'.'context' => 'https://schema.org', // split so Blade does not compile it as its context directive
             '@type' => 'ProfilePage',
             'url' => $seo['canonical'],
             'name' => $seo['title'],

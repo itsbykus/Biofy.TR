@@ -693,6 +693,11 @@ a {
     fill: currentColor;
 }
 
+/* Line icons without a brand glyph (e-mail, website) are drawn with strokes, not filled. */
+.bp-social svg[stroke] {
+    fill: none;
+}
+
 .ish-rounded .bp-social a {
     border-radius: 28%;
 }

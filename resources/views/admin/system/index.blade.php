@@ -55,10 +55,10 @@
             <p class="muted">{{ __('system.integrity_help') }}</p>
             <form method="POST" action="{{ route('admin.system.verify-release') }}">@csrf<button class="btn btn-secondary">{{ __('system.verify_files') }}</button></form>
             @if ($release)
-                <div @class(['alert', 'alert-success' => $release['status'] === 'ok', 'alert-warning' => in_array($release['status'], ['unsigned', 'no_manifest'], true), 'alert-error' => in_array($release['status'], ['bad_signature', 'files_mismatch'], true)])>
+                <div @class(['alert', 'alert-success' => $release['status'] === 'ok', 'alert-warning' => in_array($release['status'], ['unsigned', 'no_manifest', 'incomplete'], true), 'alert-error' => in_array($release['status'], ['bad_signature', 'files_mismatch'], true)])>
                     <div>
                         <p class="font-semibold">{{ __('system.release_status.'.$release['status']) }}</p>
-                        <p class="text-xs">{{ __('system.release_checked', ['count' => $release['checked'], 'version' => $release['version'] ?? '?']) }}</p>
+                        <p class="text-xs">{{ __('system.release_checked', ['count' => $release['checked'].(isset($release['total']) && $release['total'] !== $release['checked'] ? ' / '.$release['total'] : ''), 'version' => $release['version'] ?? '?']) }}</p>
                         @foreach (['missing', 'modified'] as $kind)
                             @if ($release[$kind])<p class="mt-2 text-xs font-semibold">{{ __('system.release_'.$kind) }}</p><ul class="font-mono text-[11px]">@foreach ($release[$kind] as $file)<li>{{ $file }}</li>@endforeach</ul>@endif
                         @endforeach

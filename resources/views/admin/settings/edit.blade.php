@@ -32,7 +32,7 @@
                             <x-form.checkbox :name="$input" :label="$label" :checked="$field['value']" :help="$help" />
                             @break
                         @case('translatable')
-                            <x-form.translatable :name="$input" :label="$label" :value="$field['value'] ?? []" :textarea="in_array($key, ['site.description', 'home.hero_subtitle', 'maintenance.message', 'domains.instructions', 'site.footer_text', 'seo.default_description'], true)" :rows="2" :help="$help" />
+                            <x-form.translatable :name="$input" :label="$label" :value="$field['value'] ?? []" :textarea="in_array($key, ['site.description', 'home.hero_subtitle', 'maintenance.message', 'domains.instructions', 'site.footer_text', 'seo.default_description', 'home.features_text', 'home.cta_text'], true)" :rows="2" :help="$help" />
                             @break
                         @case('secret')
                             <div>

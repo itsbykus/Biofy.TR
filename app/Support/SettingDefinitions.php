@@ -20,6 +20,7 @@ final class SettingDefinitions
                 'en' => 'Collect your social accounts, links and content on a single, elegant, mobile-friendly page with Biofy.TR.',
             ]],
             'site.logo_media_id' => ['type' => 'media', 'default' => null],
+            'site.logo_height' => ['type' => 'int', 'default' => 32], // px, header logo (image or text mark)
             'site.favicon_media_id' => ['type' => 'media', 'default' => null],
             'site.primary_color' => ['type' => 'color', 'default' => '#FFCF00'],
             'site.secondary_color' => ['type' => 'color', 'default' => '#111111'],
@@ -44,13 +45,42 @@ final class SettingDefinitions
             ]],
             'site.footer_text' => ['type' => 'translatable', 'default' => ['tr' => '', 'en' => '']],
 
-            // Home page CMS
+            // Footer (empty texts fall back to the site name / tagline)
+            'footer.style' => ['type' => 'string', 'default' => 'light'],
+            'footer.logo_media_id' => ['type' => 'media', 'default' => null],
+            'footer.logo_height' => ['type' => 'int', 'default' => 28],
+            'footer.show_brand_text' => ['type' => 'bool', 'default' => true],
+            'footer.brand_text' => ['type' => 'translatable', 'default' => ['tr' => '', 'en' => '']],
+            'footer.show_social' => ['type' => 'bool', 'default' => true],
+            'footer.product_title' => ['type' => 'translatable', 'default' => ['tr' => 'Ürün', 'en' => 'Product']],
+            'footer.company_title' => ['type' => 'translatable', 'default' => ['tr' => 'Kurumsal', 'en' => 'Company']],
+            'footer.copyright' => ['type' => 'translatable', 'default' => ['tr' => '© {year} {site}. Tüm hakları saklıdır.', 'en' => '© {year} {site}. All rights reserved.']],
+
+            // Home page (landing) CMS
+            'home.hero_style' => ['type' => 'string', 'default' => 'glow'],
+            'home.badge' => ['type' => 'translatable', 'default' => ['tr' => '', 'en' => '']],
             'home.hero_title' => ['type' => 'translatable', 'default' => ['tr' => 'Tek bağlantı. Tüm dünyan.', 'en' => 'One link. Your whole world.']],
             'home.hero_subtitle' => ['type' => 'translatable', 'default' => [
                 'tr' => 'Sosyal medya hesaplarını, içeriklerini ve işini tek bir şık sayfada topla. Dakikalar içinde yayınla.',
                 'en' => 'Bring your social accounts, content and business together on one elegant page. Publish in minutes.',
             ]],
             'home.cta_label' => ['type' => 'translatable', 'default' => ['tr' => 'Ücretsiz başla', 'en' => 'Start for free']],
+            'home.secondary_cta_label' => ['type' => 'translatable', 'default' => ['tr' => 'Temaları keşfet', 'en' => 'Explore themes']],
+            'home.secondary_cta_url' => ['type' => 'string', 'default' => '/themes'],
+            'home.show_features' => ['type' => 'bool', 'default' => true],
+            'home.features_title' => ['type' => 'translatable', 'default' => ['tr' => 'Bir bağlantıdan çok daha fazlası', 'en' => 'Much more than a link']],
+            'home.features_text' => ['type' => 'translatable', 'default' => [
+                'tr' => 'Sayfanı tasarla, içeriklerini paylaş, ziyaretçilerini anla — teknik bilgi gerekmeden.',
+                'en' => 'Design your page, share your content and understand your visitors — no technical skills needed.',
+            ]],
+            'home.show_steps' => ['type' => 'bool', 'default' => true],
+            'home.show_themes' => ['type' => 'bool', 'default' => true],
+            'home.show_pricing' => ['type' => 'bool', 'default' => true],
+            'home.cta_title' => ['type' => 'translatable', 'default' => ['tr' => 'Sayfanı bugün oluştur.', 'en' => 'Create your page today.']],
+            'home.cta_text' => ['type' => 'translatable', 'default' => [
+                'tr' => 'Ücretsiz hesabını aç, temanı seç ve bağlantını dakikalar içinde paylaş.',
+                'en' => 'Open a free account, pick a theme and share your link in minutes.',
+            ]],
 
             // SEO
             'seo.default_title' => ['type' => 'translatable', 'default' => ['tr' => 'Biofy.TR — Link-in-bio sayfanı oluştur', 'en' => 'Biofy.TR — Create your link-in-bio page']],

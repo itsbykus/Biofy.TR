@@ -59,7 +59,7 @@ Kurulum bittikten sonra `public/index.php` sihirbazı bir daha **asla** çalış
 1. Superadmin hesabıyla giriş yapın → Güvenlik → **iki adımlı doğrulamayı** açın.
 2. Yönetim → Sistem → **Hassas dosya erişim testi** (hepsi yeşil olmalı).
 3. Yönetim → Ayarlar → **E-posta (SMTP)**: sunucu bilgilerini girin, "Bağlantıyı test et" ve "Test e-postası gönder" ile doğrulayın. SMTP olmadan doğrulama ve parola sıfırlama e-postaları gönderilmez (yalnızca log'a yazılır).
-4. Yönetim → Ayarlar → **Marka**: logo, favicon ve renkler.
+4. Yönetim → Ayarlar → **Marka** (logo, logo yüksekliği, favicon, renkler), **Ana sayfa (landing)** (görünüm, metinler, bölümler) ve **Alt bilgi (footer)** (footer logosu, marka yazısı, telif metni).
 5. **Google ile giriş** (isteğe bağlı): Google Cloud Console'da OAuth istemci kimliği (Web) oluşturun, yönetimdeki "Yetkilendirilmiş yönlendirme URI" adresini ekleyin, Client ID/Secret'ı girin.
 6. **Cron** (isteğe bağlı): [OPERATIONS.md](OPERATIONS.md#cron).
 7. Yönetim → **Yedekler** → ilk yedeği alın. `.env` dosyasının bir kopyasını güvenli bir yerde saklayın: APP_KEY olmadan şifreli yedekler ve kayıtlı sırlar okunamaz.

@@ -31,6 +31,7 @@ Testler bellek içi SQLite ile çalışır (`phpunit.xml`); harici servis gerekm
 | `Feature/TranslationCompletenessTest` | TR/EN anahtar eşitliği |
 | `Unit/InstallerTest` | Kurulum sihirbazı: kaynak kodu arşivinin (vendor/build yok) tanınması, Vite manifestindeki her dosyanın kontrolü, `release-manifest.json` ile eksik FTP yüklemesinin tespiti (yerleşim B dahil), `.env` üretimi (`APP_DEBUG=false`, güvenli tırnaklama, Laravel'in dotenv ayrıştırıcısıyla okuma), yarıda kalan denemede `APP_KEY`'in korunması, yalnızca hesapsız yarım kurulumun devam ettirilebilmesi; `verify-release.php`'nin kaynak arşivini reddetmesi |
 
+| `Feature/SiteCustomizationTest` | Footer ayarları (görünüm, logo yüksekliği, marka yazısı, sütun başlıkları, telif metni, sosyal ikonlar), logo yüksekliği doğrulaması, ana sayfa bölümleri/metinleri ve güvenli ikinci buton bağlantısı, işareti kaldırılan onay kutularının kaydedilmesi, geçerli JSON-LD, e-posta ikonunun çizgi ikonu olarak çizilmesi |
 | `Feature/SharedHostingLayoutTest` | Yerleşim C (paketin tamamı web kökünde): hiçbir rota uygulama klasörü adıyla (`lang`, `config`, `vendor`…) başlamaz, bu adlar sayfa adresi olarak rezervedir, liste `build-release.php` ile tutarlıdır |
 
 CI ayrıca tüm PHP dosyalarında sözdizimi kontrolü (`php -l`) ve `composer validate` çalıştırır.

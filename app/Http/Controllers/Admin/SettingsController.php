@@ -34,8 +34,12 @@ class SettingsController extends Controller
     {
         return [
             'general' => ['site.name', 'site.tagline', 'site.description', 'site.support_email', 'site.default_locale', 'site.timezone', 'site.default_country', 'site.social_links'],
-            'brand' => ['site.logo_media_id', 'site.favicon_media_id', 'site.primary_color', 'site.secondary_color', 'site.accent_color', 'profiles.default_theme'],
-            'home' => ['home.hero_title', 'home.hero_subtitle', 'home.cta_label', 'site.footer_text', 'pricing.premium_message'],
+            'brand' => ['site.logo_media_id', 'site.logo_height', 'site.favicon_media_id', 'site.primary_color', 'site.secondary_color', 'site.accent_color', 'profiles.default_theme'],
+            'home' => ['home.hero_style', 'home.badge', 'home.hero_title', 'home.hero_subtitle', 'home.cta_label', 'home.secondary_cta_label', 'home.secondary_cta_url',
+                'home.show_features', 'home.features_title', 'home.features_text', 'home.show_steps', 'home.show_themes', 'home.show_pricing',
+                'home.cta_title', 'home.cta_text', 'pricing.premium_message'],
+            'footer' => ['footer.style', 'footer.logo_media_id', 'footer.logo_height', 'footer.show_brand_text', 'footer.brand_text', 'site.footer_text',
+                'footer.show_social', 'footer.product_title', 'footer.company_title', 'footer.copyright'],
             'seo' => ['seo.default_title', 'seo.default_description', 'seo.og_image_media_id', 'seo.allow_indexing'],
             'auth' => ['auth.login_title', 'auth.login_subtitle', 'auth.register_title', 'auth.register_subtitle', 'registration.enabled', 'registration.require_email_verification', 'registration.default_package', 'profiles.slug_redirect_days'],
             'announcement' => ['announcement.enabled', 'announcement.text', 'announcement.url', 'announcement.style', 'maintenance.enabled', 'maintenance.message', 'maintenance.keep_profiles_online'],
@@ -60,6 +64,11 @@ class SettingsController extends Controller
             'registration.default_package' => ['options' => Package::query()->available()->whereNull('custom_for_user_id')->orderBy('sort_order')->get()->mapWithKeys(fn ($p) => [$p->key => $p->translate('name')])->all()],
             'announcement.style' => ['options' => ['brand' => 'Brand', 'info' => 'Info', 'warning' => 'Warning']],
             'announcement.url' => ['rules' => ['nullable', 'regex:#^(/[^/]|https://)#']],
+            'site.logo_height' => ['rules' => ['integer', 'between:16,96']],
+            'footer.logo_height' => ['rules' => ['integer', 'between:16,96']],
+            'footer.style' => ['options' => ['light' => __('admin.settings.options.light'), 'dark' => __('admin.settings.options.dark'), 'brand' => __('admin.settings.options.brand')]],
+            'home.hero_style' => ['options' => ['glow' => __('admin.settings.options.glow'), 'dark' => __('admin.settings.options.dark'), 'minimal' => __('admin.settings.options.minimal')]],
+            'home.secondary_cta_url' => ['rules' => ['nullable', 'regex:#^(/[^/]|/$|https://)#']],
             'mail.mailer' => ['options' => ['log' => 'Log (no delivery)', 'smtp' => 'SMTP', 'sendmail' => 'Sendmail']],
             'mail.encryption' => ['options' => ['tls' => 'STARTTLS (587)', 'ssl' => 'SSL/TLS (465)', 'none' => 'None']],
             'mail.port' => ['rules' => ['integer', 'between:1,65535']],
@@ -134,6 +143,8 @@ class SettingsController extends Controller
 
         $request->validate($rules);
         $changed = [];
+        // "Leave as it is" (empty secret field, no new upload). Not false: an unticked checkbox is a real false.
+        $keep = new \stdClass;
 
         foreach (self::groups()[$group] as $key) {
             $definition = SettingDefinitions::get($key);
@@ -143,13 +154,12 @@ class SettingsController extends Controller
                 'bool' => $request->boolean($input),
                 'translatable' => ['tr' => (string) $request->input($input.'.tr', ''), 'en' => (string) $request->input($input.'.en', '')],
                 'json' => $this->jsonValue($key, (array) $request->input($input, [])),
-                'secret' => $request->boolean($input.'__clear') ? null : ($request->filled($input) ? (string) $request->input($input) : false),
-                'media' => $request->hasFile($input) ? $media->store($request->file($input), null, $key === 'site.favicon_media_id' ? 'favicon' : ($key === 'seo.og_image_media_id' ? 'seo' : 'brand'))->id : ($request->boolean($input.'__remove') ? null : false),
+                'secret' => $request->boolean($input.'__clear') ? null : ($request->filled($input) ? (string) $request->input($input) : $keep),
+                'media' => $request->hasFile($input) ? $media->store($request->file($input), null, $key === 'site.favicon_media_id' ? 'favicon' : ($key === 'seo.og_image_media_id' ? 'seo' : 'brand'))->id : ($request->boolean($input.'__remove') ? null : $keep),
                 default => $request->input($input),
             };
 
-            // false = keep current (empty secret field / no new upload)
-            if ($value === false) {
+            if ($value === $keep) {
                 continue;
             }
 
@@ -159,6 +169,7 @@ class SettingsController extends Controller
 
         $this->audit->log('settings.updated', null, ['group' => $group, 'keys' => $changed]);
         app(MailConfigurator::class)->apply();
+        app(\App\View\Composers\LayoutComposer::class)->forget();
 
         return back()->with('success', __('admin.saved'));
     }

@@ -7,7 +7,7 @@
 - **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
 - **Diller:** Türkçe (varsayılan) ve İngilizce
 - **Dağıtım:** (1) paylaşımlı WordPress hosting — FTP + web sihirbazı, sunucuda SSH/Composer/Node gerekmez; (2) Coolify — GitHub'a her push'ta otomatik Docker dağıtımı
-- **Sürüm:** 1.0.2
+- **Sürüm:** 1.0.3
 
 ## Öne çıkanlar
 
@@ -49,7 +49,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 129 test
+php artisan test                # 135 test
 php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
 

@@ -7,7 +7,7 @@ A multi-tenant **link-in-bio SaaS** platform. Users sign up, pick a ready-made t
 - **Stack:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (precompiled) · dependency-free JavaScript
 - **Languages:** Turkish (default) and English
 - **Deployment:** (1) shared WordPress hosting — FTP + web installer, no SSH/Composer/Node needed on the server; (2) Coolify — automatic Docker deployment on every push to GitHub
-- **Version:** 1.0.2
+- **Version:** 1.0.3
 
 ## Highlights
 
@@ -49,7 +49,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 129 tests
+php artisan test                # 135 tests
 php scripts/build-release.php   # FTP package -> dist/, verified by scripts/verify-release.php
 ```
 

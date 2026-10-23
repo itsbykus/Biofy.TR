@@ -28,7 +28,7 @@ class LayoutComposer
         $media = [];
 
         try {
-            $ids = array_filter([$this->settings->get('site.logo_media_id'), $this->settings->get('site.favicon_media_id'), $this->settings->get('seo.og_image_media_id')]);
+            $ids = array_filter([$this->settings->get('site.logo_media_id'), $this->settings->get('site.favicon_media_id'), $this->settings->get('seo.og_image_media_id'), $this->settings->get('footer.logo_media_id')]);
             $media = $ids ? Cache::remember('biofy.brand_media.'.implode('-', $ids), 3600, fn () => MediaFile::query()->whereIn('id', $ids)->get()->mapWithKeys(fn ($m) => [$m->id => $m->url()])->all()) : [];
         } catch (Throwable) {
             // Before installation / DB unavailable: fall back to the text logo.
@@ -43,11 +43,28 @@ class LayoutComposer
             ])
             ->values()->all();
 
+        $name = (string) $this->settings->get('site.name');
+        $logo = $media[$this->settings->get('site.logo_media_id')] ?? null;
+        // Pixel heights end up in a CSS variable: clamped integers only.
+        $height = fn (string $key, int $default) => max(16, min(96, (int) ($this->settings->get($key) ?: $default)));
+
         return [
-            'name' => (string) $this->settings->get('site.name'),
+            'name' => $name,
             'tagline' => $this->settings->text('site.tagline'),
             'description' => $this->settings->text('site.description'),
-            'logo' => $media[$this->settings->get('site.logo_media_id')] ?? null,
+            'logo' => $logo,
+            'logo_height' => $height('site.logo_height', 32),
+            'footer' => [
+                'style' => in_array($this->settings->get('footer.style'), ['light', 'dark', 'brand'], true) ? $this->settings->get('footer.style') : 'light',
+                'logo' => $media[$this->settings->get('footer.logo_media_id')] ?? $logo,
+                'logo_height' => $height('footer.logo_height', 28),
+                'brand_text' => $this->settings->text('footer.brand_text') ?: $name,
+                'show_brand_text' => $this->settings->bool('footer.show_brand_text'),
+                'show_social' => $this->settings->bool('footer.show_social'),
+                'product_title' => $this->settings->text('footer.product_title') ?: __('site.footer.product'),
+                'company_title' => $this->settings->text('footer.company_title') ?: __('site.footer.company'),
+                'copyright' => strtr($this->settings->text('footer.copyright'), ['{year}' => date('Y'), '{site}' => $name]),
+            ],
             'favicon' => $media[$this->settings->get('site.favicon_media_id')] ?? null,
             'og_image' => $media[$this->settings->get('seo.og_image_media_id')] ?? null,
             'primary' => (string) $this->settings->get('site.primary_color'),
