@@ -1,45 +1,106 @@
+<div align="center">
+
+<a href="https://biofy.tr"><img src=".github/assets/logo.svg" width="84" height="84" alt="Biofy.TR logosu"></a>
+
 # Biofy.TR
+
+**Tek bağlantı. Tüm dünyan.**<br>
+Kendi sunucunuzda çalışan, çok kullanıcılı link-in-bio platformu: temalar, içerik blokları, analitik ve özel alan adları.
+
+[![Canlı site](https://img.shields.io/badge/canl%C4%B1-biofy.tr-FFCF00?style=for-the-badge&labelColor=111111)](https://biofy.tr)
+[![Son sürüm](https://img.shields.io/github/v/release/itsbykus/Biofy.TR?style=for-the-badge&labelColor=111111&color=444444&label=s%C3%BCr%C3%BCm)](https://github.com/itsbykus/Biofy.TR/releases/latest)
+
+[![Tests](https://github.com/itsbykus/Biofy.TR/actions/workflows/tests.yml/badge.svg)](https://github.com/itsbykus/Biofy.TR/actions/workflows/tests.yml)
+[![Deployment checks](https://github.com/itsbykus/Biofy.TR/actions/workflows/deployment-checks.yml/badge.svg)](https://github.com/itsbykus/Biofy.TR/actions/workflows/deployment-checks.yml)
+![PHP 8.3+](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)
+![Laravel 13](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
+[![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-22c55e)](LICENSE)
 
 **Türkçe** · [English](README.md)
 
-Çok kullanıcılı (multi-tenant) **link-in-bio SaaS** platformu. Kullanıcılar kayıt olur, hazır temalardan birini seçer, bağlantılarını ve içerik bloklarını ekler, mobil uyumlu sayfalarını `https://biofy.tr/kullaniciadi` adresinde veya kendi alan adlarında yayınlar ve ziyaret/tıklama istatistiklerini izler.
+**[🌐 Canlı olarak inceleyin: biofy.tr](https://biofy.tr)** · [İndir](https://github.com/itsbykus/Biofy.TR/releases/latest) · [Kurulum](docs/INSTALLATION.md) · [Değişiklikler](CHANGELOG.md)
 
-- **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
-- **Diller:** Türkçe (varsayılan) ve İngilizce
-- **Dağıtım:** (1) paylaşımlı WordPress hosting — FTP + web sihirbazı, sunucuda SSH/Composer/Node gerekmez; (2) Coolify — GitHub'a her push'ta otomatik Docker dağıtımı
-- **Sürüm:** 1.0.3
+<br>
 
-## Öne çıkanlar
+<a href="https://biofy.tr"><img src=".github/assets/landing.png" alt="Biofy.TR ana sayfası" width="900"></a>
 
-| Alan | Özet |
-|---|---|
-| Hesaplar | E-posta/parola, e-posta doğrulama, parola sıfırlama, Google ile giriş (OAuth/OIDC), TOTP iki adımlı doğrulama + kurtarma kodları, oturum yönetimi, güvenlik geçmişi, KVKK veri dışa aktarma ve hesap silme |
-| Editör | 20 blok türü, sürükle-bırak ve klavye ile sıralama, canlı mobil/masaüstü önizleme, taslak ↔ yayın ayrımı, sürüm geçmişi, değişiklikleri geri alma, çoklu sekme/çakışma koruması, zamanlanmış bloklar |
-| Temalar | 12 birbirinden farklı tema (düzen, tipografi, buton ve kart stilleri), güvenli özelleştirme (renk, degrade, görsel arka plan, yazı tipi, köşe, gölge, hizalama, animasyon) |
-| Paketler | Basic / Pro / Premium; merkezi yetki motoru (platform kısıtı → hesap durumu → kullanıcıya özel izin → paket → varsayılan), kotalar, süreli atamalar |
-| Analitik | Çerezsiz, IP saklamayan görüntülenme/tıklama sayımı, bot ve tekrar filtreleri, günlük toplulaştırma, kaynak/cihaz/tarayıcı/ülke kırılımları, CSV |
-| Alan adları | DNS TXT ile sahiplik doğrulaması, CNAME/A kontrolü, HTTPS doğrulaması, bilinmeyen host reddi |
-| Yönetim | Gerçek veriden dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS, menüler, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, güncelleme, denetim kayıtları |
-| API | `/api/v1` REST API, Sanctum token'ları (hash'li), yetki kapsamları, token/kullanıcı bazlı hız sınırı, OpenAPI 3 dokümanı |
+</div>
+
+## Canlı olarak inceleyin
+
+**[https://biofy.tr](https://biofy.tr)** bu depodaki kodla çalışır. Ana sayfayı, temaları ve fiyatlandırmayı gezebilir ya da ücretsiz kayıt olup kendi sayfanızı oluşturabilirsiniz. Sayfanız `https://biofy.tr/kullaniciadi` adresinde yayına girer.
+
+<table>
+  <tr>
+    <td width="36%" align="center" valign="top">
+      <img src=".github/assets/profile.png" alt="Dark Pro temalı yayımlanmış bir bio sayfası" width="300"><br>
+      <sub><b>Yayımlanmış bir bio sayfası</b>: Dark Pro teması, sosyal ikonlar, öne çıkan bağlantı</sub>
+    </td>
+    <td width="64%" align="center" valign="top">
+      <img src=".github/assets/themes.png" alt="Tema galerisi" width="560"><br>
+      <sub><b>12 farklı tema</b>: her birinin kendi düzeni, tipografisi ve buton stili var</sub>
+    </td>
+  </tr>
+</table>
+
+## Neden Biofy.TR
+
+- **Mevcut hostinginizde çalışır.** ZIP'i FTP ile paylaşımlı (WordPress dahil) hostinge yükleyin, kurulumu web sihirbazında tamamlayın. Sunucuda SSH, Composer veya Node.js gerekmez. İsterseniz Coolify'da Docker ile dağıtın.
+- **Önce gizlilik.** Analitik çerez kullanmaz ve IP adresi saklamaz. Yalnızca zorunlu çerezler kullanılır.
+- **Varsayılan olarak güvenli.** Nonce'lu sıkı CSP, TOTP iki adımlı doğrulama, host header koruması ve yönetim panelinin yüklenen dosyaları karşılaştırdığı imzalı sürüm manifesti.
+- Arayüz, e-postalar ve belgeler baştan sona **Türkçe ve İngilizce**.
+
+## Özellikler
+
+| | Alan | Neler var |
+|:-:|---|---|
+| 👤 | **Hesaplar** | E-posta/parola, e-posta doğrulama, parola sıfırlama, Google ile giriş (OAuth/OIDC), TOTP iki adımlı doğrulama + kurtarma kodları, oturum yönetimi, güvenlik geçmişi, KVKK veri dışa aktarma ve hesap silme |
+| 🧱 | **Editör** | 20 blok türü, sürükle-bırak ve klavye ile sıralama, canlı mobil/masaüstü önizleme, taslak ↔ yayın, sürüm geçmişi, çoklu sekme çakışma koruması, zamanlanmış bloklar |
+| 🎨 | **Temalar** | 12 tema; renk, degrade, görsel arka plan, yazı tipi, hizalama (sol/orta/sağ), buton biçimi/kenarlık/gölge, sosyal ikon biçimi ve marka renkleri, animasyon |
+| 📦 | **Paketler** | Basic / Pro / Premium; merkezi yetki motoru (platform kısıtı → hesap durumu → kullanıcıya özel izin → paket → varsayılan), kotalar, süreli atamalar |
+| 📈 | **Analitik** | Çerezsiz görüntülenme/tıklama sayımı, bot ve tekrar filtreleri, günlük toplulaştırma, kaynak/cihaz/tarayıcı/ülke kırılımları, CSV |
+| 🌍 | **Alan adları** | DNS TXT ile sahiplik doğrulaması, CNAME/A kontrolü, HTTPS doğrulaması, bilinmeyen host reddi |
+| 🛠️ | **Yönetim** | Canlı dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS sayfaları ve menüler, ana sayfa (landing) ve footer düzenleme, marka ve logo boyutu, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, panelden güncelleme, denetim kayıtları |
+| 🔌 | **API** | `/api/v1` REST API, hash'li Sanctum token'ları, yetki kapsamları, token/kullanıcı bazlı hız sınırı, OpenAPI 3 dokümanı |
+
+**Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
 
 ## Hızlı başlangıç
 
-**Paylaşımlı (WordPress) hosting**
+<table>
+  <tr>
+    <th width="50%">🗂️ Paylaşımlı (WordPress) hosting</th>
+    <th width="50%">🐳 Coolify / Docker</th>
+  </tr>
+  <tr>
+    <td valign="top">
 
-1. [Son sürümün](https://github.com/itsbykus/Biofy.TR/releases/latest) **Assets** bölümünden **`biofy-tr-<sürüm>.zip`** dosyasını indirin ve `.sha256` dosyasıyla karşılaştırın. GitHub'ın otomatik "Source code" arşivlerini (`Biofy.TR-<sürüm>.zip`) kullanmayın: onlarda `vendor/` ve `public/build/` yoktur.
-2. Paketi açın ve FTP ile bir alt alan adına yükleyin (yerleşimler: [docs/SHARED_HOSTING.md](docs/SHARED_HOSTING.md)).
-3. Hosting panelinizde WordPress'ten ayrı, **boş** bir MySQL/MariaDB veritabanı oluşturun.
-4. Alt alan adını açın; kurulum sihirbazı başlar. Adımlar: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+1. [Son sürümün](https://github.com/itsbykus/Biofy.TR/releases/latest) **Assets** bölümünden **`biofy-tr-<sürüm>.zip`** dosyasını indirin ve `.sha256` dosyasıyla karşılaştırın.
+2. FTP ile bir (alt) alan adına yükleyin ([yerleşimler](docs/SHARED_HOSTING.md)).
+3. WordPress'ten ayrı, **boş** bir MySQL/MariaDB veritabanı oluşturun.
+4. Alan adını açın; kurulum sihirbazı başlar ([adımlar](docs/INSTALLATION.md)).
 
-Hosting hesabında terminal, Composer, npm veya Node.js gerekmez; bu araçlar yalnızca paketi üreten bilgisayarda (veya GitHub Actions'ta) kullanılır.
+> ⚠️ GitHub'ın otomatik "Source code" arşivlerini (`Biofy.TR-<sürüm>.zip`) kullanmayın: onlarda `vendor/` ve `public/build/` yoktur.
 
-**Coolify**
+</td>
+    <td valign="top">
 
-1. Coolify'da bu depoyu "Docker Compose" build pack ile ekleyin, `app` servisine alan adı verin.
-2. `APP_URL`, `APP_KEY`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` ve ilk superadmin için `BIOFY_ADMIN_*` değişkenlerini girin, Deploy'a basın.
-3. Ayrıntılar: [docs/COOLIFY.md](docs/COOLIFY.md).
+1. Coolify'da bu depoyu **Docker Compose** build pack ile ekleyin, `app` servisine alan adı verin.
+2. `APP_URL`, `APP_KEY`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` ve ilk superadmin için `BIOFY_ADMIN_*` değişkenlerini girin.
+3. **Deploy**'a basın. GitHub'a her push yeniden dağıtır; migration öncesi otomatik yedek alınır ([ayrıntılar](docs/COOLIFY.md)).
 
-## Geliştirme ortamı
+</td>
+  </tr>
+</table>
+
+Mevcut bir kurulumu güncellemek için: [docs/UPDATE.md](docs/UPDATE.md).
+
+<details>
+<summary><b>💻 Geliştirme ortamı</b></summary>
+
+<br>
+
+Composer, npm ve Node.js yalnızca burada (veya GitHub Actions'ta) gerekir, hosting hesabında asla.
 
 ```bash
 composer install
@@ -49,9 +110,11 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 135 test
+php artisan test                # 139 test
 php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
+
+</details>
 
 ## Dokümantasyon
 
@@ -70,8 +133,9 @@ php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.ph
 | [CHANGELOG](CHANGELOG.md) | Sürüm notları |
 | [ROADMAP](docs/ROADMAP.md) | Ödeme altyapısı hazırlığı ve sonraki adımlar |
 
+> [!NOTE]
 > Hukuki sayfalar (Gizlilik, Kullanım Koşulları, Çerez, KVKK) düzenlenebilir **başlangıç taslaklarıdır**; yayına almadan önce hukuk danışmanınıza inceletin.
 
 ## Lisans
 
-[MIT](LICENSE)
+[MIT](LICENSE) · **[biofy.tr](https://biofy.tr)**
