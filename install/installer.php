@@ -276,8 +276,8 @@ function bi_install(array $db, array $site): void
     $app->usePublicPath(BIOFY_PUBLIC);
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-    $slugs = app(App\Services\SlugService::class);
-    if ($slugs->isReserved($site['admin_username'])) {
+    // Checked before migrating (the reserved_usernames table does not exist yet and is empty on a fresh install).
+    if (in_array($site['admin_username'], config('biofy.reserved_slugs'), true)) {
         throw new RuntimeException('The username "'.$site['admin_username'].'" is reserved; choose another one.');
     }
 

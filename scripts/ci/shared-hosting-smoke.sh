@@ -55,6 +55,13 @@ curl "${CURL_OPTS[@]}" -s -o /dev/null --data-urlencode "weblog_title=CI Blog" -
     "http://example.test/wp-admin/install.php?step=2"
 body_contains "WordPress is installed and running" "http://example.test/" "CI Blog"
 [ -f "$HOSTING/user/public_html/.htaccess" ] && pass "WordPress .htaccess present in public_html" || fail "WordPress .htaccess missing"
+# Baseline (before Biofy.TR exists), so the same check at the end shows whether anything changed.
+body_contains "WordPress routes its own URLs (baseline)" "http://example.test/no-such-page/" "wp-content"
+if ! grep -q wp-content "$WORK/body"; then
+    echo "  .htaccess:"; sed 's/^/    /' "$HOSTING/user/public_html/.htaccess"
+    docker exec hosting apache2ctl -M 2>/dev/null >"$WORK/mods" || true
+    grep -i rewrite "$WORK/mods" || echo "    mod_rewrite not loaded"
+fi
 
 section "Upload the release over FTP"
 python3 -m venv "$WORK/ftpenv" && "$WORK/ftpenv/bin/pip" install -q pyftpdlib
