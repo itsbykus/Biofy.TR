@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://biofy.tr"><img src=".github/assets/logo.svg" width="84" height="84" alt="Biofy.TR logo"></a>
+<a href="https://biofy.tr"><img src="https://biofy.tr/media/favicon/2026/10/g1fwviz7ub9zv8dfdddvmfldvmpa00kp.png" width="84" height="84" alt="Biofy.TR logo"></a>
 
 # Biofy.TR
 
