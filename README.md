@@ -60,7 +60,7 @@ A self-hosted, multi-tenant link-in-bio platform: themes, content blocks, analyt
 | 📦 | **Plans** | Basic / Pro / Premium with a central entitlement engine (platform limit → account status → per-user override → plan → default), quotas, time-limited assignments |
 | 📈 | **Analytics** | Cookie-less view/click counting, bot and repeat filtering, daily aggregation, referrer/device/browser/country breakdowns, CSV export |
 | 🌍 | **Custom domains** | DNS TXT ownership check, CNAME/A check, HTTPS verification, unknown hosts rejected |
-| 🛠️ | **Administration** | Live dashboard, user/page moderation, plan and feature catalogue, CMS pages and menus, landing-page and footer editor, brand and logo size, e-mail templates, SMTP/Google settings, media, backup/restore, system health, one-click updates, audit logs |
+| 🛠️ | **Administration** | Live dashboard, user/page moderation, plan and feature catalogue, CMS pages, blog and menus, landing-page and footer editor, brand, logo size, panel logo and bio page badge, e-mail templates, SMTP/Google settings, media, backup/restore, system health, one-click updates, audit logs |
 | 🔌 | **API** | `/api/v1` REST API, hashed Sanctum tokens, abilities, per-token/per-user rate limits, OpenAPI 3 document |
 
 **Stack:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (precompiled) · dependency-free JavaScript
@@ -110,7 +110,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 139 tests
+php artisan test                # 151 tests
 php scripts/build-release.php   # FTP package -> dist/, verified by scripts/verify-release.php
 ```
 

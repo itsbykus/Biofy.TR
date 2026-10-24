@@ -222,6 +222,10 @@ if (notice) {
     });
 }
 
+// A form that waited for the identity check is sent again (auth/resume-action). form.submit()
+// skips the data-confirm prompt: the user already answered it before confirming.
+$$('form[data-auto-submit]').forEach((form) => form.submit());
+
 // Flash messages can be dismissed.
 document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-dismiss]');

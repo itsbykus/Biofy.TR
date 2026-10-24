@@ -24,6 +24,7 @@ return [
     'never' => 'Hiç',
     'no' => 'Hayır',
     'none' => 'Yok',
+    'view' => 'Görüntüle',
     'remove' => 'Kaldır',
     'reset' => 'Sıfırla',
     'save' => 'Kaydet',

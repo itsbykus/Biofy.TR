@@ -22,6 +22,8 @@ final class SettingDefinitions
             'site.logo_media_id' => ['type' => 'media', 'default' => null],
             'site.logo_height' => ['type' => 'int', 'default' => 32], // px, header logo (image or text mark)
             'site.favicon_media_id' => ['type' => 'media', 'default' => null],
+            'site.admin_logo_media_id' => ['type' => 'media', 'default' => null], // admin sidebar (dark); falls back to the site logo
+            'site.admin_title' => ['type' => 'translatable', 'default' => ['tr' => '', 'en' => '']],
             'site.primary_color' => ['type' => 'color', 'default' => '#FFCF00'],
             'site.secondary_color' => ['type' => 'color', 'default' => '#111111'],
             'site.accent_color' => ['type' => 'color', 'default' => '#2563EB'],
@@ -34,6 +36,7 @@ final class SettingDefinitions
                 ['label' => ['tr' => 'Özellikler', 'en' => 'Features'], 'url' => '/features'],
                 ['label' => ['tr' => 'Temalar', 'en' => 'Themes'], 'url' => '/themes'],
                 ['label' => ['tr' => 'Fiyatlandırma', 'en' => 'Pricing'], 'url' => '/pricing'],
+                ['label' => ['tr' => 'Blog', 'en' => 'Blog'], 'url' => '/blog'],
                 ['label' => ['tr' => 'Yardım', 'en' => 'Help'], 'url' => '/help'],
             ]],
             'site.footer_menu' => ['type' => 'json', 'default' => [
@@ -58,6 +61,7 @@ final class SettingDefinitions
 
             // Home page (landing) CMS
             'home.hero_style' => ['type' => 'string', 'default' => 'glow'],
+            'home.hero_image_media_id' => ['type' => 'media', 'default' => null], // replaces the built-in product mock-up
             'home.badge' => ['type' => 'translatable', 'default' => ['tr' => '', 'en' => '']],
             'home.hero_title' => ['type' => 'translatable', 'default' => ['tr' => 'Tek bağlantı. Tüm dünyan.', 'en' => 'One link. Your whole world.']],
             'home.hero_subtitle' => ['type' => 'translatable', 'default' => [
@@ -80,6 +84,18 @@ final class SettingDefinitions
             'home.cta_text' => ['type' => 'translatable', 'default' => [
                 'tr' => 'Ücretsiz hesabını aç, temanı seç ve bağlantını dakikalar içinde paylaş.',
                 'en' => 'Open a free account, pick a theme and share your link in minutes.',
+            ]],
+
+            // "Made with" badge at the bottom of bio pages (hidden on plans with profile.remove_branding)
+            'branding.badge_text' => ['type' => 'translatable', 'default' => ['tr' => '{site} ile oluşturuldu', 'en' => 'Made with {site}']],
+            'branding.badge_logo_media_id' => ['type' => 'media', 'default' => null],
+            'branding.badge_url' => ['type' => 'string', 'default' => ''],
+
+            // Blog
+            'blog.title' => ['type' => 'translatable', 'default' => ['tr' => 'Blog', 'en' => 'Blog']],
+            'blog.description' => ['type' => 'translatable', 'default' => [
+                'tr' => 'Link-in-bio ipuçları, ürün haberleri ve rehberler.',
+                'en' => 'Link-in-bio tips, product news and guides.',
             ]],
 
             // SEO
@@ -154,6 +170,7 @@ final class SettingDefinitions
 
             // Security
             'security.session_lifetime' => ['type' => 'int', 'default' => 120],
+            'security.confirm_timeout_minutes' => ['type' => 'int', 'default' => 30], // re-authentication stays valid this long
             'security.password_min_length' => ['type' => 'int', 'default' => 10],
             'security.login_max_attempts' => ['type' => 'int', 'default' => 5],
             'security.admin_require_2fa' => ['type' => 'bool', 'default' => false],

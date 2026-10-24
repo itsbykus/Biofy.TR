@@ -117,7 +117,15 @@
 
         @if ($showBranding)
             <footer class="bp-foot">
-                <a href="{{ config('app.url') }}?ref=profile" rel="noopener"><span class="bp-foot-mark" aria-hidden="true"></span>{{ __('profile.made_with', ['site' => setting('site.name')]) }}</a>
+                {{-- Text, logo and link: Admin → Settings → Bio page branding. --}}
+                <a href="{{ $site['badge']['url'] }}" rel="noopener">
+                    @if ($site['badge']['logo'])
+                        <img class="bp-foot-logo" src="{{ $site['badge']['logo'] }}" alt="" loading="lazy">
+                    @else
+                        <span class="bp-foot-mark" aria-hidden="true"></span>
+                    @endif
+                    {{ $site['badge']['text'] }}
+                </a>
             </footer>
         @endif
     </main>

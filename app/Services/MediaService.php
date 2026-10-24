@@ -162,6 +162,10 @@ class MediaService
             $settings->get('site.favicon_media_id'),
             $settings->get('footer.logo_media_id'),
             $settings->get('seo.og_image_media_id'),
+            $settings->get('site.admin_logo_media_id'),
+            $settings->get('home.hero_image_media_id'),
+            $settings->get('branding.badge_logo_media_id'),
+            ...\App\Models\BlogPost::query()->whereNotNull('cover_media_id')->pluck('cover_media_id')->all(),
         ]));
     }
 

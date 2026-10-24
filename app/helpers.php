@@ -26,9 +26,15 @@ if (! function_exists('local_time')) {
             return '—';
         }
 
-        $tz = auth()->user()?->timezone ?: (app(Settings::class)->get('site.timezone') ?: 'UTC');
+        return Carbon::parse($value)->setTimezone(local_timezone())->translatedFormat($format);
+    }
+}
 
-        return Carbon::parse($value)->setTimezone($tz)->translatedFormat($format);
+if (! function_exists('local_timezone')) {
+    /** The viewer's time zone, else the site's. Dates typed into forms are read in it. */
+    function local_timezone(): string
+    {
+        return auth()->user()?->timezone ?: (app(Settings::class)->get('site.timezone') ?: 'UTC');
     }
 }
 

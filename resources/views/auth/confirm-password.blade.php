@@ -8,7 +8,7 @@
     @if ($user->hasPassword())
         <form method="POST" action="{{ route('password.confirm.store') }}" class="space-y-4" novalidate>
             @csrf
-            <x-form.input name="password" type="password" :label="__('auth.password')" autocomplete="current-password" required autofocus />
+            <x-form.input name="password" type="password" :label="__('auth.password_label')" autocomplete="current-password" required autofocus />
             <button class="btn btn-dark w-full">{{ __('auth.confirm') }}</button>
         </form>
     @elseif ($user->hasTwoFactorEnabled())

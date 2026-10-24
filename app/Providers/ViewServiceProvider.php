@@ -13,6 +13,6 @@ class ViewServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        View::composer(['layouts.*', 'site.*', 'auth.*', 'errors.*', 'components.logo'], LayoutComposer::class);
+        View::composer(['layouts.*', 'site.*', 'auth.*', 'errors.*', 'components.logo', 'profile.show'], LayoutComposer::class);
     }
 }

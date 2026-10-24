@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\Page;
 use App\Models\Profile;
 use App\Services\Settings;
@@ -47,11 +48,15 @@ class SeoController extends Controller
 
     public function pages(): Response
     {
-        $urls = collect(['/', '/features', '/themes', '/pricing', '/contact'])->map(fn ($p) => ['loc' => url($p), 'lastmod' => null]);
+        $urls = collect(['/', '/features', '/themes', '/pricing', '/contact', '/blog'])->map(fn ($p) => ['loc' => url($p), 'lastmod' => null]);
 
         Page::query()->where('is_published', true)->get(['slug', 'updated_at'])->each(function (Page $page) use ($urls) {
             $path = in_array($page->slug, ['about', 'help', 'privacy', 'terms', 'cookies', 'kvkk'], true) ? '/'.$page->slug : '/page/'.$page->slug;
             $urls->push(['loc' => url($path), 'lastmod' => $page->updated_at]);
+        });
+
+        BlogPost::query()->visible()->get(['slug', 'updated_at'])->each(function (BlogPost $post) use ($urls) {
+            $urls->push(['loc' => $post->url(), 'lastmod' => $post->updated_at]);
         });
 
         return response()->view('seo.sitemap', ['urls' => $urls], 200, ['Content-Type' => 'application/xml; charset=utf-8']);

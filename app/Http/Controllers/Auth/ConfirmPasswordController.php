@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\ConfirmIdentity;
 use App\Services\UserAccountService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Re-authentication before sensitive actions (Laravel's `password.confirm`
@@ -25,7 +26,7 @@ class ConfirmPasswordController extends Controller
         return view('auth.confirm-password', ['user' => $request->user()]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
         $user = $request->user();
 
@@ -45,8 +46,6 @@ class ConfirmPasswordController extends Controller
             return redirect()->route('auth.google.redirect', ['intent' => 'confirm']);
         }
 
-        $request->session()->put('auth.password_confirmed_at', now()->getTimestamp());
-
-        return redirect()->intended(route('dashboard'));
+        return ConfirmIdentity::afterConfirmation($request);
     }
 }

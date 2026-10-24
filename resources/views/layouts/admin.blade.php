@@ -23,6 +23,7 @@
         ],
         __('admin.nav.group_content') => [
             ['admin.pages.index', 'file-text', __('admin.nav.pages'), 'admin.pages.*', 'content.manage'],
+            ['admin.blog.index', 'newspaper', __('admin.nav.blog'), 'admin.blog.*', 'content.manage'],
             ['admin.menus.edit', 'list', __('admin.nav.menus'), 'admin.menus.*', 'content.manage'],
             ['admin.templates.index', 'mail', __('admin.nav.templates'), 'admin.templates.*', 'content.manage'],
             ['admin.announcement.create', 'megaphone', __('admin.nav.announcement'), 'admin.announcement.*', 'content.manage'],
@@ -42,9 +43,14 @@
     <div class="min-h-screen lg:grid lg:grid-cols-[250px_1fr]">
         <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-40 hidden w-72 overflow-y-auto bg-ink px-3 py-4 text-zinc-300 lg:sticky lg:top-0 lg:block lg:h-screen lg:w-auto" aria-label="{{ __('admin.nav.label') }}">
             <div class="flex items-center justify-between px-2">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 font-bold text-white">
-                    <span class="grid size-7 place-items-center rounded-lg bg-brand text-sm font-black text-ink">b</span>
-                    <span>{{ __('admin.nav.title') }}</span>
+                {{-- Logo and title: Admin → Settings → Brand (panel logo, falls back to the site logo). --}}
+                <a href="{{ route('admin.dashboard') }}" class="flex min-w-0 items-center gap-2 font-bold text-white">
+                    @if ($site['admin']['logo'])
+                        <img src="{{ $site['admin']['logo'] }}" alt="" class="h-7 w-auto max-w-[9rem] shrink-0 object-contain">
+                    @else
+                        <span class="grid size-7 shrink-0 place-items-center rounded-lg bg-brand text-sm font-black text-ink">b</span>
+                    @endif
+                    <span class="truncate">{{ $site['admin']['title'] }}</span>
                 </a>
                 <button type="button" class="rounded p-1 text-zinc-400 lg:hidden" data-nav-toggle="#admin-sidebar" aria-label="{{ __('common.close') }}"><x-icon name="x" /></button>
             </div>
@@ -74,7 +80,7 @@
         <div class="min-w-0">
             <div class="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 lg:hidden">
                 <button type="button" class="btn btn-ghost btn-icon" data-nav-toggle="#admin-sidebar" aria-controls="admin-sidebar" aria-expanded="false" aria-label="{{ __('common.menu') }}"><x-icon name="menu" class="size-5" /></button>
-                <span class="font-semibold">{{ __('admin.nav.title') }}</span>
+                <span class="font-semibold">{{ $site['admin']['title'] }}</span>
                 <x-lang-switcher />
             </div>
             @if (app(\App\Services\System\UpdateService::class)->isPending())

@@ -25,7 +25,7 @@
                 <p id="f-username-help" class="{{ $errors->has('username') ? 'error' : 'help' }}">{{ $errors->first('username') ?: __('auth.username_help') }}</p>
             </div>
             <x-form.input name="email" type="email" :label="__('auth.email')" autocomplete="email" required />
-            <x-form.input name="password" type="password" :label="__('auth.password')" autocomplete="new-password" required :help="__('auth.password_rules', ['min' => max(8, (int) setting('security.password_min_length'))])" />
+            <x-form.input name="password" type="password" :label="__('auth.password_label')" autocomplete="new-password" required :help="__('auth.password_rules', ['min' => max(8, (int) setting('security.password_min_length'))])" />
             <x-form.input name="password_confirmation" type="password" :label="__('auth.password_confirm')" autocomplete="new-password" required />
             <div class="flex items-start gap-3">
                 <input id="terms" type="checkbox" name="terms" value="1" class="checkbox mt-0.5" required @checked(old('terms'))>

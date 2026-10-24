@@ -24,6 +24,7 @@ return [
     'never' => 'Never',
     'no' => 'No',
     'none' => 'None',
+    'view' => 'View',
     'remove' => 'Remove',
     'reset' => 'Reset',
     'save' => 'Save',

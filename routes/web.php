@@ -23,6 +23,8 @@ foreach (['about', 'help', 'privacy', 'terms', 'cookies', 'kvkk'] as $systemPage
     Route::get('/'.$systemPage, [Site\SiteController::class, 'page'])->defaults('slug', $systemPage)->name('page.'.$systemPage);
 }
 Route::get('/page/{slug}', [Site\SiteController::class, 'page'])->where('slug', '[a-z0-9-]+')->name('page.show');
+Route::get('/blog', [Site\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [Site\BlogController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('blog.show');
 
 // Not "/lang": when the whole package sits in the web root (shared hosting layout C), a path that
 // starts with an application folder name is refused by that folder's .htaccess before routing.
@@ -203,6 +205,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:admin.ac
         Route::get('/pages/{page}/edit', [Admin\ContentController::class, 'editPage'])->name('pages.edit');
         Route::put('/pages/{page}', [Admin\ContentController::class, 'updatePage'])->name('pages.update');
         Route::delete('/pages/{page}', [Admin\ContentController::class, 'destroyPage'])->name('pages.destroy');
+        Route::get('/blog', [Admin\BlogController::class, 'index'])->name('blog.index');
+        Route::get('/blog/create', [Admin\BlogController::class, 'create'])->name('blog.create');
+        Route::post('/blog', [Admin\BlogController::class, 'store'])->name('blog.store');
+        Route::get('/blog/{post}/edit', [Admin\BlogController::class, 'edit'])->name('blog.edit');
+        Route::put('/blog/{post}', [Admin\BlogController::class, 'update'])->name('blog.update');
+        Route::delete('/blog/{post}', [Admin\BlogController::class, 'destroy'])->name('blog.destroy');
         Route::get('/menus', [Admin\ContentController::class, 'menus'])->name('menus.edit');
         Route::put('/menus', [Admin\ContentController::class, 'updateMenus'])->name('menus.update');
         Route::get('/email-templates', [Admin\ContentController::class, 'templates'])->name('templates.index');

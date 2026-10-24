@@ -60,7 +60,7 @@ Kendi sunucunuzda çalışan, çok kullanıcılı link-in-bio platformu: temalar
 | 📦 | **Paketler** | Basic / Pro / Premium; merkezi yetki motoru (platform kısıtı → hesap durumu → kullanıcıya özel izin → paket → varsayılan), kotalar, süreli atamalar |
 | 📈 | **Analitik** | Çerezsiz görüntülenme/tıklama sayımı, bot ve tekrar filtreleri, günlük toplulaştırma, kaynak/cihaz/tarayıcı/ülke kırılımları, CSV |
 | 🌍 | **Alan adları** | DNS TXT ile sahiplik doğrulaması, CNAME/A kontrolü, HTTPS doğrulaması, bilinmeyen host reddi |
-| 🛠️ | **Yönetim** | Canlı dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS sayfaları ve menüler, ana sayfa (landing) ve footer düzenleme, marka ve logo boyutu, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, panelden güncelleme, denetim kayıtları |
+| 🛠️ | **Yönetim** | Canlı dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS sayfaları, blog ve menüler, ana sayfa (landing) ve footer düzenleme, marka, logo boyutu, panel logosu ve bio sayfası rozeti, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, panelden güncelleme, denetim kayıtları |
 | 🔌 | **API** | `/api/v1` REST API, hash'li Sanctum token'ları, yetki kapsamları, token/kullanıcı bazlı hız sınırı, OpenAPI 3 dokümanı |
 
 **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
@@ -110,7 +110,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 139 test
+php artisan test                # 151 test
 php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
 

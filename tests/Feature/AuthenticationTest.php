@@ -227,7 +227,9 @@ class AuthenticationTest extends TestCase
 
         $this->actingAs($user)->post(route('security.sessions.others'))->assertRedirect(route('password.confirm'));
         $this->actingAs($user)->post(route('password.confirm.store'), ['password' => 'wrong'])->assertSessionHasErrors('password');
-        $this->actingAs($user)->post(route('password.confirm.store'), ['password' => 'Password123!'])->assertRedirect();
+        // The waiting action is sent again by the page shown after confirming (see ConfirmIdentityTest).
+        $this->actingAs($user)->post(route('password.confirm.store'), ['password' => 'Password123!'])
+            ->assertOk()->assertSee('action="'.route('security.sessions.others').'"', false);
         $this->actingAs($user)->post(route('security.sessions.others'))->assertRedirect();
         $this->assertTrue(SecurityEvent::query()->where('type', 'logout_other_sessions')->exists());
     }

@@ -266,6 +266,35 @@
         @apply rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-zinc-800;
     }
 
+    .prose-biofy pre {
+        @apply mb-4 overflow-x-auto rounded-xl bg-ink p-4 text-sm text-zinc-100;
+    }
+
+    .prose-biofy pre code {
+        @apply bg-transparent p-0 text-inherit;
+    }
+
+    .prose-biofy img {
+        @apply my-6 h-auto max-w-full rounded-2xl;
+    }
+
+    .prose-biofy hr {
+        @apply my-10 border-zinc-200;
+    }
+
+    /* Blog articles: larger reading size. */
+    .prose-blog {
+        @apply text-[17px] leading-8;
+    }
+
+    .prose-blog h2 {
+        @apply mt-12 text-2xl font-bold tracking-tight;
+    }
+
+    .prose-blog h3 {
+        @apply mt-8 text-lg;
+    }
+
     /* Charts (server-rendered SVG; colours via classes, no inline styles). */
     .chart-grid {
         @apply stroke-zinc-200;
@@ -366,6 +395,13 @@
 
     .landing-float-late {
         animation: landing-float 7s ease-in-out 1.5s infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landing-float,
+        .landing-float-late {
+            animation: none;
+        }
     }
 }
 

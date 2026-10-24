@@ -12,7 +12,7 @@
 return [
 
     // Bumped on every release; compared with the installed version to detect pending updates.
-    'version' => '1.0.3',
+    'version' => '1.0.4',
 
     'brand_color' => '#FFCF00',
 
@@ -67,6 +67,8 @@ return [
             'gallery' => ['width' => 1600, 'height' => 1600, 'crop' => false],
             'seo' => ['width' => 1200, 'height' => 630, 'crop' => true],
             'brand' => ['width' => 800, 'height' => 400, 'crop' => false],
+            'hero' => ['width' => 1600, 'height' => 1600, 'crop' => false],
+            'blog' => ['width' => 1600, 'height' => 900, 'crop' => true],
             'favicon' => ['width' => 512, 'height' => 512, 'crop' => true],
         ],
     ],

@@ -14,7 +14,6 @@
     // Everything editable lives in Admin → Settings → Home page content.
     $style = in_array(setting('home.hero_style'), ['glow', 'dark', 'minimal'], true) ? setting('home.hero_style') : 'glow';
     $dark = $style === 'dark';
-    $themeList = array_values($themes);
     $secondaryLabel = setting_text('home.secondary_cta_label');
     $secondaryUrl = setting('home.secondary_cta_url') ? safe_internal_url(setting('home.secondary_cta_url')) : null;
     $host = preg_replace('#^https?://#', '', rtrim(config('app.url'), '/'));
@@ -61,34 +60,8 @@
                 </div>
             </div>
 
-            {{-- Product preview: real themes drawn as SVG --}}
-            <div class="relative mx-auto h-[21rem] w-full max-w-md sm:h-[34rem]" aria-hidden="true">
-                @isset($themeList[1])
-                    <div class="absolute top-10 left-0 w-44 -rotate-8 overflow-hidden rounded-[1.8rem] border-[7px] border-zinc-800 opacity-90 shadow-2xl sm:w-52">
-                        @include('partials.theme-thumb', ['t' => $themeList[1]['preview'], 'key' => 'hero-left'])
-                    </div>
-                @endisset
-                @isset($themeList[2])
-                    <div class="absolute top-16 right-0 w-44 rotate-8 overflow-hidden rounded-[1.8rem] border-[7px] border-zinc-800 opacity-90 shadow-2xl sm:w-52">
-                        @include('partials.theme-thumb', ['t' => $themeList[2]['preview'], 'key' => 'hero-right'])
-                    </div>
-                @endisset
-                @isset($themeList[0])
-                    <div class="landing-float absolute top-0 left-1/2 w-56 -translate-x-1/2 overflow-hidden rounded-[2.4rem] border-[10px] border-ink bg-white shadow-[0_30px_80px_-20px_rgb(0_0_0/0.45)] sm:w-64">
-                        @include('partials.theme-thumb', ['t' => $themeList[0]['preview'], 'key' => 'hero'])
-                    </div>
-                @endisset
-
-                <div class="landing-float-late absolute bottom-16 -left-2 hidden items-center gap-2.5 rounded-2xl bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-900 shadow-xl ring-1 ring-zinc-200 sm:flex">
-                    <span class="grid size-8 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><x-icon name="chart-line" class="size-4" /></span>{{ __('site.home.chip_analytics') }}
-                </div>
-                <div class="landing-float absolute right-0 bottom-28 hidden items-center gap-2.5 rounded-2xl bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-900 shadow-xl ring-1 ring-zinc-200 sm:flex">
-                    <span class="grid size-8 place-items-center rounded-xl bg-sky-100 text-sky-700"><x-icon name="globe" class="size-4" /></span>{{ __('site.home.chip_domain') }}
-                </div>
-                <div class="absolute bottom-2 left-1/2 hidden -translate-x-1/2 items-center gap-2.5 rounded-2xl bg-ink px-3.5 py-2.5 text-sm font-semibold text-white shadow-xl sm:flex">
-                    <span class="grid size-8 place-items-center rounded-xl bg-brand text-ink"><x-icon name="eye" class="size-4" /></span>{{ __('site.home.chip_preview') }}
-                </div>
-            </div>
+            {{-- Product preview: a sample bio page in a phone (or the uploaded hero image) --}}
+            @include('site.partials.hero-mockup')
         </div>
     </section>
 

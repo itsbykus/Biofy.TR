@@ -34,12 +34,14 @@ class SettingsController extends Controller
     {
         return [
             'general' => ['site.name', 'site.tagline', 'site.description', 'site.support_email', 'site.default_locale', 'site.timezone', 'site.default_country', 'site.social_links'],
-            'brand' => ['site.logo_media_id', 'site.logo_height', 'site.favicon_media_id', 'site.primary_color', 'site.secondary_color', 'site.accent_color', 'profiles.default_theme'],
-            'home' => ['home.hero_style', 'home.badge', 'home.hero_title', 'home.hero_subtitle', 'home.cta_label', 'home.secondary_cta_label', 'home.secondary_cta_url',
+            'brand' => ['site.logo_media_id', 'site.logo_height', 'site.favicon_media_id', 'site.admin_logo_media_id', 'site.admin_title', 'site.primary_color', 'site.secondary_color', 'site.accent_color', 'profiles.default_theme'],
+            'home' => ['home.hero_style', 'home.hero_image_media_id', 'home.badge', 'home.hero_title', 'home.hero_subtitle', 'home.cta_label', 'home.secondary_cta_label', 'home.secondary_cta_url',
                 'home.show_features', 'home.features_title', 'home.features_text', 'home.show_steps', 'home.show_themes', 'home.show_pricing',
                 'home.cta_title', 'home.cta_text', 'pricing.premium_message'],
             'footer' => ['footer.style', 'footer.logo_media_id', 'footer.logo_height', 'footer.show_brand_text', 'footer.brand_text', 'site.footer_text',
                 'footer.show_social', 'footer.product_title', 'footer.company_title', 'footer.copyright'],
+            'branding' => ['branding.badge_text', 'branding.badge_logo_media_id', 'branding.badge_url'],
+            'blog' => ['blog.title', 'blog.description'],
             'seo' => ['seo.default_title', 'seo.default_description', 'seo.og_image_media_id', 'seo.allow_indexing'],
             'auth' => ['auth.login_title', 'auth.login_subtitle', 'auth.register_title', 'auth.register_subtitle', 'registration.enabled', 'registration.require_email_verification', 'registration.default_package', 'profiles.slug_redirect_days'],
             'announcement' => ['announcement.enabled', 'announcement.text', 'announcement.url', 'announcement.style', 'maintenance.enabled', 'maintenance.message', 'maintenance.keep_profiles_online'],
@@ -47,7 +49,7 @@ class SettingsController extends Controller
             'oauth' => ['oauth.google.enabled', 'oauth.google.client_id', 'oauth.google.client_secret'],
             'platform' => ['api.enabled', 'domains.enabled', 'domains.cname_target', 'domains.a_record_ip', 'domains.require_https', 'domains.instructions'],
             'privacy' => ['privacy.cookie_notice', 'analytics.retention_days', 'analytics.trust_cf_country', 'privacy.security_log_retention_days', 'privacy.account_deletion_grace_days'],
-            'security' => ['security.session_lifetime', 'security.password_min_length', 'security.login_max_attempts', 'security.admin_require_2fa', 'security.hsts'],
+            'security' => ['security.session_lifetime', 'security.confirm_timeout_minutes', 'security.password_min_length', 'security.login_max_attempts', 'security.admin_require_2fa', 'security.hsts'],
             'backups' => ['backups.encrypt', 'backups.include_media', 'backups.keep_last', 'backups.schedule'],
         ];
     }
@@ -82,12 +84,25 @@ class SettingsController extends Controller
             'privacy.account_deletion_grace_days' => ['rules' => ['integer', 'between:0,90']],
             'profiles.slug_redirect_days' => ['rules' => ['integer', 'between:0,3650']],
             'security.session_lifetime' => ['rules' => ['integer', 'between:5,43200']],
+            'security.confirm_timeout_minutes' => ['rules' => ['integer', 'between:5,240']],
+            'branding.badge_url' => ['rules' => ['nullable', 'regex:#^(/[^/]|/$|https://)#']],
             'security.password_min_length' => ['rules' => ['integer', 'between:8,128']],
             'security.login_max_attempts' => ['rules' => ['integer', 'between:3,50']],
             'site.primary_color' => ['rules' => ['regex:/^#[0-9A-Fa-f]{6}$/']],
             'site.secondary_color' => ['rules' => ['regex:/^#[0-9A-Fa-f]{6}$/']],
             'site.accent_color' => ['rules' => ['regex:/^#[0-9A-Fa-f]{6}$/']],
         ];
+    }
+
+    /** Resize target for each image setting (config biofy.uploads.targets). */
+    private static function uploadPurpose(string $key): string
+    {
+        return match ($key) {
+            'site.favicon_media_id' => 'favicon',
+            'seo.og_image_media_id' => 'seo',
+            'home.hero_image_media_id' => 'hero',
+            default => 'brand',
+        };
     }
 
     public function edit(string $group): View
@@ -155,7 +170,7 @@ class SettingsController extends Controller
                 'translatable' => ['tr' => (string) $request->input($input.'.tr', ''), 'en' => (string) $request->input($input.'.en', '')],
                 'json' => $this->jsonValue($key, (array) $request->input($input, [])),
                 'secret' => $request->boolean($input.'__clear') ? null : ($request->filled($input) ? (string) $request->input($input) : $keep),
-                'media' => $request->hasFile($input) ? $media->store($request->file($input), null, $key === 'site.favicon_media_id' ? 'favicon' : ($key === 'seo.og_image_media_id' ? 'seo' : 'brand'))->id : ($request->boolean($input.'__remove') ? null : $keep),
+                'media' => $request->hasFile($input) ? $media->store($request->file($input), null, self::uploadPurpose($key))->id : ($request->boolean($input.'__remove') ? null : $keep),
                 default => $request->input($input),
             };
 

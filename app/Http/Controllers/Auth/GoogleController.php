@@ -45,7 +45,7 @@ class GoogleController extends Controller
         return Socialite::driver('google')->scopes(['openid', 'email', 'profile'])->redirect();
     }
 
-    public function callback(Request $request): RedirectResponse
+    public function callback(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         abort_unless($this->enabled(), 404);
         $intent = $request->session()->pull('google.intent', 'login');
@@ -85,9 +85,7 @@ class GoogleController extends Controller
 
         if ($intent === 'confirm' && ($current = $request->user())) {
             if ($linked && $linked->user_id === $current->id) {
-                $request->session()->put('auth.password_confirmed_at', now()->getTimestamp());
-
-                return redirect()->intended(route('dashboard'));
+                return \App\Http\Middleware\ConfirmIdentity::afterConfirmation($request);
             }
 
             return redirect()->route('password.confirm')->with('error', __('auth.google_confirm_mismatch'));

@@ -21,6 +21,7 @@ const ui = [
     'archive', 'rotate-ccw', 'send', 'clock', 'inbox', 'history', 'sun', 'moon', 'languages', 'layers',
     'sliders-horizontal', 'circle-check', 'circle-x', 'mouse-pointer-click', 'code', 'hard-drive', 'wrench', 'megaphone',
     'scroll-text', 'activity', 'tag', 'gift', 'house', 'book-open', 'save', 'undo-2', 'circle-plus', 'type', 'list',
+    'newspaper', 'arrow-left', 'trending-up',
 ];
 
 const brands = {

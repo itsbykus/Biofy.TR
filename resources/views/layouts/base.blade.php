@@ -9,6 +9,8 @@
         $fullTitle = $pageTitle !== '' ? $pageTitle.' · '.$site['name'] : setting_text('seo.default_title');
         $description = trim($__env->yieldContent('description')) ?: setting_text('seo.default_description');
         $canonical = trim($__env->yieldContent('canonical')) ?: url()->current();
+        // Pages may provide their own share image (e.g. a blog post cover).
+        $ogImage = trim($__env->yieldContent('og_image')) ?: ($site['og_image'] ? url($site['og_image']) : null);
     @endphp
     <title>{{ $fullTitle }}</title>
     <meta name="description" content="{{ \Illuminate\Support\Str::limit($description, 300) }}">
@@ -21,11 +23,11 @@
     <meta property="og:site_name" content="{{ $site['name'] }}">
     <meta property="og:title" content="{{ $fullTitle }}">
     <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($description, 300) }}">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:locale" content="{{ app()->getLocale() === 'tr' ? 'tr_TR' : 'en_US' }}">
-    @if ($site['og_image'])
-        <meta property="og:image" content="{{ url($site['og_image']) }}">
+    @if ($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
         <meta name="twitter:card" content="summary_large_image">
     @else
         <meta name="twitter:card" content="summary">

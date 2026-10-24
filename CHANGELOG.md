@@ -2,6 +2,21 @@
 
 Sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.0.4] — 2026-10-24
+
+Blog, yeni ana sayfa görseli, marka ayarları ve kimlik onayı düzeltmeleri. **Bir veritabanı değişikliği (migration) içerir** (`blog_posts` tablosu). 1.0.3 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir; "Güncellemeyi uygula" migration'ı yedek aldıktan sonra kendisi çalıştırır.
+
+### Eklenenler
+- **Blog:** `/blog` ve `/blog/<adres>` sayfaları; Yönetim → Blog'dan yazı oluşturma, düzenleme ve silme (içerik yetkisi olan yöneticiler). Türkçe/İngilizce başlık, özet, Markdown içerik, 16:9 kapak görseli, arama motoru açıklaması, taslak ve ileri tarihli (zamanlanmış) yayın, okuma süresi, ilgili yazılar. Yazılar site haritasına girer, `BlogPosting` yapılandırılmış verisi ve paylaşım görseli (kapak) üretilir. Blog başlığı ve açıklaması: Ayarlar → Blog. Yeni kurulumlarda üst menüde "Blog" bağlantısı vardır; mevcut kurulumlarda Yönetim → Menüler'den `/blog` eklenebilir.
+- **Ayarlar → Bio sayfası markası:** bio sayfalarının altındaki "… ile oluşturuldu" rozetinin metni (`{site}` destekli), logosu ve bağlantısı.
+- **Ayarlar → Marka:** yönetim paneli logosu (koyu kenar çubuğu için; boşsa site logosu) ve panel başlığı. Panel artık sabit "b" işareti yerine yüklenen logoyu gösterir.
+- **Yeni ana sayfa görseli:** telefon içinde örnek bir bio sayfası, analitik kartı, anlık tıklama, özel alan adı ve tema seçici. Ayarlar → Ana sayfa → "Giriş bölümü görseli" ile kendi görselinizle değiştirilebilir. Hareket azaltma tercihi olan ziyaretçilerde animasyonlar kapalıdır.
+- **Ayarlar → Güvenlik:** kimlik onayının geçerlilik süresi (varsayılan 30 dakika; önceden sabit 15 dakikaydı).
+
+### Düzeltilenler
+- **Kimlik onayından sonra işlem yapılmıyordu:** onay süresi dolmuşken bir ayar kaydedildiğinde, güncelleme uygulandığında veya hassas bir işlem başlatıldığında onay sayfasından sonra işlem yapılmadan geri dönülüyordu (ör. "yedekleme yapmıyor", "kaydetmiyor"). Bekleyen form artık şifreli olarak birkaç dakika saklanır, onaydan sonra kendiliğinden yeniden gönderilir ve formun bulunduğu sayfaya dönülür. Dosya yüklemesi içeren işlemlerde (ör. yedek yükleme) işlemi tekrarlamanız gerektiği açıkça söylenir.
+- **Parola alanlarının etiketi "Parola hatalı." görünüyordu** (giriş, kayıt ve kimlik onayı sayfaları): etiket için hata mesajının çeviri anahtarı kullanılıyordu.
+
 ## [1.0.3] — 2026-10-24
 
 Yeni ana sayfa, footer ve logo ayarları. Veritabanı değişikliği (migration) yoktur; 1.0.2 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir. Yeni ayarlar varsayılan değerleriyle gelir; görünüm, siz değiştirene kadar önceki sürüme yakındır.

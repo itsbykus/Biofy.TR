@@ -15,7 +15,7 @@
         <x-form.input name="email" type="email" :label="__('auth.email')" autocomplete="username" required autofocus />
         <div>
             <div class="flex items-center justify-between">
-                <label for="f-password" class="label">{{ __('auth.password') }}</label>
+                <label for="f-password" class="label">{{ __('auth.password_label') }}</label>
                 <a href="{{ route('password.request') }}" class="mb-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900">{{ __('auth.forgot_password') }}</a>
             </div>
             <div class="relative">

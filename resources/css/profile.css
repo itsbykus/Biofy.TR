@@ -920,6 +920,13 @@ a {
     background: #ffcf00;
 }
 
+.bp-foot-logo {
+    height: 16px;
+    width: auto;
+    max-width: 96px;
+    object-fit: contain;
+}
+
 .bp-share {
     position: absolute;
     top: 14px;
