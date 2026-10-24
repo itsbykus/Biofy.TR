@@ -10,6 +10,8 @@
         ['pages.index', 'layers', __('nav.pages'), 'pages.*'],
         ['pages.create', 'circle-plus', __('nav.new_page'), 'pages.create'],
         ['links.index', 'link', __('nav.links'), 'links.*'],
+        ['shortlinks.index', 'link-2', __('nav.shortlinks'), 'shortlinks.*'],
+        ['qr.show', 'qr-code', __('nav.qr'), 'qr.*'],
         ['dashboard.themes', 'palette', __('nav.themes'), 'dashboard.themes'],
         ['analytics.index', 'chart-column', __('nav.analytics'), 'analytics.*'],
         ['domains.index', 'globe', __('nav.domains'), 'domains.*'],

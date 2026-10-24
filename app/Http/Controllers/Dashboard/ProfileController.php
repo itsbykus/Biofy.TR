@@ -103,6 +103,7 @@ class ProfileController extends Controller
                 'advanced_customization' => $this->entitlements->allows($user, Entitlements::ADVANCED_CUSTOMIZATION),
                 'scheduling' => $this->entitlements->allows($user, Entitlements::SCHEDULED_LINKS),
                 'seo_advanced' => $this->entitlements->allows($user, Entitlements::SEO_ADVANCED),
+                'tracking' => $this->entitlements->allows($user, Entitlements::TRACKING_PIXELS),
                 'slug_redirects' => $this->entitlements->allows($user, Entitlements::SLUG_REDIRECTS),
             ],
             'limits' => [
@@ -161,6 +162,19 @@ class ProfileController extends Controller
         $this->profiles->updateDetails($profile, $data);
 
         return $this->editorResponse($request, $profile, __('editor.saved'), 'seo');
+    }
+
+    /** Measurement tags of the page (a setting, applied immediately; not part of the draft). */
+    public function updateTracking(Request $request, Profile $profile): JsonResponse|RedirectResponse
+    {
+        $this->authorize('update', $profile);
+        abort_unless($this->entitlements->allows($request->user(), Entitlements::TRACKING_PIXELS), 403);
+        $request->validate(['tracking' => ['nullable', 'array'], 'tracking.*' => ['nullable', 'string', 'max:40']]);
+
+        $ids = \App\Support\Tracking::normalize((array) $request->input('tracking', []));
+        $profile->forceFill(['tracking' => $ids ?: null])->save();
+
+        return $this->editorResponse($request, $profile, __('tracking.saved'), 'seo');
     }
 
     public function updateTheme(Request $request, Profile $profile): JsonResponse|RedirectResponse

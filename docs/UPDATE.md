@@ -34,7 +34,7 @@ Yönetim → Sistem → **Dosya bütünlüğünü doğrula** şu sonuçlardan bi
    - `public/media/` (kullanıcı görselleri)
    - `bootstrap/public-path.php` (varsa)
 4. Yükleme sürerken ve bitince, yeni kod sürümü veritabanı sürümünden büyükse genel site otomatik olarak "Güncelleniyor" sayfası (503, `Retry-After`) gösterir. Yöneticiler giriş yapmaya devam edebilir.
-5. Yönetici olarak giriş yapın → Yönetim → Sistem. Bekleyen migration'lar listelenir (ör. 1.0.4 blog için `blog_posts` tablosunu ekler).
+5. Yönetici olarak giriş yapın → Yönetim → Sistem. Bekleyen migration'lar listelenir (ör. 1.0.4 blog için `blog_posts` tablosunu; 1.1.0 kısa bağlantılar, bio sayfası pikselleri, blog SEO alanları ve yeni paket özelliklerini ekler ve yasal sayfaları yerinde günceller).
 6. **Dosya bütünlüğünü doğrula** → sonuç `ok` olmalı.
 7. **Güncellemeyi uygula** (parola onayı ister): önce otomatik bir `pre_update` yedeği alınır; yedek başarısız olursa güncelleme durur. Ardından migration'lar çalışır, önbellekler temizlenir ve yeni sürüm kaydedilir. İşlem denetim kaydına yazılır.
 8. Site normale döner. Değişiklikler için `CHANGELOG.md`'ye bakın.

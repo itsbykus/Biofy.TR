@@ -6,7 +6,7 @@
     <x-page-header :title="__('nav.help')" :description="__('help.intro')" />
 
     <div class="grid gap-4 md:grid-cols-2">
-        @foreach (['publish', 'blocks', 'themes', 'domain', 'analytics', 'security'] as $topic)
+        @foreach (['publish', 'blocks', 'buttons', 'themes', 'shortlinks', 'pixels', 'domain', 'analytics', 'security'] as $topic)
             <details class="card card-pad" @if ($loop->first) open @endif>
                 <summary class="cursor-pointer font-semibold">{{ __('help.topics.'.$topic.'.q') }}</summary>
                 <p class="mt-2 text-sm whitespace-pre-line text-zinc-600">{{ __('help.topics.'.$topic.'.a') }}</p>

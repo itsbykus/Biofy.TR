@@ -19,6 +19,7 @@
             ['admin.features.index', 'sliders-horizontal', __('admin.nav.features'), 'admin.features.*', 'packages.manage'],
             ['admin.themes.index', 'palette', __('admin.nav.themes'), 'admin.themes.*', 'packages.manage'],
             ['admin.domains.index', 'globe', __('admin.nav.domains'), 'admin.domains.*', 'domains.manage'],
+            ['admin.shortlinks.index', 'link-2', __('admin.nav.shortlinks'), 'admin.shortlinks.*', 'content.manage'],
             ['admin.media.index', 'images', __('admin.nav.media'), 'admin.media.*', 'media.manage'],
         ],
         __('admin.nav.group_content') => [

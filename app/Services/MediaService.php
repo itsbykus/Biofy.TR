@@ -53,6 +53,11 @@ class MediaService
         }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($raw) ?: '';
 
+        // SVG is converted to PNG in the browser (resources/js/svg-upload.js); never parsed here.
+        if ($mime === 'image/svg+xml' || str_starts_with(ltrim(substr($raw, 0, 512)), '<svg') || preg_match('/^\s*<\?xml[^>]*>\s*(<!--.*?-->\s*)*<svg/s', substr($raw, 0, 2048))) {
+            throw new UserFacingException(__('media.svg_needs_browser'));
+        }
+
         if (! in_array($mime, config('biofy.uploads.allowed_mimes'), true)) {
             throw new UserFacingException(__('media.invalid_type'));
         }
@@ -166,6 +171,7 @@ class MediaService
             $settings->get('home.hero_image_media_id'),
             $settings->get('branding.badge_logo_media_id'),
             ...\App\Models\BlogPost::query()->whereNotNull('cover_media_id')->pluck('cover_media_id')->all(),
+            ...\App\Models\BlogPost::query()->whereNotNull('seo_image_media_id')->pluck('seo_image_media_id')->all(),
         ]));
     }
 
@@ -173,8 +179,10 @@ class MediaService
     {
         $ids = [];
 
-        if (! empty($data['media_id'])) {
-            $ids[] = (int) $data['media_id'];
+        foreach (['media_id', 'bg_media_id'] as $field) {
+            if (! empty($data[$field])) {
+                $ids[] = (int) $data[$field];
+            }
         }
 
         foreach ($data['items'] ?? [] as $item) {

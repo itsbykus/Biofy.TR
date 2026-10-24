@@ -3,8 +3,12 @@
     $newTab = $newTab ?? true;
     $external = $href && ! str_starts_with($href, 'mailto:') && ! str_starts_with($href, 'tel:');
 @endphp
-<a class="bp-btn @if ($highlight ?? false) bp-btn--hl @endif @if ($card ?? false) bp-btn--card @endif" href="{{ $href ?? '#' }}"
+<a class="bp-btn @if ($highlight ?? false) bp-btn--hl @endif @if ($card ?? false) bp-btn--card @endif @if (! empty($bg)) bp-btn--image @endif" href="{{ $href ?? '#' }}"
    @if ($external && $newTab) target="_blank" @endif rel="noopener nofollow ugc">
+    @if (! empty($bg))
+        {{-- Background picture behind the label (an <img>, not inline CSS: the page has a strict CSP). --}}
+        <img class="bp-btn-bg" src="{{ $bg }}" alt="" loading="lazy">
+    @endif
     @if (! empty($thumb))
         <img class="bp-btn-thumb" src="{{ $thumb }}" alt="" loading="lazy">
     @elseif (! empty($brand))

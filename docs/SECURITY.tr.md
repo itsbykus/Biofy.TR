@@ -29,7 +29,7 @@
 - Embed'ler yalnızca izinli alan adlarından (`config/biofy.php → embed_hosts`) ve uygulamanın ürettiği adreslerle yüklenir; iframe'ler `sandbox` ile ve tıklamayla yüklenir.
 - Tema ayarları yalnızca `#RRGGBB` renk, sınırlandırılmış sayı veya sabit liste değeri kabul eder; CSS enjeksiyonu mümkün değildir.
 - CMS (yönetici) Markdown'ı ham HTML escape edilerek ve güvensiz bağlantılar kapatılarak render edilir.
-- **Content-Security-Policy:** `script-src 'self' 'nonce-…'`, `style-src 'self' 'nonce-…'`, `object-src 'none'`, `frame-ancestors 'self'`; profil sayfalarında yalnızca izinli oynatıcı alan adları `frame-src`'e eklenir. Ek başlıklar: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `COOP`, isteğe bağlı HSTS.
+- **Content-Security-Policy:** `script-src 'self' 'nonce-…'`, `style-src 'self' 'nonce-…'`, `object-src 'none'`, `frame-ancestors 'self'`; profil sayfalarında yalnızca izinli oynatıcı alan adları `frame-src`'e eklenir. Google / Meta / TikTok etiketi taşıyan sayfalar (Yönetim → Ayarlar → İzleme etiketleri veya Pro kullanıcının bio sayfası pikselleri) yalnızca ilgili sağlayıcının alan adlarını `script-src`, `img-src`, `connect-src` ve `frame-src`'e ekler; sayfada yalnızca sıkı doğrulanmış kimlikler bulunur ve sağlayıcı betikleri ziyaretçi "Kabul et" dedikten sonra uygulamanın kendi yükleyicisiyle eklenir. Ek başlıklar: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `COOP`, isteğe bağlı HSTS.
 - CSRF: tüm web formları (Laravel `PreventRequestForgery`); oturum çerezleri `HttpOnly`, HTTPS'te `Secure`, `SameSite=Lax`.
 
 ## Dosya yükleme
@@ -37,6 +37,8 @@
 - Yalnızca JPEG/PNG/WebP/GIF. Tür, dosya adından değil **içerikten** (`finfo::buffer`) belirlenir. SVG kabul edilmez.
 - 5 MB üst sınır, 40 megapiksel sınırı (decompression bomb), kullanıcı kotası.
 - Her görsel GD ile **yeniden kodlanır** (meta veri ve eklenmiş içerik atılır) ve rastgele 32 karakterlik bir adla `public/media/{amaç}/{yıl}/{ay}/` altına yazılır.
+- SVG yüklemeleri tarayıcıda resme dönüştürülür (`<img>` üzerinden çizildiği için dosyadaki betikler çalışmaz) ve PNG olarak gelir; sunucuya ulaşan ham SVG reddedilir. Tüm görseller GD ile yeniden kodlanır ve WebP olarak saklanır.
+- Kısa bağlantılar (`/s/{kod}`) yalnızca düz http(s) hedeflerini kabul eder (kimlik bilgisi, `javascript:` yok), sitenin başka bir kısa bağlantısına yönlendirilemez, `X-Robots-Tag: noindex` ile gönderilir ve yöneticiler tarafından kapatılabilir.
 - `public/media/.htaccess` PHP/CGI çalıştırmayı kapatır, yalnızca görsel uzantılarını sunar ve `sandbox` CSP ekler.
 - Kullanımdaki dosya silinemez; başka kullanıcının dosyası seçilemez.
 

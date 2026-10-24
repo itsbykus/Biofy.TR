@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'shortlinks' => 'Short Links',
+    'qr' => 'QR Code',
     'account' => 'Account Settings',
     'account_section' => 'Account',
     'admin_panel' => 'Admin Panel',

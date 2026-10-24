@@ -2,6 +2,21 @@
 
 @section('title', setting_text('blog.title'))
 @section('description', setting_text('blog.description'))
+{{-- Every page of the list is its own canonical URL (page 2 must not point to page 1). --}}
+@section('canonical', $posts->onFirstPage() ? route('blog.index') : $posts->url($posts->currentPage()))
+
+@push('head')
+    @if ($posts->previousPageUrl())<link rel="prev" href="{{ $posts->previousPageUrl() }}">@endif
+    @if ($posts->nextPageUrl())<link rel="next" href="{{ $posts->nextPageUrl() }}">@endif
+    <script type="application/ld+json" nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">{!! json_encode([
+        '@'.'context' => 'https://schema.org',
+        '@type' => 'Blog',
+        'name' => setting_text('blog.title'),
+        'description' => setting_text('blog.description') ?: null,
+        'url' => route('blog.index'),
+        'blogPost' => $posts->map(fn ($p) => ['@type' => 'BlogPosting', 'headline' => $p->seoTitle(), 'url' => $p->url(), 'datePublished' => $p->published_at->toIso8601String()])->values()->all(),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+@endpush
 
 @section('content')
     <section class="relative isolate overflow-hidden border-b border-zinc-100 bg-white">

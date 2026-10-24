@@ -24,7 +24,7 @@ class SeoController extends Controller
         $lines = ['User-agent: *'];
 
         if ($this->settings->bool('seo.allow_indexing')) {
-            foreach (['/admin', '/dashboard', '/login', '/register', '/forgot-password', '/reset-password', '/go/', '/api/', '/cron/', '/email/', '/two-factor', '/confirm-password'] as $path) {
+            foreach (['/admin', '/dashboard', '/login', '/register', '/forgot-password', '/reset-password', '/go/', '/s/', '/api/', '/cron/', '/email/', '/two-factor', '/confirm-password'] as $path) {
                 $lines[] = 'Disallow: '.$path;
             }
             $lines[] = 'Allow: /';
@@ -48,14 +48,15 @@ class SeoController extends Controller
 
     public function pages(): Response
     {
-        $urls = collect(['/', '/features', '/themes', '/pricing', '/contact', '/blog'])->map(fn ($p) => ['loc' => url($p), 'lastmod' => null]);
+        $latestPost = BlogPost::query()->visible()->max('updated_at');
+        $urls = collect(['/', '/features', '/themes', '/pricing', '/contact', '/blog'])->map(fn ($p) => ['loc' => url($p), 'lastmod' => $p === '/blog' ? $latestPost : null]);
 
         Page::query()->where('is_published', true)->get(['slug', 'updated_at'])->each(function (Page $page) use ($urls) {
             $path = in_array($page->slug, ['about', 'help', 'privacy', 'terms', 'cookies', 'kvkk'], true) ? '/'.$page->slug : '/page/'.$page->slug;
             $urls->push(['loc' => url($path), 'lastmod' => $page->updated_at]);
         });
 
-        BlogPost::query()->visible()->get(['slug', 'updated_at'])->each(function (BlogPost $post) use ($urls) {
+        BlogPost::query()->visible()->where('seo_noindex', false)->whereNull('canonical_url')->get(['slug', 'updated_at'])->each(function (BlogPost $post) use ($urls) {
             $urls->push(['loc' => $post->url(), 'lastmod' => $post->updated_at]);
         });
 

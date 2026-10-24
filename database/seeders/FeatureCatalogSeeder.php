@@ -34,6 +34,8 @@ class FeatureCatalogSeeder extends Seeder
             'api.access' => ['boolean', 'api', '0', ['API erişimi', 'API access'], ['REST API ve API anahtarları.', 'REST API and API keys.']],
             'api.rate_limit' => ['integer', 'api', '0', ['API istek sınırı (dakika)', 'API rate limit (per minute)'], ['Dakika başına izin verilen API isteği.', 'API requests allowed per minute.']],
             'api.max_tokens' => ['integer', 'api', '0', ['API anahtarı sayısı', 'Number of API keys'], ['Oluşturulabilecek API anahtarı sayısı.', 'How many API keys can exist.']],
+            'profile.tracking_pixels' => ['boolean', 'analytics', '0', ['İzleme pikselleri', 'Tracking pixels'], ['Bio sayfasına Google Analytics, Google Ads, Google Tag Manager, Meta ve TikTok pikselleri ekleme (ziyaretçi izniyle yüklenir).', 'Add Google Analytics, Google Ads, Google Tag Manager, Meta and TikTok pixels to a bio page (loaded with visitor consent).']],
+            'shortlinks.max' => ['integer', 'content', '10', ['Kısa bağlantı sayısı', 'Short links'], ['Oluşturulabilecek kısa bağlantı sayısı.', 'How many short links can be created.']],
         ];
     }
 

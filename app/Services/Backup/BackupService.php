@@ -211,6 +211,10 @@ class BackupService
             Artisan::call('migrate:fresh', ['--force' => true]);
 
             $this->loadDatabase($work.'/database.jsonl.gz');
+            // A backup from before a plan feature existed must not take that feature away.
+            if (\App\Support\FeatureCatalogUpgrades::apply()) {
+                app(\App\Services\Entitlements::class)->flushAll();
+            }
 
             foreach (array_chunk($catalogue, 100) as $chunk) {
                 DB::table('backup_records')->insert($chunk);
@@ -328,6 +332,16 @@ class BackupService
 
                 if (in_array($table, self::SKIP_TABLES, true) || ! Schema::hasTable($table)) {
                     continue;
+                }
+
+                if (! isset($columns[$table])) {
+                    // Rows written by data migrations during migrate:fresh are replaced by the backup's own.
+                    if ($batch !== []) {
+                        DB::table($batchTable)->insert($batch);
+                        $batch = [];
+                    }
+
+                    DB::table($table)->delete();
                 }
 
                 $columns[$table] ??= array_flip(Schema::getColumnListing($table));

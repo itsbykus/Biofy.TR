@@ -54,7 +54,7 @@ class BlogController extends Controller
 
     public function edit(BlogPost $post): View
     {
-        return view('admin.blog.form', ['post' => $post->load('cover')]);
+        return view('admin.blog.form', ['post' => $post->load(['cover', 'seoImage'])]);
     }
 
     public function update(Request $request, BlogPost $post): RedirectResponse
@@ -72,12 +72,12 @@ class BlogController extends Controller
 
     public function destroy(BlogPost $post): RedirectResponse
     {
-        $cover = $post->cover;
+        $images = array_filter([$post->cover, $post->seoImage]);
         $this->audit->log('blog.deleted', $post, ['slug' => $post->slug]);
         $post->delete();
 
-        if ($cover) {
-            $this->media->delete($cover);
+        foreach ($images as $image) {
+            $this->media->delete($image);
         }
 
         return redirect()->route('admin.blog.index')->with('success', __('admin.deleted'));
@@ -96,6 +96,10 @@ class BlogController extends Controller
             'body.en' => ['nullable', 'string', 'max:60000'],
             'meta_description.tr' => ['nullable', 'string', 'max:300'],
             'meta_description.en' => ['nullable', 'string', 'max:300'],
+            'seo_title.tr' => ['nullable', 'string', 'max:120'],
+            'seo_title.en' => ['nullable', 'string', 'max:120'],
+            'canonical_url' => ['nullable', 'string', 'max:2048', 'regex:#^https://#i'],
+            'seo_image' => ['nullable', 'file', 'max:4096'],
             'published_at' => ['nullable', 'date'],
             'cover' => ['nullable', 'file', 'max:4096'],
         ], [], ['slug' => __('admin.blog.slug')]);
@@ -103,6 +107,20 @@ class BlogController extends Controller
         $published = $request->boolean('is_published');
         $oldCover = $post->cover_media_id ? MediaFile::query()->find($post->cover_media_id) : null;
         $coverId = $post->cover_media_id;
+        $oldSeoImage = $post->seo_image_media_id ? MediaFile::query()->find($post->seo_image_media_id) : null;
+        $seoImageId = $post->seo_image_media_id;
+
+        if ($request->hasFile('seo_image')) {
+            $seoImageId = $this->media->store($request->file('seo_image'), null, 'seo')->id;
+        } elseif ($request->boolean('seo_image_remove')) {
+            $seoImageId = null;
+        }
+
+        $canonical = isset($data['canonical_url']) ? \App\Support\SafeUrl::normalize($data['canonical_url']) : null;
+
+        if (! empty($data['canonical_url']) && $canonical === null) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['canonical_url' => __('validation.custom.url.unsafe')]);
+        }
 
         if ($request->hasFile('cover')) {
             $coverId = $this->media->store($request->file('cover'), null, 'blog')->id;
@@ -116,6 +134,10 @@ class BlogController extends Controller
             'excerpt' => array_filter($data['excerpt'] ?? []),
             'body' => array_filter($data['body'] ?? []),
             'meta_description' => array_filter($data['meta_description'] ?? []),
+            'seo_title' => array_filter($data['seo_title'] ?? []),
+            'seo_image_media_id' => $seoImageId,
+            'seo_noindex' => $request->boolean('seo_noindex'),
+            'canonical_url' => $canonical,
             'cover_media_id' => $coverId,
             'is_published' => $published,
             // Publishing without a date means "now"; a future date schedules the post.
@@ -124,6 +146,10 @@ class BlogController extends Controller
 
         if ($oldCover && $oldCover->id !== $coverId) {
             $this->media->delete($oldCover);
+        }
+
+        if ($oldSeoImage && $oldSeoImage->id !== $seoImageId) {
+            $this->media->delete($oldSeoImage);
         }
     }
 }

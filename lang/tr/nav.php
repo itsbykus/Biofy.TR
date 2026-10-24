@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'shortlinks' => 'Kısa Bağlantılar',
+    'qr' => 'QR Kod',
     'account' => 'Hesap Ayarları',
     'account_section' => 'Hesap',
     'admin_panel' => 'Yönetim Paneli',

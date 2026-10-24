@@ -1,6 +1,9 @@
 // Biofy.TR — progressive enhancements for the site, dashboard and admin panel.
 // Every feature degrades gracefully: forms and links work without JavaScript.
 
+import './svg-upload';
+import './tracking';
+
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -220,6 +223,21 @@ if (notice) {
             // storage unavailable (private mode) — nothing to remember
         }
     });
+}
+
+// Blog editor: live search result preview (SEO title -> title, description -> excerpt, slug).
+const seoPreview = $('[data-seo-preview]');
+
+if (seoPreview) {
+    const form = seoPreview.closest('form');
+    const value = (name) => (form.elements.namedItem(name)?.value || '').trim();
+    const update = () => {
+        $('[data-seo-title]', seoPreview).textContent = value('seo_title[tr]') || value('title[tr]') || '…';
+        $('[data-seo-desc]', seoPreview).textContent = (value('meta_description[tr]') || value('excerpt[tr]')).slice(0, 160);
+        const slug = value('slug') || value('title[tr]').toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        $('[data-seo-url]', seoPreview).textContent = seoPreview.dataset.base + (slug || '…');
+    };
+    form.addEventListener('input', update);
 }
 
 // A form that waited for the identity check is sent again (auth/resume-action). form.submit()

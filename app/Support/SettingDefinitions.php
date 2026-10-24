@@ -98,6 +98,13 @@ final class SettingDefinitions
                 'en' => 'Link-in-bio tips, product news and guides.',
             ]],
 
+            // Measurement tags on the marketing site (loaded only after the visitor's consent)
+            'tracking.ga4' => ['type' => 'string', 'default' => ''],
+            'tracking.google_ads' => ['type' => 'string', 'default' => ''],
+            'tracking.gtm' => ['type' => 'string', 'default' => ''],
+            'tracking.meta' => ['type' => 'string', 'default' => ''],
+            'tracking.tiktok' => ['type' => 'string', 'default' => ''],
+
             // SEO
             'seo.default_title' => ['type' => 'translatable', 'default' => ['tr' => 'Biofy.TR — Link-in-bio sayfanı oluştur', 'en' => 'Biofy.TR — Create your link-in-bio page']],
             'seo.default_description' => ['type' => 'translatable', 'default' => [
@@ -106,6 +113,10 @@ final class SettingDefinitions
             ]],
             'seo.og_image_media_id' => ['type' => 'media', 'default' => null],
             'seo.allow_indexing' => ['type' => 'bool', 'default' => true],
+            // Ownership verification for search engine webmaster tools (content of the meta tag only).
+            'seo.google_verification' => ['type' => 'string', 'default' => ''],
+            'seo.bing_verification' => ['type' => 'string', 'default' => ''],
+            'seo.yandex_verification' => ['type' => 'string', 'default' => ''],
 
             // Auth screens
             'auth.login_title' => ['type' => 'translatable', 'default' => ['tr' => 'Tekrar hoş geldin', 'en' => 'Welcome back']],

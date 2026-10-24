@@ -62,6 +62,12 @@ return [
         'feature_4_text' => 'Two-factor authentication, safe link checks and a strict content security policy.',
         'feature_5_title' => 'Mobile first',
         'feature_5_text' => 'Your pages load fast and look great on every device.',
+        'feature_6_title' => 'Smart buttons',
+        'feature_6_text' => 'Links to Instagram, YouTube, Spotify and 70+ other services get their icons automatically; add icons and background images to buttons.',
+        'feature_7_title' => 'Short links and QR codes',
+        'feature_7_text' => 'Shorten long addresses, count clicks and download coloured QR codes as PNG or SVG.',
+        'feature_8_title' => 'Google, Meta and TikTok pixels',
+        'feature_8_text' => 'Add ad and analytics pixels to your page; none of them loads without the visitor\'s consent.',
         'themes_title' => 'Pick a theme that fits your style',
         'themes_text' => 'Each theme has its own layout, typography and character.',
         'all_themes' => 'All themes',
@@ -78,6 +84,22 @@ return [
             'domains' => ['title' => 'Custom domain', 'text' => 'Connect your own domain safely with DNS verification.'],
             'privacy' => ['title' => 'Privacy-first', 'text' => 'Visitor IP addresses are not stored, no tracking cookies, embeds load only on request.'],
             'team' => ['title' => 'REST API', 'text' => 'Manage your pages and links from your own apps through the API.'],
+            'buttons' => [
+                'title' => 'Smart buttons',
+                'text' => 'Links are recognised from their address and shown with brand icons. Add an icon, a thumbnail or a background image to any button.',
+            ],
+            'shortlinks' => [
+                'title' => 'Short links and QR codes',
+                'text' => 'Create short links like biofy.tr/s/code, follow their clicks and generate coloured QR codes for any address.',
+            ],
+            'tracking' => [
+                'title' => 'Tracking pixels',
+                'text' => 'Add Google Analytics, Google Ads, Tag Manager, Meta and TikTok pixels. Loaded with visitor consent, GDPR/KVKK friendly.',
+            ],
+            'media' => [
+                'title' => 'Automatic image optimisation',
+                'text' => 'JPG, PNG, GIF and SVG uploads are resized and stored as WebP, with location data removed.',
+            ],
         ],
     ],
     'themes' => [

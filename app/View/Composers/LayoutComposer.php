@@ -73,6 +73,11 @@ class LayoutComposer
                 'title' => $this->settings->text('site.admin_title') ?: __('admin.nav.title'),
             ],
             'hero_image' => $media[$this->settings->get('home.hero_image_media_id')] ?? null,
+            // Consent-gated tags of the marketing site (Admin -> Settings -> Tracking).
+            'tracking' => \App\Support\Tracking::valid(array_combine(
+                array_keys(\App\Support\Tracking::FIELDS),
+                array_map(fn ($field) => (string) $this->settings->get('tracking.'.$field), array_keys(\App\Support\Tracking::FIELDS)),
+            )),
             'badge' => [
                 'text' => strtr($this->settings->text('branding.badge_text') ?: __('profile.made_with', ['site' => '{site}']), ['{site}' => $name]),
                 'logo' => $media[$this->settings->get('branding.badge_logo_media_id')] ?? null,

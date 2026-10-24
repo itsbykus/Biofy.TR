@@ -39,7 +39,7 @@ Please **do not open a public issue** for security problems. Report them private
 - Embeds come only from allow-listed hosts (`config/biofy.php → embed_hosts`) with addresses rebuilt by the application; iframes are sandboxed and load on click.
 - Theme settings accept only `#RRGGBB` colors, bounded numbers or fixed list values, so CSS injection is not possible.
 - CMS (admin) Markdown is rendered with raw HTML escaped and unsafe links disabled.
-- **Content-Security-Policy:** `script-src 'self' 'nonce-…'`, `style-src 'self' 'nonce-…'`, `object-src 'none'`, `frame-ancestors 'self'`; on profile pages only the allow-listed player hosts are added to `frame-src`. Further headers: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `COOP`, optional HSTS.
+- **Content-Security-Policy:** `script-src 'self' 'nonce-…'`, `style-src 'self' 'nonce-…'`, `object-src 'none'`, `frame-ancestors 'self'`; on profile pages only the allow-listed player hosts are added to `frame-src`. Pages that carry Google / Meta / TikTok tags (Admin → Settings → Tracking tags, or a Pro user's bio page pixels) add only that provider's hosts to `script-src`, `img-src`, `connect-src` and `frame-src`; the page itself only prints strictly validated IDs, and the bundled loader injects the provider scripts after the visitor presses "Accept". Further headers: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `COOP`, optional HSTS.
 - CSRF protection on every web form (Laravel `PreventRequestForgery`); session cookies are `HttpOnly`, `Secure` over HTTPS and `SameSite=Lax`.
 
 ## File uploads
@@ -47,6 +47,8 @@ Please **do not open a public issue** for security problems. Report them private
 - JPEG/PNG/WebP/GIF only. The type is detected from the **content** (`finfo::buffer`), never from the file name. SVG is not accepted.
 - 5 MB limit, 40-megapixel limit (decompression bombs), per-user storage quota.
 - Every image is **re-encoded** with GD (metadata and appended payloads are dropped) and stored under a random 32-character name in `public/media/{purpose}/{year}/{month}/`.
+- SVG uploads are rasterised in the browser (drawn through an `<img>`, so scripts in the file never run) and arrive as PNG; a raw SVG reaching the server is refused. Every image is re-encoded with GD and stored as WebP.
+- Short links (`/s/{code}`) only accept plain http(s) destinations (no credentials, no `javascript:`), cannot point at another short link of the site, are sent with `X-Robots-Tag: noindex` and can be switched off by staff.
 - `public/media/.htaccess` disables PHP/CGI execution, serves image extensions only and adds a `sandbox` CSP.
 - Files in use can't be deleted; another user's file can't be selected.
 

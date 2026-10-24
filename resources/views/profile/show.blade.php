@@ -115,8 +115,9 @@
             <p class="bp-text">{{ __('profile.empty_preview') }}</p>
         @endif
 
-        @if ($showBranding)
+        @if ($showBranding || $tracking)
             <footer class="bp-foot">
+            @if ($showBranding)
                 {{-- Text, logo and link: Admin → Settings → Bio page branding. --}}
                 <a href="{{ $site['badge']['url'] }}" rel="noopener">
                     @if ($site['badge']['logo'])
@@ -126,7 +127,15 @@
                     @endif
                     {{ $site['badge']['text'] }}
                 </a>
+            @endif
+            @if ($tracking)
+                <button type="button" class="bp-foot-prefs" data-consent-open>{{ __('tracking.preferences') }}</button>
+            @endif
             </footer>
+        @endif
+
+        @if ($tracking)
+            @include('partials.tracking', ['ids' => $tracking, 'scope' => 'p'.$profile->id, 'variant' => 'profile'])
         @endif
     </main>
 </body>

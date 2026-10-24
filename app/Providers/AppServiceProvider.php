@@ -124,6 +124,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('contact', fn (Request $request) => Limit::perHour(5)->by('contact:'.$request->ip()));
         RateLimiter::for('domain-verify', fn (Request $request) => Limit::perMinute(4)->by('domain:'.$request->user()?->id));
         RateLimiter::for('uploads', fn (Request $request) => Limit::perMinute(30)->by('upload:'.$request->user()?->id));
+        // Named (not "throttle:30,1"): numeric limits share one counter per user across routes.
+        RateLimiter::for('shortlinks', fn (Request $request) => Limit::perMinute(30)->by('shortlinks:'.$request->user()?->id));
+        RateLimiter::for('qr', fn (Request $request) => Limit::perMinute(30)->by('qr:'.$request->user()?->id));
         RateLimiter::for('editor', fn (Request $request) => Limit::perMinute(240)->by('editor:'.$request->user()?->id));
         RateLimiter::for('cron', fn (Request $request) => Limit::perMinute(2)->by('cron'));
         RateLimiter::for('clicks', fn (Request $request) => Limit::perMinute(120)->by('click:'.$request->ip()));

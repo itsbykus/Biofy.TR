@@ -22,6 +22,8 @@ const ui = [
     'sliders-horizontal', 'circle-check', 'circle-x', 'mouse-pointer-click', 'code', 'hard-drive', 'wrench', 'megaphone',
     'scroll-text', 'activity', 'tag', 'gift', 'house', 'book-open', 'save', 'undo-2', 'circle-plus', 'type', 'list',
     'newspaper', 'arrow-left', 'trending-up',
+    'briefcase', 'shopping-cart', 'video', 'camera', 'graduation-cap', 'gamepad-2', 'podcast', 'mic', 'coffee',
+    'utensils', 'ticket', 'rocket', 'scissors', 'qr-code', 'link-2', 'bar-chart-3', 'target',
 ];
 
 const brands = {
@@ -32,6 +34,17 @@ const brands = {
     soundcloud: 'siSoundcloud', apple_music: 'siApplemusic', deezer: 'siDeezer', vimeo: 'siVimeo',
     buymeacoffee: 'siBuymeacoffee', patreon: 'siPatreon', kofi: 'siKofi', paypal: 'siPaypal',
     github_sponsors: 'siGithubsponsors', calendly: 'siCalendly',
+    etsy: 'siEtsy', shopify: 'siShopify', substack: 'siSubstack', kick: 'siKick', google_play: 'siGoogleplay',
+    app_store: 'siAppstore', apple: 'siApple', google_maps: 'siGooglemaps', google_drive: 'siGoogledrive',
+    notion: 'siNotion', gmail: 'siGmail', signal: 'siSignal', line: 'siLine', viber: 'siViber',
+    sahibinden: 'siSahibinden', letterboxd: 'siLetterboxd', goodreads: 'siGoodreads', steam: 'siSteam',
+    playstation: 'siPlaystation', udemy: 'siUdemy', coursera: 'siCoursera', zoom: 'siZoom',
+    google_meet: 'siGooglemeet', google_calendar: 'siGooglecalendar', linktree: 'siLinktree', bandcamp: 'siBandcamp',
+    tidal: 'siTidal', youtube_music: 'siYoutubemusic', wordpress: 'siWordpress', tumblr: 'siTumblr', vk: 'siVk',
+    flickr: 'siFlickr', unsplash: 'siUnsplash', figma: 'siFigma', airbnb: 'siAirbnb', tripadvisor: 'siTripadvisor',
+    yelp: 'siYelp', gumroad: 'siGumroad', messenger: 'siMessenger', artstation: 'siArtstation',
+    deviantart: 'siDeviantart', vsco: 'siVsco', wattpad: 'siWattpad', devto: 'siDevdotto',
+    stackoverflow: 'siStackoverflow', gitlab: 'siGitlab', producthunt: 'siProducthunt',
 };
 
 const uiOut = {};

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Services\Settings;
 use App\Support\Embeds;
+use App\Support\TrackingContext;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
@@ -17,6 +18,9 @@ class SecurityHeaders
 
     public function handle(Request $request, Closure $next): Response
     {
+        // Fresh per request: views add the tag providers they render (see partials/tracking).
+        app()->instance(TrackingContext::class, new TrackingContext);
+
         $response = $next($request);
         $headers = $response->headers;
 
@@ -43,17 +47,20 @@ class SecurityHeaders
     {
         $nonce = Vite::cspNonce();
         // Only public profile pages may frame the allow-listed media players.
-        $frames = $request->attributes->get('profile_page') ? implode(' ', array_map(fn ($h) => 'https://'.$h, Embeds::frameHosts())) : "'self'";
+        $frames = $request->attributes->get('profile_page') ? array_map(fn ($h) => 'https://'.$h, Embeds::frameHosts()) : ["'self'"];
+        // Consented measurement tags (Google / Meta / TikTok) on pages that use them.
+        $extra = app(TrackingContext::class)->cspAdditions();
+        $with = fn (string $directive, array $base) => $directive.' '.implode(' ', array_unique(array_merge($base, $extra[$directive] ?? [])));
 
         return implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$nonce}'",
+            $with('script-src', ["'self'", "'nonce-{$nonce}'"]),
             "style-src 'self' 'nonce-{$nonce}'",
-            "img-src 'self' data: https://i.ytimg.com",
+            $with('img-src', ["'self'", 'data:', 'https://i.ytimg.com']),
             "font-src 'self' data:",
-            "connect-src 'self'",
+            $with('connect-src', ["'self'"]),
             "media-src 'self'",
-            "frame-src {$frames}",
+            $with('frame-src', $frames),
             "frame-ancestors 'self'",
             "form-action 'self'",
             "base-uri 'self'",

@@ -319,11 +319,13 @@ class UserAccountService
                 'status' => $p->status,
                 'details' => $p->only(['display_name', 'title', 'bio_short', 'bio_long', 'contact_email', 'contact_phone', 'location', 'seo_title', 'seo_description']),
                 'theme' => ['key' => $p->theme_key, 'settings' => $p->theme_settings],
+                'tracking' => $p->tracking,
                 'blocks' => $p->blocks->map->only(['type', 'data', 'is_visible', 'starts_at', 'ends_at'])->all(),
                 'social_links' => $p->socialLinks->map->only(['platform', 'url'])->all(),
                 'analytics_daily' => DB::table('analytics_daily_summaries')->where('profile_id', $p->id)->where('block_id', 0)->orderBy('date')->get(['date', 'views', 'unique_visitors', 'clicks'])->all(),
             ])->all(),
             'custom_domains' => $user->customDomains->map->only(['hostname', 'status', 'created_at'])->all(),
+            'short_links' => \App\Models\ShortLink::query()->where('user_id', $user->id)->get(['code', 'target_url', 'title', 'clicks', 'created_at'])->all(),
             'media_files' => MediaFile::query()->where('user_id', $user->id)->get(['path', 'mime', 'size', 'created_at'])->all(),
             'security_events' => SecurityEvent::query()->where('user_id', $user->id)->latest('id')->limit(500)->get(['type', 'ip_address', 'user_agent', 'created_at'])->all(),
         ];

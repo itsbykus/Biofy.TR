@@ -46,7 +46,7 @@ Kendi sunucunuzda çalışan, çok kullanıcılı link-in-bio platformu: temalar
 ## Neden Biofy.TR
 
 - **Mevcut hostinginizde çalışır.** ZIP'i FTP ile paylaşımlı (WordPress dahil) hostinge yükleyin, kurulumu web sihirbazında tamamlayın. Sunucuda SSH, Composer veya Node.js gerekmez. İsterseniz Coolify'da Docker ile dağıtın.
-- **Önce gizlilik.** Analitik çerez kullanmaz ve IP adresi saklamaz. Yalnızca zorunlu çerezler kullanılır.
+- **Önce gizlilik.** Yerleşik analitik çerez kullanmaz ve IP adresi saklamaz. Pazarlama pikselleri (Google, Meta, TikTok) isteğe bağlıdır ve yalnızca ziyaretçi kabul ettikten sonra yüklenir.
 - **Varsayılan olarak güvenli.** Nonce'lu sıkı CSP, TOTP iki adımlı doğrulama, host header koruması ve yönetim panelinin yüklenen dosyaları karşılaştırdığı imzalı sürüm manifesti.
 - Arayüz, e-postalar ve belgeler baştan sona **Türkçe ve İngilizce**.
 
@@ -56,11 +56,16 @@ Kendi sunucunuzda çalışan, çok kullanıcılı link-in-bio platformu: temalar
 |:-:|---|---|
 | 👤 | **Hesaplar** | E-posta/parola, e-posta doğrulama, parola sıfırlama, Google ile giriş (OAuth/OIDC), TOTP iki adımlı doğrulama + kurtarma kodları, oturum yönetimi, güvenlik geçmişi, KVKK veri dışa aktarma ve hesap silme |
 | 🧱 | **Editör** | 20 blok türü, sürükle-bırak ve klavye ile sıralama, canlı mobil/masaüstü önizleme, taslak ↔ yayın, sürüm geçmişi, çoklu sekme çakışma koruması, zamanlanmış bloklar |
+| 🔘 | **Akıllı butonlar** | 70'ten fazla bağlantı türü için otomatik marka simgesi veya seçilen simge; butonlarda küçük görsel ve arka plan görseli |
 | 🎨 | **Temalar** | 12 tema; renk, degrade, görsel arka plan, yazı tipi, hizalama (sol/orta/sağ), buton biçimi/kenarlık/gölge, sosyal ikon biçimi ve marka renkleri, animasyon |
 | 📦 | **Paketler** | Basic / Pro / Premium; merkezi yetki motoru (platform kısıtı → hesap durumu → kullanıcıya özel izin → paket → varsayılan), kotalar, süreli atamalar |
 | 📈 | **Analitik** | Çerezsiz görüntülenme/tıklama sayımı, bot ve tekrar filtreleri, günlük toplulaştırma, kaynak/cihaz/tarayıcı/ülke kırılımları, CSV |
 | 🌍 | **Alan adları** | DNS TXT ile sahiplik doğrulaması, CNAME/A kontrolü, HTTPS doğrulaması, bilinmeyen host reddi |
-| 🛠️ | **Yönetim** | Canlı dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS sayfaları, blog ve menüler, ana sayfa (landing) ve footer düzenleme, marka, logo boyutu, panel logosu ve bio sayfası rozeti, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, panelden güncelleme, denetim kayıtları |
+| 🛠️ | **Yönetim** | Canlı dashboard, kullanıcı/sayfa moderasyonu, paket ve özellik kataloğu, CMS sayfaları, SEO ayarlı blog ve menüler, ana sayfa (landing) ve footer düzenleme, marka, logo boyutu, panel logosu ve bio sayfası rozeti, e-posta şablonları, SMTP/Google ayarları, medya, yedekleme/geri yükleme, sistem sağlığı, panelden güncelleme, denetim kayıtları |
+| 🔗 | **Kısa bağlantı ve QR** | Tıklama sayılı, özel kodlu `/s/kod` kısa bağlantıları; her adres veya metin için sunucuda üretilen renkli QR kodlar (PNG/SVG) |
+| 🎯 | **İzleme pikselleri** | Google Analytics 4, Google Ads, Tag Manager, Meta ve TikTok — site geneli ve bio sayfası bazında (Pro); yalnızca izinle yüklenir, CSP yalnızca kullanılan sayfada genişler |
+| 🔎 | **SEO** | Sayfa bazında başlık, açıklama ve paylaşım görseli (bio sayfaları, blog yazıları, CMS sayfaları), kanonik adresler, site haritaları, robots.txt, yapılandırılmış veri (WebSite, Organization, ProfilePage, BlogPosting, BreadcrumbList), Search Console / Bing / Yandex doğrulaması |
+| 🖼️ | **Medya** | JPG, PNG, GIF ve SVG yüklemeleri boyutlandırılır ve WebP olarak saklanır, EXIF/GPS silinir |
 | 🔌 | **API** | `/api/v1` REST API, hash'li Sanctum token'ları, yetki kapsamları, token/kullanıcı bazlı hız sınırı, OpenAPI 3 dokümanı |
 
 **Teknoloji:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (derlenmiş) · bağımlılıksız JavaScript
@@ -110,7 +115,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 151 test
+php artisan test                # 170 test
 php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
 

@@ -40,12 +40,12 @@ class SiteCustomizationTest extends TestCase
         foreach (['Biofy Stüdyo', 'Herkes için bio sayfası.', '>Keşfet<', '>Biz<', '© '.date('Y').' Biofy.TR — bütün hakları saklı'] as $text) {
             $this->assertStringContainsString($text, $html);
         }
-        $this->assertStringNotContainsString('https://instagram.com/biofy', $html, 'social icons switched off');
+        $this->assertStringNotContainsString('href="https://instagram.com/biofy"', $html, 'social icons switched off');
 
         $this->save('footer', ['footer__style' => 'brand', 'footer__logo_height' => 28, 'footer__show_social' => '1', 'footer__copyright' => ['tr' => '', 'en' => '']]);
         $html = $this->withSession(['locale' => 'tr'])->get('/')->getContent();
         $this->assertStringContainsString('<footer class="bg-brand text-ink">', $html);
-        $this->assertStringContainsString('https://instagram.com/biofy', $html);
+        $this->assertStringContainsString('href="https://instagram.com/biofy"', $html);
         $this->assertStringNotContainsString('Biofy Stüdyo', $html, 'show_brand_text unchecked');
     }
 

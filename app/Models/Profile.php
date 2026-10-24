@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'user_id', 'slug', 'display_name', 'title', 'bio_short', 'bio_long', 'avatar_media_id', 'banner_media_id',
     'contact_email', 'contact_phone', 'location', 'badge', 'theme_key', 'theme_settings', 'seo_title',
-    'seo_description', 'seo_image_media_id', 'seo_noindex', 'language',
+    'seo_description', 'seo_image_media_id', 'seo_noindex', 'language', 'tracking',
 ])]
 class Profile extends Model
 {
@@ -41,6 +41,7 @@ class Profile extends Model
         return [
             'theme_settings' => 'array',
             'seo_noindex' => 'boolean',
+            'tracking' => 'array',
             'has_unpublished_changes' => 'boolean',
             'published_at' => 'datetime',
             'verified_at' => 'datetime',

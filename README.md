@@ -46,7 +46,7 @@ A self-hosted, multi-tenant link-in-bio platform: themes, content blocks, analyt
 ## Why Biofy.TR
 
 - **Runs on the hosting you already have.** Upload a ZIP over FTP to shared (even WordPress) hosting and finish in a web installer. No SSH, Composer or Node.js is needed on the server. Or deploy with Docker on Coolify.
-- **Privacy first.** Analytics without cookies and without storing IP addresses. Only strictly-necessary cookies are used.
+- **Privacy first.** Built-in analytics without cookies and without storing IP addresses. Marketing pixels (Google, Meta, TikTok) are optional and load only after the visitor accepts them.
 - **Safe by default.** Strict CSP with nonces, TOTP two-factor authentication, host-header protection and a signed release manifest that the admin panel checks your uploaded files against.
 - **Turkish and English** throughout: interface, e-mails and documentation.
 
@@ -56,11 +56,16 @@ A self-hosted, multi-tenant link-in-bio platform: themes, content blocks, analyt
 |:-:|---|---|
 | 👤 | **Accounts** | E-mail/password, e-mail verification, password reset, Google sign-in (OAuth/OIDC), TOTP 2FA + recovery codes, session management, security history, KVKK/GDPR data export and account deletion |
 | 🧱 | **Editor** | 20 block types, drag-and-drop and keyboard reordering, live mobile/desktop preview, draft ↔ published, version history, multi-tab conflict protection, scheduled blocks |
+| 🔘 | **Smart buttons** | Brand icons recognised automatically for 70+ kinds of links, or any icon you pick; thumbnails and background images on buttons |
 | 🎨 | **Themes** | 12 themes; colours, gradients, image backgrounds, fonts, alignment (left/centre/right), button shape/border/shadow, social icon shape and brand colours, animation |
 | 📦 | **Plans** | Basic / Pro / Premium with a central entitlement engine (platform limit → account status → per-user override → plan → default), quotas, time-limited assignments |
 | 📈 | **Analytics** | Cookie-less view/click counting, bot and repeat filtering, daily aggregation, referrer/device/browser/country breakdowns, CSV export |
 | 🌍 | **Custom domains** | DNS TXT ownership check, CNAME/A check, HTTPS verification, unknown hosts rejected |
-| 🛠️ | **Administration** | Live dashboard, user/page moderation, plan and feature catalogue, CMS pages, blog and menus, landing-page and footer editor, brand, logo size, panel logo and bio page badge, e-mail templates, SMTP/Google settings, media, backup/restore, system health, one-click updates, audit logs |
+| 🛠️ | **Administration** | Live dashboard, user/page moderation, plan and feature catalogue, CMS pages, blog with SEO settings and menus, landing-page and footer editor, brand, logo size, panel logo and bio page badge, e-mail templates, SMTP/Google settings, media, backup/restore, system health, one-click updates, audit logs |
+| 🔗 | **Short links & QR** | `/s/code` short links with click counts and custom codes; coloured QR codes (PNG/SVG) generated on the server, for any address or text |
+| 🎯 | **Tracking pixels** | Google Analytics 4, Google Ads, Tag Manager, Meta and TikTok — site-wide and per bio page (Pro); loaded only after consent, CSP widened only where used |
+| 🔎 | **SEO** | Per-page titles, descriptions and share images (bio pages, blog posts, CMS pages), canonical URLs, sitemaps, robots.txt, structured data (WebSite, Organization, ProfilePage, BlogPosting, BreadcrumbList), Search Console / Bing / Yandex verification |
+| 🖼️ | **Media** | JPG, PNG, GIF and SVG uploads resized and stored as WebP, EXIF/GPS removed |
 | 🔌 | **API** | `/api/v1` REST API, hashed Sanctum tokens, abilities, per-token/per-user rate limits, OpenAPI 3 document |
 
 **Stack:** Laravel 13 · PHP 8.3+ · MySQL 5.7+ / MariaDB 10.3+ · Blade · Tailwind CSS 4 (precompiled) · dependency-free JavaScript
@@ -110,7 +115,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 151 tests
+php artisan test                # 170 tests
 php scripts/build-release.php   # FTP package -> dist/, verified by scripts/verify-release.php
 ```
 

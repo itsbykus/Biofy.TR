@@ -3,10 +3,26 @@
 @push('head')
     <script type="application/ld+json" nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">{!! json_encode([
         '@'.'context' => 'https://schema.org', // split so Blade does not compile it as its context directive
-        '@type' => 'WebSite',
-        'name' => $site['name'],
-        'url' => url('/'),
-        'description' => $site['description'],
+        '@graph' => [
+            [
+                '@type' => 'WebSite',
+                '@id' => url('/').'#website',
+                'name' => $site['name'],
+                'url' => url('/'),
+                'description' => $site['description'],
+                'inLanguage' => app()->getLocale(),
+                'publisher' => ['@id' => url('/').'#organization'],
+            ],
+            array_filter([
+                '@type' => 'Organization',
+                '@id' => url('/').'#organization',
+                'name' => $site['name'],
+                'url' => url('/'),
+                'logo' => $site['logo'] ? url($site['logo']) : null,
+                'email' => $site['support_email'] ?: null,
+                'sameAs' => array_values(array_filter((array) $site['social'], fn ($u) => is_string($u) && str_starts_with($u, 'https://'))) ?: null,
+            ]),
+        ],
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endpush
 
@@ -96,7 +112,7 @@
                     <p class="mt-4 text-lg text-zinc-600 text-pretty">{{ setting_text('home.features_text') }}</p>
                 </div>
                 <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach (['palette', 'layers', 'chart-column', 'globe', 'shield-check', 'smartphone'] as $i => $icon)
+                    @foreach (['palette', 'layers', 'chart-column', 'globe', 'shield-check', 'smartphone', 'sparkles', 'link-2', 'target'] as $i => $icon)
                         <div @class(['group rounded-3xl border p-7 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zinc-900/5', 'border-ink bg-ink text-white' => $i === 0, 'border-zinc-200 bg-white' => $i !== 0])>
                             <span @class(['grid size-11 place-items-center rounded-2xl', 'bg-brand text-ink' => $i === 0, 'bg-brand-soft text-brand-ink' => $i !== 0])><x-icon :name="$icon" class="size-5" /></span>
                             <h3 class="mt-5 font-semibold">{{ __('site.home.feature_'.$i.'_title') }}</h3>

@@ -1,3 +1,5 @@
+import './tracking';
+
 // Public bio page. Third-party players (YouTube, Spotify, maps...) are only loaded
 // after the visitor asks for them, so no third-party request happens on page view.
 

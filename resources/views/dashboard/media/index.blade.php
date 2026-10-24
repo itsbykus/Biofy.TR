@@ -10,7 +10,7 @@
                 <input type="hidden" name="purpose" value="block">
                 <label class="btn btn-primary">
                     <x-icon name="upload" />{{ __('media.upload') }}
-                    <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" data-autosubmit-file required>
+                    <input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" class="sr-only" data-autosubmit-file required>
                 </label>
             </form>
         </x-slot:actions>

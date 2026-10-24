@@ -96,11 +96,16 @@
         </div>
         <div class="border-t {{ $tone['line'] }}">
             <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs sm:flex-row sm:px-6 {{ $tone['muted'] }}">
-                <p>{{ $f['copyright'] }}</p>
+                <p>{{ $f['copyright'] }}@if ($site['tracking']) · <button type="button" class="underline-offset-2 hover:underline" data-consent-open>{{ __('tracking.preferences') }}</button>@endif</p>
                 <x-lang-switcher :tone="$f['style'] === 'dark' ? 'dark' : 'light'" />
             </div>
         </div>
     </footer>
 
-    @include('partials.cookie-notice')
+    {{-- With measurement tags the consent bar replaces the information-only cookie notice. --}}
+    @if ($site['tracking'])
+        @include('partials.tracking', ['ids' => $site['tracking'], 'scope' => 'site', 'variant' => 'site'])
+    @else
+        @include('partials.cookie-notice')
+    @endif
 @endsection

@@ -2,6 +2,37 @@
 
 Sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.1.0] — 2026-10-25
+
+İzleme pikselleri, kısa bağlantı ve QR kod araçları, akıllı butonlar, SVG desteği ve blog SEO ayarları. **Veritabanı değişikliği (migration) içerir**; 1.0.4 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir, "Güncellemeyi uygula" yedek aldıktan sonra migration'ları kendisi çalıştırır.
+
+### Eklenenler
+- **İzleme pikselleri (Google Analytics 4, Google Ads, Google Tag Manager, Meta Pixel, TikTok Pixel):**
+  - Site geneli: Yönetim → Ayarlar → İzleme etiketleri (ana sayfa, blog ve kurumsal sayfalar; paneller hariç).
+  - Bio sayfası bazında: editör → SEO sekmesi → İzleme pikselleri (Pro ve Premium). Bağlantı tıklamaları olay olarak gönderilir.
+  - Etiketler **yalnızca ziyaretçinin açık rızasıyla** yüklenir: kimlik eklendiğinde bilgilendirme bandı, "Kabul et" ve "Reddet" seçeneklerinin eşit sunulduğu bir onay bandına dönüşür; tercih 180 gün saklanır ve "Çerez tercihleri" bağlantısından değiştirilebilir. İzin site ve her bio sayfası için ayrı sorulur.
+  - Sayfaya yalnızca sıkı doğrulanmış kimlikler yazılır; CSP yalnızca etiket kullanılan sayfada ve yalnızca ilgili sağlayıcının alan adlarıyla genişletilir.
+- **Kısa bağlantılar** (panel → Kısa Bağlantılar): `/s/kod` adresleri, otomatik veya özel kod, tıklama sayısı (botlar ve önizlemeler hariç, IP saklanmaz), hedef değiştirme, QR kod indirme. Basic 10, Pro 200, Premium sınırsız. Yönetim → Kısa Bağlantılar'dan arama, devre dışı bırakma ve silme.
+- **QR kod oluşturucu** (panel → QR Kod): her adres veya metin için renk seçimli, kontrast kontrollü QR kod; PNG veya SVG. Sunucuda üretilir, hiçbir şey saklanmaz.
+- **Akıllı butonlar:** bağlantı adresinden otomatik marka simgesi (Instagram, YouTube, Spotify, WhatsApp, TikTok, Google Haritalar, Etsy, Notion… 70'ten fazla), istenirse başka bir marka veya simge ya da simgesiz; butona arka plan görseli.
+- **SVG yükleme:** SVG dosyaları tarayıcıda resme dönüştürülüp yüklenir ve diğer görseller gibi WebP olarak saklanır (JPG, PNG ve GIF yüklemeleri zaten WebP'ye dönüştürülüyordu).
+- **Blog SEO ayarları:** SEO başlığı, arama motoru açıklaması, ayrı sosyal paylaşım görseli (1200×630), kanonik adres, arama motorlarında gizleme ve canlı arama sonucu önizlemesi.
+- **SEO:**
+  - Yönetim → Ayarlar → SEO'da Google Search Console, Bing ve Yandex doğrulama kodları.
+  - Tüm site sayfalarında Twitter/X kart başlığı, açıklaması ve görseli.
+  - Ana sayfada `WebSite` + `Organization` yapılandırılmış verisi (logo, iletişim, sosyal hesaplar).
+  - Blog: yazılarda `article:published_time` / `modified_time`, `BreadcrumbList`, yayıncı logosu; liste sayfasında `Blog` verisi, `prev`/`next` bağlantıları ve her sayfanın kendi kanonik adresi (önceden 2. sayfa 1. sayfayı gösteriyordu).
+  - Kapak görsellerinde yazı başlığı alternatif metin olarak; site haritasında blog için son güncelleme tarihi.
+- Ana sayfa ve Özellikler sayfası yeni özelliklerle; paket kartlarındaki özellik listeleri (değiştirilmemişse) güncellendi.
+
+### Değişenler
+- **Yasal sayfalar güncellenir:** Çerez Politikası, Gizlilik Politikası, KVKK Aydınlatma Metni, Kullanım Koşulları ve Yardım/SSS sayfalarına pikseller, kısa bağlantılar, QR kodlar ve görsel dönüşümü eklenir. Güncelleme yalnızca 1.0.4 sayfa paketindeki metinleri taşıyan sayfalara uygulanır; şirket ve iletişim bilgileri değişmez, elle değiştirilmiş sayfalara dokunulmaz.
+- Panel içi yardım metinleri yeni özelliklerle güncellendi; tema ayarlarının paketlere dağılımı düzeltildi.
+
+### Düzeltilenler
+- Geri yükleme, yedekte bulunmayan (sonradan eklenmiş) paket özelliklerini silmiyor; migration'ların eklediği satırlar yedekteki satırlarla çakışmıyor.
+- Etiketsiz marka ikonları ekran okuyuculardan gizleniyor (boş etiketli `role="img"` yerine).
+
 ## [1.0.4] — 2026-10-24
 
 Blog, yeni ana sayfa görseli, marka ayarları ve kimlik onayı düzeltmeleri. **Bir veritabanı değişikliği (migration) içerir** (`blog_posts` tablosu). 1.0.3 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir; "Güncellemeyi uygula" migration'ı yedek aldıktan sonra kendisi çalıştırır.

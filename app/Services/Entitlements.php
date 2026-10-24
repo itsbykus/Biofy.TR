@@ -68,6 +68,12 @@ class Entitlements
 
     public const ANALYTICS_HISTORY_DAYS = 'analytics.history_days';
 
+    /** Google / Meta / TikTok pixels on the user's bio pages. */
+    public const TRACKING_PIXELS = 'profile.tracking_pixels';
+
+    /** How many short links (/s/code) a user may have. */
+    public const MAX_SHORT_LINKS = 'shortlinks.max';
+
     /** @var array<string, array> per-request memo */
     private array $memo = [];
 

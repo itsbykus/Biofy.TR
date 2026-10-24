@@ -1,24 +1,41 @@
 @extends('layouts.site')
 
-@section('title', $post->translate('title'))
-@section('description', $post->translate('meta_description') ?: ($post->translate('excerpt') ?? ''))
+@section('title', $post->seoTitle())
+@section('description', $post->seoDescription())
 @section('og_type', 'article')
-@if ($post->cover)
-    @section('og_image', url($post->cover->url()))
+@section('canonical', $post->canonical())
+@if ($post->shareImageUrl())
+    @section('og_image', $post->shareImageUrl())
+@endif
+@if ($post->seo_noindex)
+    @section('noindex', '1')
 @endif
 
 @push('head')
+    <meta property="article:published_time" content="{{ $post->published_at->toIso8601String() }}">
+    <meta property="article:modified_time" content="{{ $post->updated_at->toIso8601String() }}">
     <script type="application/ld+json" nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">{!! json_encode(array_filter([
         '@'.'context' => 'https://schema.org', // split so Blade does not compile it as its context directive
         '@type' => 'BlogPosting',
-        'headline' => $post->translate('title'),
-        'description' => $post->translate('excerpt'),
-        'image' => $post->cover ? url($post->cover->url()) : null,
+        'headline' => $post->seoTitle(),
+        'description' => $post->seoDescription() ?: null,
+        'image' => $post->shareImageUrl(),
         'datePublished' => $post->published_at->toIso8601String(),
         'dateModified' => $post->updated_at->toIso8601String(),
-        'mainEntityOfPage' => $post->url(),
-        'publisher' => ['@type' => 'Organization', 'name' => $site['name']],
+        'mainEntityOfPage' => $post->canonical(),
+        'publisher' => array_filter(['@type' => 'Organization', 'name' => $site['name'], 'logo' => $site['logo'] ? url($site['logo']) : null]),
+        'author' => ['@type' => 'Organization', 'name' => $site['name'], 'url' => url('/')],
+        'inLanguage' => app()->getLocale(),
     ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+    <script type="application/ld+json" nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">{!! json_encode([
+        '@'.'context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => $site['name'], 'item' => url('/')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => setting_text('blog.title'), 'item' => route('blog.index')],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $post->translate('title'), 'item' => $post->url()],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endpush
 
 @section('content')
@@ -42,7 +59,7 @@
             </div>
             @if ($post->cover)
                 <div class="mx-auto max-w-5xl px-4 sm:px-6">
-                    <img src="{{ $post->cover->url() }}" alt="" class="aspect-[16/9] w-full rounded-[2rem] object-cover shadow-2xl shadow-zinc-900/10">
+                    <img src="{{ $post->cover->url() }}" alt="{{ $post->translate('title') }}" class="aspect-[16/9] w-full rounded-[2rem] object-cover shadow-2xl shadow-zinc-900/10" fetchpriority="high">
                 </div>
             @endif
         </header>

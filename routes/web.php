@@ -95,6 +95,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::middleware('throttle:editor')->group(function () {
             Route::put('/pages/{profile}/details', [Dashboard\ProfileController::class, 'updateDetails'])->name('pages.details');
             Route::put('/pages/{profile}/seo', [Dashboard\ProfileController::class, 'updateSeo'])->name('pages.seo');
+            Route::put('/pages/{profile}/tracking', [Dashboard\ProfileController::class, 'updateTracking'])->name('pages.tracking');
             Route::put('/pages/{profile}/theme', [Dashboard\ProfileController::class, 'updateTheme'])->name('pages.theme');
             Route::put('/pages/{profile}/slug', [Dashboard\ProfileController::class, 'updateSlug'])->name('pages.slug');
             Route::post('/pages/{profile}/publish', [Dashboard\ProfileController::class, 'publish'])->name('pages.publish');
@@ -124,6 +125,13 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         Route::delete('/media/{media}', [Dashboard\MediaController::class, 'destroy'])->name('media.destroy');
 
         Route::get('/links', [Dashboard\LinksController::class, 'index'])->name('links.index');
+        Route::get('/short-links', [Dashboard\ShortLinkController::class, 'index'])->name('shortlinks.index');
+        Route::post('/short-links', [Dashboard\ShortLinkController::class, 'store'])->middleware('throttle:shortlinks')->name('shortlinks.store');
+        Route::put('/short-links/{link}', [Dashboard\ShortLinkController::class, 'update'])->middleware('throttle:shortlinks')->name('shortlinks.update');
+        Route::delete('/short-links/{link}', [Dashboard\ShortLinkController::class, 'destroy'])->name('shortlinks.destroy');
+        Route::get('/short-links/{link}/qr.{format}', [Dashboard\ShortLinkController::class, 'qr'])->where('format', 'svg|png')->name('shortlinks.qr');
+        Route::get('/qr', [Dashboard\QrController::class, 'show'])->name('qr.show');
+        Route::get('/qr/download.{format}', [Dashboard\QrController::class, 'download'])->where('format', 'svg|png')->middleware('throttle:qr')->name('qr.download');
         Route::get('/themes', [Dashboard\ThemesController::class, 'index'])->name('dashboard.themes');
         Route::get('/analytics', [Dashboard\AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('/analytics/export', [Dashboard\AnalyticsController::class, 'export'])->middleware(['feature:analytics.export', 'throttle:10,1'])->name('analytics.export');
@@ -205,6 +213,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:admin.ac
         Route::get('/pages/{page}/edit', [Admin\ContentController::class, 'editPage'])->name('pages.edit');
         Route::put('/pages/{page}', [Admin\ContentController::class, 'updatePage'])->name('pages.update');
         Route::delete('/pages/{page}', [Admin\ContentController::class, 'destroyPage'])->name('pages.destroy');
+        Route::get('/short-links', [Admin\ShortLinkController::class, 'index'])->name('shortlinks.index');
+        Route::post('/short-links/{link}/toggle', [Admin\ShortLinkController::class, 'toggle'])->name('shortlinks.toggle');
+        Route::delete('/short-links/{link}', [Admin\ShortLinkController::class, 'destroy'])->name('shortlinks.destroy');
         Route::get('/blog', [Admin\BlogController::class, 'index'])->name('blog.index');
         Route::get('/blog/create', [Admin\BlogController::class, 'create'])->name('blog.create');
         Route::post('/blog', [Admin\BlogController::class, 'store'])->name('blog.store');
@@ -280,6 +291,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:admin.ac
 | Public bio pages (must stay last: /{slug} is a catch-all)
 |--------------------------------------------------------------------------
 */
+Route::get('/s/{code}', Site\ShortLinkRedirectController::class)->where('code', '[A-Za-z0-9_-]{1,40}')->middleware('throttle:clicks')->name('shortlink.go');
 Route::get('/go/{profileId}/{blockId}/{item?}', [ProfilePageController::class, 'click'])
     ->whereNumber(['profileId', 'blockId', 'item'])->middleware('throttle:clicks')->name('profile.click');
 Route::get('/{slug}/vcard', [ProfilePageController::class, 'vcard'])->where('slug', '[A-Za-z0-9_-]{3,30}')->name('profile.vcard');

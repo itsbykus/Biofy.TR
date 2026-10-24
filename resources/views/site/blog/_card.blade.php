@@ -2,7 +2,7 @@
 <article @class(['group relative flex flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-zinc-900/5', 'md:col-span-2 lg:col-span-3 lg:flex-row' => $featured ?? false])>
     <div @class(['relative aspect-[16/9] shrink-0 overflow-hidden bg-zinc-100', 'lg:aspect-auto lg:w-3/5' => $featured ?? false])>
         @if ($post->cover)
-            <img src="{{ $post->cover->url() }}" alt="" loading="lazy" class="size-full object-cover transition duration-500 group-hover:scale-[1.03]">
+            <img src="{{ $post->cover->url() }}" alt="{{ $post->translate('title') }}" loading="lazy" class="size-full object-cover transition duration-500 group-hover:scale-[1.03]">
         @else
             <div class="landing-grid absolute inset-0 bg-brand-soft"></div>
             <span class="absolute inset-0 grid place-items-center"><span class="grid size-14 place-items-center rounded-2xl bg-brand text-ink shadow-lg"><x-icon name="newspaper" class="size-6" /></span></span>

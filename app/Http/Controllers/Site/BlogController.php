@@ -18,7 +18,7 @@ class BlogController extends Controller
 
     public function show(string $slug): View
     {
-        $post = BlogPost::query()->visible()->with('cover')->where('slug', $slug)->firstOrFail();
+        $post = BlogPost::query()->visible()->with(['cover', 'seoImage'])->where('slug', $slug)->firstOrFail();
 
         // Markdown with raw HTML escaped and unsafe link schemes removed (same as CMS pages).
         $body = Str::markdown((string) $post->translate('body'), [

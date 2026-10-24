@@ -15,7 +15,7 @@
         <div class="flex flex-wrap items-center gap-2">
             <label class="btn btn-secondary btn-sm">
                 <x-icon name="upload" class="size-3.5" />{{ __('media.upload') }}
-                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" data-media-upload aria-labelledby="{{ $id }}-label">
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" class="sr-only" data-media-upload aria-labelledby="{{ $id }}-label">
             </label>
             @if (count($library))
                 <details class="relative">

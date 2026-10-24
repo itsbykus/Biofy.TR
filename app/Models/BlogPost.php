@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['slug', 'title', 'excerpt', 'body', 'meta_description', 'cover_media_id', 'is_published', 'published_at'])]
+#[Fillable(['slug', 'title', 'excerpt', 'body', 'meta_description', 'seo_title', 'cover_media_id', 'seo_image_media_id', 'seo_noindex', 'canonical_url', 'is_published', 'published_at'])]
 class BlogPost extends Model
 {
     use HasTranslations;
@@ -20,6 +20,8 @@ class BlogPost extends Model
             'excerpt' => 'array',
             'body' => 'array',
             'meta_description' => 'array',
+            'seo_title' => 'array',
+            'seo_noindex' => 'boolean',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
@@ -28,6 +30,35 @@ class BlogPost extends Model
     public function cover(): BelongsTo
     {
         return $this->belongsTo(MediaFile::class, 'cover_media_id');
+    }
+
+    public function seoImage(): BelongsTo
+    {
+        return $this->belongsTo(MediaFile::class, 'seo_image_media_id');
+    }
+
+    /** Title for search engines and social cards (falls back to the post title). */
+    public function seoTitle(): string
+    {
+        return (string) ($this->translate('seo_title') ?: $this->translate('title'));
+    }
+
+    public function seoDescription(): string
+    {
+        return (string) ($this->translate('meta_description') ?: $this->translate('excerpt') ?: '');
+    }
+
+    /** Share image: the dedicated SEO image, else the cover. */
+    public function shareImageUrl(): ?string
+    {
+        $media = $this->seoImage ?? $this->cover;
+
+        return $media ? url($media->url()) : null;
+    }
+
+    public function canonical(): string
+    {
+        return $this->canonical_url ?: $this->url();
     }
 
     public function author(): BelongsTo

@@ -62,6 +62,12 @@ return [
         'feature_4_text' => 'İki adımlı doğrulama, güvenli bağlantı kontrolü ve sıkı içerik güvenliği.',
         'feature_5_title' => 'Mobil öncelikli',
         'feature_5_text' => 'Sayfaların her cihazda hızlı açılır ve kusursuz görünür.',
+        'feature_6_title' => 'Akıllı butonlar',
+        'feature_6_text' => 'Instagram, YouTube, Spotify gibi 70\'ten fazla bağlantı simgesiyle otomatik tanınır; butonlara simge ve arka plan görseli ekle.',
+        'feature_7_title' => 'Kısa bağlantı ve QR kod',
+        'feature_7_text' => 'Uzun adresleri kısalt, tıklamaları say; renkli QR kodları PNG veya SVG olarak indir.',
+        'feature_8_title' => 'Google, Meta ve TikTok pikselleri',
+        'feature_8_text' => 'Reklam ve analiz piksellerini sayfana ekle; ziyaretçi izni olmadan hiçbiri yüklenmez.',
         'themes_title' => 'Tarzına uygun bir tema seç',
         'themes_text' => 'Her tema farklı bir düzen, tipografi ve karaktere sahip.',
         'all_themes' => 'Tüm temalar',
@@ -78,6 +84,22 @@ return [
             'domains' => ['title' => 'Özel alan adı', 'text' => 'DNS doğrulamasıyla kendi alan adını güvenle bağla.'],
             'privacy' => ['title' => 'KVKK uyumlu yaklaşım', 'text' => 'Ziyaretçi IP adresleri saklanmaz, takip çerezi kullanılmaz, gömülü içerikler izinle yüklenir.'],
             'team' => ['title' => 'REST API', 'text' => 'Sayfalarını ve bağlantılarını kendi uygulamalarından API ile yönet.'],
+            'buttons' => [
+                'title' => 'Akıllı butonlar',
+                'text' => 'Bağlantılar adreslerinden tanınır ve marka simgeleriyle gösterilir. Butonlara simge, küçük görsel veya arka plan görseli ekleyebilirsin.',
+            ],
+            'shortlinks' => [
+                'title' => 'Kısa bağlantı ve QR kod',
+                'text' => 'biofy.tr/s/kod biçiminde kısa bağlantılar oluştur, tıklamaları izle; istediğin adres için renkli QR kod üret.',
+            ],
+            'tracking' => [
+                'title' => 'İzleme pikselleri',
+                'text' => 'Google Analytics, Google Ads, Tag Manager, Meta ve TikTok piksellerini ekle. Ziyaretçi onayı ile yüklenir, KVKK uyumlu.',
+            ],
+            'media' => [
+                'title' => 'Otomatik görsel optimizasyonu',
+                'text' => 'JPG, PNG, GIF ve SVG yüklemeleri yeniden boyutlandırılır ve WebP olarak saklanır; konum bilgileri silinir.',
+            ],
         ],
     ],
     'themes' => [

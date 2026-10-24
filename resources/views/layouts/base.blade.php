@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full" data-svg-error="{{ __('media.svg_failed') }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,9 +29,18 @@
     @if ($ogImage)
         <meta property="og:image" content="{{ $ogImage }}">
         <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="{{ $ogImage }}">
     @else
         <meta name="twitter:card" content="summary">
     @endif
+    <meta name="twitter:title" content="{{ $fullTitle }}">
+    <meta name="twitter:description" content="{{ \Illuminate\Support\Str::limit($description, 200) }}">
+    {{-- Webmaster tools ownership (Admin -> Settings -> SEO); values are validated [A-Za-z0-9_-]. --}}
+    @foreach (['google-site-verification' => 'seo.google_verification', 'msvalidate.01' => 'seo.bing_verification', 'yandex-verification' => 'seo.yandex_verification'] as $metaName => $settingKey)
+        @if (setting($settingKey))
+            <meta name="{{ $metaName }}" content="{{ setting($settingKey) }}">
+        @endif
+    @endforeach
     <meta name="theme-color" content="{{ $site['primary'] ?: '#FFCF00' }}">
     @if ($site['favicon'])
         <link rel="icon" type="image/png" href="{{ $site['favicon'] }}">

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Blocks\BlockRegistry;
 use App\Models\Profile;
+use App\Support\Tracking;
 use App\Themes\ThemeRegistry;
 use App\Themes\ThemeSettings;
 use Illuminate\Support\Carbon;
@@ -95,6 +96,8 @@ class ProfileRenderer
             'socialLinks' => $snapshot['social_links'] ?? [],
             'socialCss' => ThemeSettings::socialBrandCss($resolved, array_column($snapshot['social_links'] ?? [], 'platform')),
             'showBranding' => ! $this->entitlements->allows($owner, Entitlements::REMOVE_BRANDING),
+            // The owner's measurement tags: live setting (not part of the published content), never in previews.
+            'tracking' => ! $preview && $this->entitlements->allows($owner, Entitlements::TRACKING_PIXELS) ? Tracking::valid($profile->tracking) : [],
             'verified' => $profile->verified_at !== null,
             'preview' => $preview,
             'seo' => [

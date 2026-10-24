@@ -9,9 +9,9 @@
         <p class="mt-3 max-w-2xl text-lg text-zinc-600">{{ __('site.features.description') }}</p>
 
         <div class="mt-12 grid gap-10 md:grid-cols-2">
-            @foreach (['editor', 'themes', 'analytics', 'domains', 'privacy', 'team'] as $item)
+            @foreach (['editor', 'themes', 'buttons', 'analytics', 'tracking', 'shortlinks', 'domains', 'media', 'privacy', 'team'] as $item)
                 <div class="flex gap-4">
-                    <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-ink"><x-icon :name="['editor' => 'pencil', 'themes' => 'palette', 'analytics' => 'chart-line', 'domains' => 'globe', 'privacy' => 'shield-check', 'team' => 'code'][$item]" class="size-5" /></span>
+                    <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-ink"><x-icon :name="['editor' => 'pencil', 'themes' => 'palette', 'buttons' => 'sparkles', 'analytics' => 'chart-line', 'tracking' => 'target', 'shortlinks' => 'link-2', 'domains' => 'globe', 'media' => 'image', 'privacy' => 'shield-check', 'team' => 'code'][$item]" class="size-5" /></span>
                     <div>
                         <h2 class="font-semibold">{{ __('site.features.items.'.$item.'.title') }}</h2>
                         <p class="mt-1 text-sm text-zinc-600">{{ __('site.features.items.'.$item.'.text') }}</p>
