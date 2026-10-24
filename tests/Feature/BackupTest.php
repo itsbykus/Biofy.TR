@@ -42,6 +42,46 @@ class BackupTest extends TestCase
         $this->assertSame('completed', $record->status, 'used to fail with "Undefined array key 0"');
     }
 
+    /** Hosts without the sodium extension (common on shared hosting) encrypt with OpenSSL AES-256-GCM. */
+    public function test_openssl_encrypted_backups_restore_and_detect_tampering(): void
+    {
+        config(['biofy.backups.cipher' => 'openssl']);
+        app(Settings::class)->set('backups.include_media', false);
+        $admin = $this->makeSuperAdmin();
+        $this->makeUser(['email' => 'gcm@example.com']);
+
+        $backup = app(BackupService::class)->create('manual', $admin);
+        $this->assertSame('completed', $backup->status, (string) $backup->error);
+        $path = app(BackupService::class)->path($backup);
+        $this->assertSame('BIOFYBK2', substr((string) file_get_contents($path), 0, 8));
+        $this->assertTrue(app(BackupService::class)->verify($backup)['ok']);
+
+        User::query()->where('email', 'gcm@example.com')->delete();
+        app(BackupService::class)->restore($backup, $admin);
+        $this->assertTrue(User::query()->where('email', 'gcm@example.com')->exists(), 'restored from the AES-GCM archive');
+
+        // A backup written with libsodium is still readable when OpenSSL is the active cipher (and vice versa).
+        config(['biofy.backups.cipher' => 'sodium']);
+        $sodium = app(BackupService::class)->create('manual', $admin);
+        $this->assertSame('BIOFYBK1', substr((string) file_get_contents(app(BackupService::class)->path($sodium)), 0, 8));
+        config(['biofy.backups.cipher' => 'openssl']);
+        app(BackupService::class)->restore($sodium, $admin);
+        $this->assertTrue(User::query()->where('email', 'gcm@example.com')->exists());
+
+        // Flipped byte / cut file: refused, nothing restored.
+        $bytes = (string) file_get_contents($path);
+        $tampered = BackupRecord::query()->create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'filename' => 'tampered.biofy-backup', 'type' => 'uploaded', 'status' => 'completed', 'encrypted' => true]);
+        foreach ([substr_replace($bytes, chr(ord($bytes[60]) ^ 1), 60, 1), substr($bytes, 0, -40)] as $broken) {
+            file_put_contents(app(BackupService::class)->path($tampered), $broken);
+            try {
+                app(BackupService::class)->restore($tampered, $admin);
+                $this->fail('a damaged archive was accepted');
+            } catch (\App\Exceptions\UserFacingException $e) {
+                $this->assertStringContainsString(__('backups.decrypt_failed'), $e->getMessage());
+            }
+        }
+    }
+
     public function test_backup_is_created_verified_and_protected(): void
     {
         $admin = $this->makeSuperAdmin();

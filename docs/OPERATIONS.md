@@ -70,7 +70,7 @@ Bir alan adı aynı anda tek bir hesaba bağlı olabilir. IDN (Türkçe karakter
 Yönetim → Yedekler.
 
 - **İçerik:** tüm uygulama tabloları (oturum/cache/kuyruk tabloları hariç) tablo başına JSON-lines, isteğe bağlı olarak `public/media` ve bir manifest (sürüm, tablo sayıları, sağlama toplamları).
-- **Şifreleme:** açıksa libsodium `secretstream` ile, `APP_KEY`'den türetilen anahtarla şifrelenir. **`APP_KEY` olmadan şifreli yedek açılamaz** — `.env`'nin bir kopyasını güvenli bir yerde tutun.
+- **Şifreleme:** açıksa `APP_KEY`'den türetilen anahtarla şifrelenir: PHP'de sodium eklentisi varsa libsodium `secretstream`, yoksa OpenSSL AES-256-GCM (parça başına kimlik doğrulamalı). Her iki biçim de her sunucuda geri yüklenebilir. **`APP_KEY` olmadan şifreli yedek açılamaz** — `.env`'nin bir kopyasını güvenli bir yerde tutun.
 - **Konum:** `storage/app/private/backups` (web'den erişilemez, ayrıca `Require all denied`). Son N yedek saklanır (ayarlanabilir).
 - **İndirme / yükleme:** parola onayı gerekir. Başka bir sunucudan alınmış yedek yüklenebilir (aynı `APP_KEY` gerekir).
 - **Geri yükleme:** önce doğrulama (manifest, sağlama toplamları, sürüm), sonra otomatik `pre_restore` güvenlik yedeği, ardından şema migration'larla sıfırdan kurulur ve satırlar parametreli sorgularla eklenir. Arşivden hiçbir SQL veya PHP kodu çalıştırılmaz. Geri yükleme sonrası tüm oturumlar kapanır.

@@ -12,7 +12,7 @@ Kurulum sihirbazının ilk adımı bunları otomatik kontrol eder.
 |---|---|---|
 | PHP **8.3+** (8.4 önerilir) | ✔ | Alan adı başına seçilebilir (cPanel → MultiPHP Manager). WordPress'in PHP sürümünü değiştirmeniz gerekmez. |
 | Eklentiler: pdo_mysql, mbstring, openssl, tokenizer, xml, dom, ctype, json, fileinfo, **gd**, **zip**, session, filter | ✔ | WordPress hostlarında genellikle hepsi açıktır |
-| Eklentiler: curl, sodium, intl, bcmath | önerilen | curl: alan adı HTTPS kontrolü, Google girişi; sodium: yedek şifreleme |
+| Eklentiler: curl, sodium, intl, bcmath | önerilen | curl: alan adı HTTPS kontrolü, Google girişi; sodium: daha hızlı imza doğrulama (yoksa saf PHP yedeği ve yedeklerde OpenSSL AES-256-GCM kullanılır) |
 | MySQL 5.7+ / MariaDB 10.3+ (InnoDB, utf8mb4) | ✔ | **WordPress'ten ayrı, boş bir veritabanı** ve ayrı bir kullanıcı |
 | Apache veya LiteSpeed, `mod_rewrite`, `.htaccess` | ✔ | WordPress kalıcı bağlantıları çalışıyorsa bu koşul zaten sağlanıyordur |
 | Yazılabilir klasörler: `storage/`, `bootstrap/cache/`, `public/media/`, uygulama klasörü (`.env` için) | ✔ | Varsayılan izinler yeterli (aşağıya bakın) |

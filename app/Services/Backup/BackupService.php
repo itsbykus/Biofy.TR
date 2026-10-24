@@ -21,7 +21,9 @@ use ZipArchive;
  * Database + media backups designed for shared hosting:
  *  - rows are streamed table by table into gzip'd JSON lines (no mysqldump/shell, low memory),
  *  - media files are added to the zip from disk (never loaded in RAM),
- *  - optional encryption (libsodium secretstream, chunked) with a key derived from APP_KEY,
+ *  - optional encryption with a key derived from APP_KEY, chunked: libsodium secretstream (format 1)
+ *    when the sodium extension is loaded, otherwise OpenSSL AES-256-GCM (format 2; many shared
+ *    hosts ship PHP without sodium). Both formats can always be read back,
  *  - archives live in storage/app/private/backups (outside the web root).
  *
  * Restores rebuild the current schema with migrations and re-insert rows with
@@ -30,6 +32,9 @@ use ZipArchive;
 class BackupService
 {
     private const MAGIC = "BIOFYBK1";
+
+    /** AES-256-GCM: per chunk [len:4][final:1][iv:12][tag:16][ciphertext]; the chunk index and final flag are authenticated. */
+    private const MAGIC_GCM = "BIOFYBK2";
 
     private const CHUNK = 1048576;
 
@@ -478,7 +483,26 @@ class BackupService
         return $manifest;
     }
 
+    /** "sodium" or "openssl"; config biofy.backups.cipher forces one (tests). */
+    public function cipher(): string
+    {
+        $forced = config('biofy.backups.cipher');
+
+        if (in_array($forced, ['sodium', 'openssl'], true)) {
+            return $forced;
+        }
+
+        // Only the native extension: the pure-PHP fallback (sodium_compat) is too slow for large archives.
+        return extension_loaded('sodium') ? 'sodium' : 'openssl';
+    }
+
     private function encryptFile(string $source, string $target): void
+    {
+        $this->cipher() === 'sodium' ? $this->encryptSodium($source, $target) : $this->encryptGcm($source, $target);
+        File::delete($source);
+    }
+
+    private function encryptSodium(string $source, string $target): void
     {
         $in = fopen($source, 'rb');
         $out = fopen($target, 'wb');
@@ -494,7 +518,34 @@ class BackupService
 
         fclose($in);
         fclose($out);
-        File::delete($source);
+    }
+
+    private function encryptGcm(string $source, string $target): void
+    {
+        $in = fopen($source, 'rb');
+        $out = fopen($target, 'wb');
+        $salt = random_bytes(16);
+        $key = $this->gcmKey($salt);
+        fwrite($out, self::MAGIC_GCM.$salt);
+        $index = 0;
+
+        do {
+            $chunk = (string) fread($in, self::CHUNK);
+            $final = feof($in);
+            $iv = random_bytes(12);
+            $tag = '';
+            // The chunk number and the final flag are authenticated: reordering or cutting the file is detected.
+            $cipher = openssl_encrypt($chunk, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, pack('NC', $index++, (int) $final), 16);
+
+            if ($cipher === false) {
+                throw new RuntimeException('OpenSSL encryption failed.');
+            }
+
+            fwrite($out, pack('NC', strlen($cipher), (int) $final).$iv.$tag.$cipher);
+        } while (! $final);
+
+        fclose($in);
+        fclose($out);
     }
 
     private function decryptFile(string $source, string $target): void
@@ -502,12 +553,20 @@ class BackupService
         $in = fopen($source, 'rb');
         $magic = fread($in, strlen(self::MAGIC));
 
-        if ($magic !== self::MAGIC) {
+        try {
+            match ($magic) {
+                self::MAGIC => $this->decryptSodium($in, $target),
+                self::MAGIC_GCM => $this->decryptGcm($in, $target),
+                default => throw new UserFacingException(__('backups.unreadable')),
+            };
+        } finally {
             fclose($in);
-
-            throw new UserFacingException(__('backups.unreadable'));
         }
+    }
 
+    /** @param resource $in positioned after the magic */
+    private function decryptSodium($in, string $target): void
+    {
         $header = fread($in, SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES);
         $state = sodium_crypto_secretstream_xchacha20poly1305_init_pull($header, $this->key());
         $out = fopen($target, 'wb');
@@ -524,7 +583,6 @@ class BackupService
             $result = sodium_crypto_secretstream_xchacha20poly1305_pull($state, (string) fread($in, $length));
 
             if ($result === false) {
-                fclose($in);
                 fclose($out);
 
                 throw new UserFacingException(__('backups.decrypt_failed'));
@@ -538,7 +596,6 @@ class BackupService
             }
         }
 
-        fclose($in);
         fclose($out);
 
         if (! $finished) {
@@ -546,12 +603,68 @@ class BackupService
         }
     }
 
-    private function key(): string
+    /** @param resource $in positioned after the magic */
+    private function decryptGcm($in, string $target): void
+    {
+        $key = $this->gcmKey((string) fread($in, 16));
+        $out = fopen($target, 'wb');
+        $index = 0;
+        $finished = false;
+
+        while (! $finished) {
+            $head = fread($in, 5);
+
+            if ($head === false || strlen($head) !== 5) {
+                break; // truncated: no final chunk
+            }
+
+            ['length' => $length, 'final' => $final] = unpack('Nlength/Cfinal', $head);
+
+            if ($length > self::CHUNK + 1024) {
+                fclose($out);
+
+                throw new UserFacingException(__('backups.decrypt_failed'));
+            }
+
+            $iv = (string) fread($in, 12);
+            $tag = (string) fread($in, 16);
+            $cipher = $length > 0 ? (string) fread($in, $length) : '';
+            $plain = openssl_decrypt($cipher, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, pack('NC', $index++, $final));
+
+            if ($plain === false) {
+                fclose($out);
+
+                throw new UserFacingException(__('backups.decrypt_failed'));
+            }
+
+            fwrite($out, $plain);
+            $finished = $final === 1;
+        }
+
+        fclose($out);
+
+        if (! $finished) {
+            throw new UserFacingException(__('backups.decrypt_failed'));
+        }
+    }
+
+    private function appKeyBytes(): string
     {
         $appKey = (string) config('app.key');
-        $raw = str_starts_with($appKey, 'base64:') ? base64_decode(substr($appKey, 7)) : $appKey;
 
-        return sodium_crypto_generichash('biofy-backup-v1|'.$raw, '', SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES);
+        return str_starts_with($appKey, 'base64:') ? (string) base64_decode(substr($appKey, 7)) : $appKey;
+    }
+
+    /** Format 1 key (libsodium; works through sodium_compat when the extension is missing). */
+    private function key(): string
+    {
+        return sodium_crypto_generichash('biofy-backup-v1|'.$this->appKeyBytes(), '', SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES);
+    }
+
+    /** Format 2 key: HKDF-SHA256 from APP_KEY with a per-file salt. */
+    private function gcmKey(string $salt): string
+    {
+        return hash_hkdf('sha256', $this->appKeyBytes(), 32, 'biofy-backup-v2', $salt);
     }
 
     private function knownMigrations(): array

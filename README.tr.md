@@ -115,7 +115,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # web sihirbazını atlamak için
 php artisan serve
-php artisan test                # 170 test
+php artisan test                # 171 test
 php scripts/build-release.php   # FTP paketi -> dist/, scripts/verify-release.php ile doğrulanır
 ```
 

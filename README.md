@@ -115,7 +115,7 @@ cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 touch storage/app/private/installed.lock   # skip the web installer
 php artisan serve
-php artisan test                # 170 tests
+php artisan test                # 171 tests
 php scripts/build-release.php   # FTP package -> dist/, verified by scripts/verify-release.php
 ```
 

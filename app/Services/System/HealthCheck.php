@@ -57,9 +57,13 @@ class HealthCheck
         $free = @disk_free_space(storage_path());
         $checks['disk_space'] = ['ok' => $free === false || $free > 200 * 1024 * 1024, 'detail' => $free === false ? 'unknown' : round($free / 1024 / 1024).' MB'];
 
-        foreach (['gd' => 'gd', 'zip' => 'zip', 'sodium' => 'sodium', 'curl' => 'curl', 'fileinfo' => 'fileinfo'] as $label => $ext) {
+        foreach (['gd' => 'gd', 'zip' => 'zip', 'curl' => 'curl', 'fileinfo' => 'fileinfo'] as $label => $ext) {
             $checks['ext_'.$label] = ['ok' => extension_loaded($ext)];
         }
+
+        // Optional: without the extension, sodium_compat (pure PHP) verifies release signatures and
+        // backups are encrypted with OpenSSL AES-256-GCM instead.
+        $checks['ext_sodium'] = ['ok' => true, 'detail' => extension_loaded('sodium') ? 'native' : 'sodium_compat · backups: OpenSSL AES-256-GCM'];
 
         $checks['webp'] = ['ok' => function_exists('imagewebp')];
 

@@ -2,6 +2,15 @@
 
 Sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar.
 
+## [1.1.1] — 2026-10-25
+
+Yedekleme düzeltmesi. Veritabanı değişikliği yoktur.
+
+### Düzeltilenler
+- **Yedek alınamıyordu ("Call to undefined function …sodium_crypto_secretstream…"):** PHP'nin `sodium` eklentisi olmayan sunucularda (birçok paylaşımlı hostingde kapalıdır) şifreli yedekler başarısız oluyor, bu yüzden "Güncellemeyi uygula" da yedek alamadığı için duruyordu. Eklenti yoksa yedekler artık her PHP kurulumunda bulunan OpenSSL ile **AES-256-GCM** kullanılarak şifrelenir (her parça kimlik doğrulamalı; parça sırası değişirse veya dosya kesilirse algılanır). Daha önce sodium ile alınmış yedekler de açılabilir.
+- Sodium eklentisi olmadan sürüm imzası doğrulaması ("Dosya bütünlüğünü doğrula") ve eski yedeklerin açılması için saf PHP uygulaması (`paragonie/sodium_compat`) eklendi.
+- Sistem sağlığı ekranında sodium artık hata olarak gösterilmiyor; kullanılan yöntem bilgi olarak yazılıyor.
+
 ## [1.1.0] — 2026-10-25
 
 İzleme pikselleri, kısa bağlantı ve QR kod araçları, akıllı butonlar, SVG desteği ve blog SEO ayarları. **Veritabanı değişikliği (migration) içerir**; 1.0.4 kurulumları [UPDATE.md](docs/UPDATE.md) ile güncellenir, "Güncellemeyi uygula" yedek aldıktan sonra migration'ları kendisi çalıştırır.
